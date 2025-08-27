@@ -75,9 +75,9 @@ void window_renderer_init(Renderer *r) {
 
     SDL_WindowFlags flags = SDL_WINDOW_VULKAN | SDL_WINDOW_ALWAYS_ON_TOP;
 
-    assert(SDL_CreateWindowAndRenderer("cvis", (int)r->width * 2,
-                                       (int)r->height * 2, flags, &wr->window,
-                                       &wr->renderer));
+    assert(SDL_CreateWindowAndRenderer("cvis", r->width * DEFAULE_SCALE,
+                                       r->height * DEFAULE_SCALE, flags,
+                                       &wr->window, &wr->renderer));
 
     SDL_SetRenderLogicalPresentation(wr->renderer, (int)r->width,
                                      (int)r->height,

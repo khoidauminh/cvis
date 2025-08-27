@@ -16,15 +16,18 @@ typedef struct renderer Renderer;
 
 typedef void(DrawFunc)(Renderer*, DrawParameter*);
 
+constexpr uint DEFAULE_SCALE = 2;
+constexpr uint DEFAULT_WIN_SIZE = 84;
+
 struct renderer {
     enum renderer_type type;
     void *renderer;
     uint width;
     uint height;
+    uint scale;
     SDL_Color background;
     DrawFunc **api;
 };
-
 
 Renderer *renderer_init(RendererType type, uint width, uint height);
 void renderer_end(Renderer *);

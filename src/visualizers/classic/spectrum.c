@@ -62,9 +62,8 @@ void visualizer_spectrum(Program *prog) {
         float sl = smooth_step(crealf(sfloor), crealf(sceil), ti);
         float sr = smooth_step(cimagf(sfloor), cimagf(sceil), ti);
 
-        sl = powf(sl, 1.2f) * (float)(size.w) * 0.5f * 0.8f;
-        sr = powf(sr, 1.2f) * (float)(size.w) * 0.5f * 0.8f;
-        // clinearf(fft[ifloor], fft[iceil], ti) * size.w * 0.5 * 0.8;
+        sl = powf(sl, 1.2f) * (float)(size.w) * 0.5f * 0.9f;
+        sr = powf(sr, 1.2f) * (float)(size.w) * 0.5f * 0.9f;
 
         Uint8 channel = (Uint8)(y * 255 / size.h);
         Uint8 green = (Uint8)SDL_min(16 + (int)(3.0f * (sl + sr)), 255);

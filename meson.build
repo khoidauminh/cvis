@@ -1,8 +1,9 @@
 project(
   'cvis',
   'c',
-  version: '0.0.0',
+  version: '0.1.0',
   default_options: [
+    'default_library=static',
     'debug=false',
     'strip=true',
     'c_std=c23',
@@ -39,6 +40,7 @@ sources = [
 executable(
   'cvis',
   sources,
+  install: true,
   dependencies: [sdl3, math, miniaudio, ncurses],
   include_directories: include_directories(['src/include', 'src/visualizers/']),
 )

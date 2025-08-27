@@ -5,3 +5,6 @@ subprojects/*
 !subprojects/miniaudio.wrap
 
 compile_commands.json
+
+pkg/
+/*.pkg.tar.zst

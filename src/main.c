@@ -22,7 +22,8 @@ SDL_AppResult SDL_AppInit(void **, int, char *[]) {
                        "com.example.renderer-clear");
 
     program = program_new(rt_sdl, 1000 / 144);
-    program->renderer = renderer_init(rt_sdl, 90, 90);
+    program->renderer =
+        renderer_init(rt_sdl, DEFAULT_WIN_SIZE, DEFAULT_WIN_SIZE);
 
     init_audio();
 
