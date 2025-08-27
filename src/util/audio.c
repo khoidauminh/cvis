@@ -1,5 +1,6 @@
 #include <miniaudio.h>
 
+#include "audio.h"
 #include "declare.h"
 #include "logging.h"
 #include <assert.h>
@@ -56,7 +57,7 @@ cplx *buffer_get(uint index) {
     return gbuffer->data + (index + gbuffer->start);
 }
 
-uint buffer_read(cplx *restrict cplx_array, uint amount) {
+uint buffer_read(cplx *cplx_array, uint amount) {
     amount = SDL_min(amount, CHUNK_SIZE);
     uint return_amount = amount;
 
@@ -141,9 +142,9 @@ void normalize_average(cplx *samples, uint len) {
         sum_of_squares += sl * sl + sr * sr;
     }
 
-    float average = clampf(10.f, sqrtf(sum_of_squares) / len, 100.f);
+    float average = clampf(10.f, sqrtf(sum_of_squares) / (float)len, 100.f);
 
-    float scale = 1.0 / average;
+    float scale = 1.0f / average;
 
     for (uint i = 0; i < len; i++) {
         samples[i] *= scale;
@@ -157,7 +158,7 @@ void normalize_max(cplx *samples, uint len) {
         max = fmaxf(max, cmaxf(samples[i]));
     }
 
-    float scale = 1.0 / clampf(0.5f, max, 100.f);
+    float scale = 1.0f / clampf(0.5f, max, 100.f);
 
     for (uint i = 0; i < len; i++) {
         samples[i] *= scale;

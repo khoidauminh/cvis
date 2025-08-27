@@ -3,7 +3,7 @@
 
 #include "declare.h"
 
-uint buffer_read(void*, uint);
+uint buffer_read(cplx*, uint);
 void buffer_slide(uint);
 cplx *buffer_get(uint index);
 

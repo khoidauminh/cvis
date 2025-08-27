@@ -17,7 +17,7 @@
 static Program *program = NULL;
 
 /* This function runs once at startup. */
-SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
+SDL_AppResult SDL_AppInit(void **, int, char *[]) {
     SDL_SetAppMetadata("Example Renderer Clear", "1.0",
                        "com.example.renderer-clear");
 
@@ -30,7 +30,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 }
 
 /* This function runs when a new event (mouse input, keypresses, etc) occurs. */
-SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
+SDL_AppResult SDL_AppEvent(void *, SDL_Event *event) {
     if (event->type == SDL_EVENT_QUIT) {
         return SDL_APP_SUCCESS; /* end the program, reporting success to the OS.
                                  */
@@ -39,7 +39,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 }
 
 /* This function runs once per frame, and is the heart of the program. */
-SDL_AppResult SDL_AppIterate(void *appstate) {
+SDL_AppResult SDL_AppIterate(void *) {
     // visualizer_vectorscope(program);
     visualizer_spectrum(program);
 
@@ -49,7 +49,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 }
 
 /* This function runs once at shutdown. */
-void SDL_AppQuit(void *appstate, SDL_AppResult result) {
+void SDL_AppQuit(void *, SDL_AppResult) {
     /* SDL will clean up the window/renderer for us. */
 
     renderer_end(program->renderer);

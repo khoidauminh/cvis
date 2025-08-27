@@ -1,9 +1,13 @@
 project(
   'coffeevis',
   'c',
+  version: '0.0.0',
   default_options: [
+    'debug=false',
+    'strip=true',
     'c_std=c23',
-    'c_args: -Wall -Werror -Wpedandic -std=c23 -O3',
+    'warning_level=3',
+    'buildtype=release',
   ],
 )
 
@@ -18,7 +22,6 @@ sources = [
   'src/util/audio.c',
   'src/util/fft.c',
   'src/util/logging.c',
-  'src/util/vec.c',
   'src/util/interpolation.c',
 
   'src/render/render.c',

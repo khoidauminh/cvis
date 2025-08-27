@@ -5,7 +5,7 @@
 
 #include "visualizer.h"
 
-constexpr uint BUFFERSIZE = 128;
+#define BUFFERSIZE 128
 
 void visualizer_vectorscope(Program *prog) {
     cplx buffer[BUFFERSIZE];

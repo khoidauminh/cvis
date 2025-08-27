@@ -32,7 +32,7 @@ void window_renderer_init(Renderer *r) {
 
     assert(SDL_Init(SDL_INIT_VIDEO));
 
-    auto flags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALWAYS_ON_TOP;
+    int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALWAYS_ON_TOP;
 
     assert(SDL_CreateWindowAndRenderer("cvis", r->width * 2, r->height * 2,
                                        flags, &wr->window, &wr->renderer));

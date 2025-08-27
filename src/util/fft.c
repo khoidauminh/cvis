@@ -3,7 +3,6 @@
 
 #include "fft.h"
 
-#define _USE_MATH_DEFINES
 #include <assert.h>
 #include <complex.h>
 #include <stdlib.h>

@@ -116,6 +116,6 @@ void terminal_draw_rect_xy(Renderer *r, DrawParameter *param) {
     free(line);
 }
 
-void terminal_clear(Renderer *r, DrawParameter *param) { clear(); }
+void terminal_clear(Renderer *, DrawParameter *) { clear(); }
 
-void terminal_flush(Renderer *r, DrawParameter *param) { refresh(); }
+void terminal_flush(Renderer *, DrawParameter *) { refresh(); }
