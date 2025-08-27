@@ -1,4 +1,7 @@
 .cache/
 build/
-subprojects/
+
+subprojects/*
+!subprojects/miniaudio.wrap
+
 compile_commands.json
