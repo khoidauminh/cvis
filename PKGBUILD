@@ -13,10 +13,11 @@ build() {
 }
 
 check() {
+    cd "$startdir"
     meson test -C build --print-errorlogs
 }
 
 package() {
-    # cd "$pkgname"
+    cd "$startdir"
     meson install -C build --destdir "$pkgdir"
 }

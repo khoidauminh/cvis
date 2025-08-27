@@ -11,50 +11,36 @@
 
 #define SDL_MAIN_USE_CALLBACKS 1 /* use the callbacks instead of main() */
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
 #include <SDL3/SDL_rect.h>
 
 static Program *program = NULL;
 
-/* This function runs once at startup. */
-SDL_AppResult SDL_AppInit(void **, int, char *[]) {
-    SDL_SetAppMetadata("Example Renderer Clear", "1.0",
-                       "com.example.renderer-clear");
-
+int main() {
     program = program_new(rt_sdl, 1000 / 144);
     program->renderer =
         renderer_init(rt_sdl, DEFAULT_WIN_SIZE, DEFAULT_WIN_SIZE);
 
     init_audio();
 
-    return SDL_APP_CONTINUE; /* carry on with the program! */
-}
+    bool running = true;
 
-/* This function runs when a new event (mouse input, keypresses, etc) occurs. */
-SDL_AppResult SDL_AppEvent(void *, SDL_Event *event) {
-    if (event->type == SDL_EVENT_QUIT) {
-        return SDL_APP_SUCCESS; /* end the program, reporting success to the OS.
-                                 */
+    while (running) {
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) { // poll until all events are handled!
+            if (event.type == SDL_EVENT_QUIT) {
+                running = false;
+                break;
+            }
+        }
+
+        visualizer_spectrum(program);
+
+        // update game state, draw the current frame
     }
-    return SDL_APP_CONTINUE; /* carry on with the program! */
-}
-
-/* This function runs once per frame, and is the heart of the program. */
-SDL_AppResult SDL_AppIterate(void *) {
-    // visualizer_vectorscope(program);
-    visualizer_spectrum(program);
-
-    // SDL_Delay(program->refreshrate);
-
-    return SDL_APP_CONTINUE; /* carry on with the program! */
-}
-
-/* This function runs once at shutdown. */
-void SDL_AppQuit(void *, SDL_AppResult) {
-    /* SDL will clean up the window/renderer for us. */
 
     renderer_end(program->renderer);
     free(program);
 
     free_audio();
+    SDL_Quit();
 }

@@ -10,7 +10,7 @@
 void visualizer_vectorscope(Program *prog) {
     cplx buffer[BUFFERSIZE];
     buffer_read(buffer, BUFFERSIZE);
-    buffer_slide(BUFFERSIZE / 2);
+    buffer_autoslide();
 
     RNDR_SET_TARGET(prog->renderer);
 

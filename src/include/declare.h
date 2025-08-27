@@ -10,6 +10,7 @@ typedef long sint;
 typedef struct size { uint w; uint h; } Size;
 
 cplx quad1(cplx x);
+float l1norm(cplx x);
 float clampf(float, float, float);
 float cmaxf(cplx x);
 

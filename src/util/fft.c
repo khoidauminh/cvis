@@ -93,7 +93,9 @@ void fft_inplace_stereo(cplx *arr, uint len, uint upto, bool normalize) {
     uint bound = SDL_min(len / 2, upto);
 
     for (uint i = 1; i < bound; i++) {
-        arr[i] += arr[len - i];
+        cplx z1 = arr[i];
+        cplx z2 = conjf(arr[len - i]);
+        arr[i] = CMPLXF(l1norm(z1 + z2), l1norm(z1 - z2));
     }
 
     if (normalize) {

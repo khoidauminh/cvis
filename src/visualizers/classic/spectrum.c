@@ -9,33 +9,33 @@
 
 #include "visualizer.h"
 
-constexpr uint BUFFERSIZE = 1 << 9;
+constexpr uint BUFFERSIZE = 1 << 10;
+constexpr uint READ_SIZE = BUFFERSIZE / 2;
 constexpr uint SPECTRUMSIZE = 64;
-constexpr float SMOOTHING = 0.9f;
+constexpr float SMOOTHING = 0.91f;
 
 static cplx buffer[BUFFERSIZE] = {};
 static cplx fft[SPECTRUMSIZE + 1] = {};
 
 void prepare() {
-    uint read_size = buffer_read(buffer, BUFFERSIZE);
+    uint read_size = buffer_read(buffer, READ_SIZE);
     memset(buffer + read_size, 0, sizeof(cplx) * (BUFFERSIZE - read_size));
-    buffer_slide(BUFFERSIZE / 4);
+    buffer_autoslide();
 
     fft_inplace_stereo(buffer, BUFFERSIZE, SPECTRUMSIZE, false);
 
-    const float recip = 1.0 / SPECTRUMSIZE;
+    const float gain = 0.25f / SPECTRUMSIZE;
 
     for (uint i = 0; i < SPECTRUMSIZE; i++) {
         float scale = log2p1f((float)(i));
-        buffer[i] = quad1(buffer[i]) * scale * recip;
+        buffer[i] = quad1(buffer[i]) * scale * gain;
     }
 
-    normalize_max(buffer, SPECTRUMSIZE);
+    compress(buffer, SPECTRUMSIZE, 1.5f, 0.9f);
 
     for (uint i = 0; i < SPECTRUMSIZE; i++) {
         float re = decay(crealf(fft[i]), crealf(buffer[i]), SMOOTHING);
         float im = decay(cimagf(fft[i]), cimagf(buffer[i]), SMOOTHING);
-        // fft[i] = clinearf(fft[i], buffer[i] * 0.02, 0.3);
         fft[i] = CMPLXF(re, im);
     }
 }
@@ -62,8 +62,8 @@ void visualizer_spectrum(Program *prog) {
         float sl = smooth_step(crealf(sfloor), crealf(sceil), ti);
         float sr = smooth_step(cimagf(sfloor), cimagf(sceil), ti);
 
-        sl = powf(sl, 1.2f) * (float)(size.w) * 0.5f * 0.9f;
-        sr = powf(sr, 1.2f) * (float)(size.w) * 0.5f * 0.9f;
+        sl = powf(sl, 1.3f) * (float)(size.w) * 0.5f;
+        sr = powf(sr, 1.3f) * (float)(size.w) * 0.5f;
 
         Uint8 channel = (Uint8)(y * 255 / size.h);
         Uint8 green = (Uint8)SDL_min(16 + (int)(3.0f * (sl + sr)), 255);
