@@ -10,48 +10,10 @@
 
 #include <unistdio.h>
 
-void terminal_draw_plot(Renderer *, DrawParameter *);
-void terminal_draw_rect_wh(Renderer *, DrawParameter *);
-void terminal_draw_rect_xy(Renderer *, DrawParameter *);
-void terminal_clear(Renderer *, DrawParameter *);
-void terminal_flush(Renderer *, DrawParameter *);
-void terminal_set_color(Renderer *, DrawParameter *);
-
-static DrawFunc *TERMINAL_DRAW_FUNC_MAP[] = {
-    [dt_plot] = &terminal_draw_plot,
-    [dt_rect_wh] = &terminal_draw_rect_wh,
-    [dt_rect_xy] = &terminal_draw_rect_xy,
-    [dt_flush] = &terminal_flush,
-    [dt_color] = &terminal_set_color,
-    [dt_fill] = &terminal_clear,
-};
-
 typedef struct terminal_renderer {
     WINDOW *win;
     char ch;
 } TRenderer;
-
-void terminal_renderer_init(Renderer *r) {
-
-    TRenderer *tr = malloc(sizeof(TRenderer));
-    assert(tr);
-
-    tr->win = initscr();
-    tr->ch = '*';
-
-    r->renderer = tr;
-
-    raw();
-    noecho();
-
-    r->api = TERMINAL_DRAW_FUNC_MAP;
-}
-
-void terminal_renderer_end(Renderer *r) {
-    endwin();
-    free(r->renderer);
-    r->renderer = NULL;
-}
 
 void terminal_set_color(Renderer *r, DrawParameter *c) {
     TRenderer *tr = r->renderer;
@@ -121,3 +83,35 @@ void terminal_draw_rect_xy(Renderer *r, DrawParameter *param) {
 void terminal_clear(Renderer *, DrawParameter *) { clear(); }
 
 void terminal_flush(Renderer *, DrawParameter *) { refresh(); }
+
+static DrawFunc *TERMINAL_DRAW_FUNC_MAP[] = {
+    [dt_plot] = &terminal_draw_plot,
+    [dt_rect_wh] = &terminal_draw_rect_wh,
+    [dt_rect_xy] = &terminal_draw_rect_xy,
+    [dt_clear] = &terminal_clear,
+    [dt_flush] = &terminal_flush,
+    [dt_color] = &terminal_set_color,
+    [dt_fill] = &terminal_clear,
+};
+
+void terminal_renderer_init(Renderer *r) {
+
+    TRenderer *tr = malloc(sizeof(TRenderer));
+    assert(tr);
+
+    tr->win = initscr();
+    tr->ch = '*';
+
+    r->renderer = tr;
+
+    raw();
+    noecho();
+
+    r->api = TERMINAL_DRAW_FUNC_MAP;
+}
+
+void terminal_renderer_end(Renderer *r) {
+    endwin();
+    free(r->renderer);
+    r->renderer = NULL;
+}

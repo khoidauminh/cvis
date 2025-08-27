@@ -27,9 +27,6 @@ static AudioBuffer *gbuffer = NULL;
 static ma_device gdevice;
 
 void data_callback(ma_device *, void *restrict, const void *restrict pInput,
-                   unsigned int frame_count);
-
-void data_callback(ma_device *, void *restrict, const void *restrict pInput,
                    unsigned int frame_count) {
     const cplx *buffer =
         pInput; // direct cast allowed since we're forcing f32 format.

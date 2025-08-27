@@ -10,7 +10,11 @@ Renderer *renderer_init(RendererType type, uint width, uint height) {
     Renderer *out = malloc(sizeof(Renderer));
     assert(out);
 
-    *out = (Renderer){.type = type, .width = width, .height = height};
+    *out = (Renderer){.type = type,
+                      .width = width,
+                      .height = height,
+                      .background =
+                          (SDL_Color){.r = 30, .g = 30, .b = 30, .a = 255}};
 
     switch (type) {
     case rt_sdl:
@@ -77,6 +81,8 @@ void render_fill(Renderer *r) { (r->api[dt_fill])(r, NULL); }
 
 void render_flush(Renderer *r) { (r->api[dt_flush])(r, NULL); }
 
+void render_clear(Renderer *r) { (r->api[dt_clear])(r, NULL); }
+
 static Renderer *RENDERER = NULL;
 
 void RNDR_SET_TARGET(Renderer *r) {
@@ -101,5 +107,7 @@ void RNDR_RECT_XY(float x1, float y1, float x2, float y2) {
 }
 
 void RNDR_FILL() { render_fill(RENDERER); }
+
+void RNDR_CLEAR() { render_clear(RENDERER); }
 
 void RNDR_FLUSH() { render_flush(RENDERER); }

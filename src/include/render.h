@@ -21,6 +21,7 @@ struct renderer {
     void *renderer;
     uint width;
     uint height;
+    SDL_Color background;
     DrawFunc **api;
 };
 
@@ -37,6 +38,7 @@ void render_plot(Renderer *r, float x, float y);
 void render_rect_wh(Renderer *r, float x, float y, float w, float h);
 void render_rect_xy(Renderer *r, float x1, float y1, float x2, float y2);
 void render_fill(Renderer *r);
+void render_clear(Renderer *r);
 void render_flush(Renderer *r);
 
 // helper functions to set a render target only once.
@@ -47,6 +49,7 @@ void RNDR_PLOT(float x, float y);
 void RNDR_RECT_WH(float x , float y, float w, float h);
 void RNDR_RECT_XY(float x1, float y1, float x2, float y2);
 void RNDR_FILL();
+void RNDR_CLEAR();
 void RNDR_FLUSH();
 
 #endif

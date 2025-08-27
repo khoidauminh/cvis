@@ -45,8 +45,7 @@ void visualizer_spectrum(Program *prog) {
 
     RNDR_SET_TARGET(prog->renderer);
 
-    RNDR_COLOR(20, 20, 20, 255);
-    RNDR_FILL();
+    RNDR_CLEAR();
 
     Size size = RNDR_SIZE();
 

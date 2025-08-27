@@ -13,49 +13,6 @@ typedef struct window_renderer {
     SDL_Renderer *renderer;
 } WRenederer;
 
-void window_set_color(Renderer *, DrawParameter *);
-void window_draw_plot(Renderer *, DrawParameter *);
-void window_draw_rect_wh(Renderer *, DrawParameter *);
-void window_draw_rect_xy(Renderer *, DrawParameter *);
-void window_clear(Renderer *, DrawParameter *);
-void window_present(Renderer *, DrawParameter *);
-
-static DrawFunc *SDL_DRAW_FUNC_MAP[] = {
-    [dt_plot] = &window_draw_plot,       [dt_rect_wh] = &window_draw_rect_wh,
-    [dt_rect_xy] = &window_draw_rect_xy, [dt_fill] = &window_clear,
-    [dt_color] = &window_set_color,      [dt_flush] = &window_present,
-};
-
-void window_renderer_init(Renderer *r) {
-    WRenederer *wr = malloc(sizeof(WRenederer));
-    assert(wr);
-
-    assert(SDL_Init(SDL_INIT_VIDEO));
-
-    SDL_WindowFlags flags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALWAYS_ON_TOP;
-
-    assert(SDL_CreateWindowAndRenderer("cvis", (int)r->width * 2,
-                                       (int)r->height * 2, flags, &wr->window,
-                                       &wr->renderer));
-
-    SDL_SetRenderLogicalPresentation(wr->renderer, (int)r->width,
-                                     (int)r->height,
-                                     SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
-
-    assert(SDL_SetRenderVSync(wr->renderer, 1));
-
-    r->renderer = wr;
-    r->api = SDL_DRAW_FUNC_MAP;
-}
-
-void window_renderer_end(Renderer *r) {
-    WRenederer *wr = r->renderer;
-    SDL_DestroyWindow(wr->window);
-    SDL_DestroyRenderer(wr->renderer);
-    r->renderer = NULL;
-    free(wr);
-}
-
 void window_set_color(Renderer *r, DrawParameter *c) {
     WRenederer *wr = r->renderer;
     SDL_SetRenderDrawColor(wr->renderer, c->color.r, c->color.g, c->color.b,
@@ -86,12 +43,56 @@ void window_draw_rect_xy(Renderer *r, DrawParameter *param) {
     SDL_RenderFillRect(wr->renderer, &rect);
 }
 
+void window_fill(Renderer *r, DrawParameter *) {
+    WRenederer *wr = r->renderer;
+    SDL_RenderClear(wr->renderer);
+}
+
 void window_clear(Renderer *r, DrawParameter *) {
     WRenederer *wr = r->renderer;
+    SDL_SetRenderDrawColor(wr->renderer, r->background.r, r->background.g,
+                           r->background.b, r->background.a);
     SDL_RenderClear(wr->renderer);
 }
 
 void window_present(Renderer *r, DrawParameter *) {
     WRenederer *wr = r->renderer;
     SDL_RenderPresent(wr->renderer);
+}
+
+static DrawFunc *SDL_DRAW_FUNC_MAP[] = {
+    [dt_plot] = &window_draw_plot,       [dt_rect_wh] = &window_draw_rect_wh,
+    [dt_rect_xy] = &window_draw_rect_xy, [dt_fill] = &window_fill,
+    [dt_clear] = &window_clear,          [dt_color] = &window_set_color,
+    [dt_flush] = &window_present,
+};
+
+void window_renderer_init(Renderer *r) {
+    WRenederer *wr = malloc(sizeof(WRenederer));
+    assert(wr);
+
+    assert(SDL_Init(SDL_INIT_VIDEO));
+
+    SDL_WindowFlags flags = SDL_WINDOW_VULKAN | SDL_WINDOW_ALWAYS_ON_TOP;
+
+    assert(SDL_CreateWindowAndRenderer("cvis", (int)r->width * 2,
+                                       (int)r->height * 2, flags, &wr->window,
+                                       &wr->renderer));
+
+    SDL_SetRenderLogicalPresentation(wr->renderer, (int)r->width,
+                                     (int)r->height,
+                                     SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
+
+    assert(SDL_SetRenderVSync(wr->renderer, 1));
+
+    r->renderer = wr;
+    r->api = SDL_DRAW_FUNC_MAP;
+}
+
+void window_renderer_end(Renderer *r) {
+    WRenederer *wr = r->renderer;
+    SDL_DestroyWindow(wr->window);
+    SDL_DestroyRenderer(wr->renderer);
+    r->renderer = NULL;
+    free(wr);
 }

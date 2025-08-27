@@ -12,6 +12,7 @@ typedef enum draw_type {
     dt_fill,
     dt_fade,
     dt_color,
+    dt_clear,
     dt_flush,
     dt_count,
 } DrawType;
