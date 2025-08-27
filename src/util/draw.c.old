@@ -1,0 +1,69 @@
+#include "SDL3/SDL_pixels.h"
+
+#include "declare.h"
+#include "draw.h"
+
+DrawOperation new_rect_wh(cplx topleft, double w, double h, SDL_Color color) {
+    return (DrawOperation){
+        .color = color,
+        .type = dt_rect_wh,
+        .param =
+            {
+                .rect_wh = {creal(topleft), cimag(topleft), w, h},
+            },
+    };
+}
+
+DrawOperation new_rect_xy(cplx topleft, cplx bottomright, SDL_Color color) {
+    return (DrawOperation){
+        .color = color,
+        .type = dt_rect_xy,
+        .param =
+            {
+                .rect_xy =
+                    {
+                        creal(topleft),
+                        cimag(topleft),
+                        creal(bottomright),
+                        cimag(bottomright),
+                    },
+            },
+    };
+}
+
+DrawOperation new_plot(cplx pos, SDL_Color color) {
+    return (DrawOperation){
+        .color = color,
+        .type = dt_plot,
+        .param =
+            {
+                .plot =
+                    {
+                        creal(pos),
+                        cimag(pos),
+                    },
+            },
+    };
+}
+
+DrawOperation new_line(cplx start, cplx end, SDL_Color color) {
+    return (DrawOperation){.color = color,
+                           .type = dt_line,
+                           .param = {.line = {
+                                         creal(start),
+                                         cimag(start),
+                                         creal(end),
+                                         cimag(end),
+                                     }}};
+}
+
+DrawOperation new_fill(SDL_Color color) {
+    return (DrawOperation){
+        .color = color,
+        .type = dt_fill,
+    };
+}
+
+DrawOperation new_fade(Uint8 alpha) {
+    return (DrawOperation){.type = dt_fill, .param = {.fade = alpha}};
+}
