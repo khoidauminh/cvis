@@ -8,16 +8,17 @@ depends=('sdl3' 'ncurses')
 makedepends=('meson')
 
 build() {
-    arch-meson "$startdir" build
+    cd ".."
+    arch-meson build
     meson compile -C build
 }
 
 check() {
-    cd "$startdir"
+    cd ".."
     meson test -C build --print-errorlogs
 }
 
 package() {
-    cd "$startdir"
+    cd ".."
     meson install -C build --destdir "$pkgdir"
 }
