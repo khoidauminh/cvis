@@ -5,6 +5,7 @@
 
 #define _USE_MATH_DEFINES
 #include <assert.h>
+#include <complex.h>
 #include <stdlib.h>
 
 #define MAX_FFT_POWER 13

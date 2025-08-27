@@ -4,30 +4,39 @@
 #include "program.h"
 #include "render.h"
 
+#include <complex.h>
 #include <math.h>
 
 #include "visualizer.h"
 
-constexpr uint BUFFERSIZE = 256;
-constexpr uint SPECTRUMSIZE = BUFFERSIZE >> 2;
-constexpr float SMOOTHING = 0.8f;
+constexpr uint BUFFERSIZE = 1 << 9;
+constexpr uint SPECTRUMSIZE = 64;
+constexpr float SMOOTHING = 0.9f;
 
-static cplx fft[SPECTRUMSIZE] = {0.0f};
+static cplx buffer[BUFFERSIZE] = {};
+static cplx fft[SPECTRUMSIZE + 1] = {};
 
 void prepare() {
-    cplx buffer[BUFFERSIZE];
-    buffer_read(buffer, BUFFERSIZE);
-    buffer_rotate_left(BUFFERSIZE / 2);
+    uint read_size = buffer_read(buffer, BUFFERSIZE);
+    memset(buffer + read_size, 0, sizeof(cplx[BUFFERSIZE - read_size]));
+    buffer_slide(BUFFERSIZE / 4);
 
-    fft_inplace_stereo(buffer, BUFFERSIZE, SPECTRUMSIZE, true);
+    fft_inplace_stereo(buffer, BUFFERSIZE, SPECTRUMSIZE, false);
+
+    const float recip = 1.0 / SPECTRUMSIZE;
 
     for (uint i = 0; i < SPECTRUMSIZE; i++) {
-        float scale = log2f((float)(i + 2));
+        float scale = log2p1f((float)(i));
+        buffer[i] = quad1(buffer[i]) * scale * recip;
+    }
 
-        // float re = decay(crealf(fft[i]), fabsf(crealf(buffer[i])),
-        // SMOOTHING); float im = decay(cimagf(fft[i]),
-        // fabsf(cimagf(buffer[i])), SMOOTHING);
-        fft[i] = clinearf(fft[i], quad1(buffer[i]) * scale, 0.2);
+    normalize_max(buffer, SPECTRUMSIZE);
+
+    for (uint i = 0; i < SPECTRUMSIZE; i++) {
+        float re = decay(crealf(fft[i]), crealf(buffer[i]), SMOOTHING);
+        float im = decay(cimagf(fft[i]), cimagf(buffer[i]), SMOOTHING);
+        // fft[i] = clinearf(fft[i], buffer[i] * 0.02, 0.3);
+        fft[i] = CMPLXF(re, im);
     }
 }
 
@@ -41,16 +50,36 @@ void visualizer_spectrum(Program *prog) {
 
     Size size = RNDR_SIZE();
 
-    render_set_color(prog->renderer, 255, 255, 255, 255);
-
     for (uint y = 0; y < size.h; y++) {
-        uint i = y * SPECTRUMSIZE / size.h;
-        cplx sample = fft[i] * size.w;
-        float sl = crealf(sample);
-        float sr = cimagf(sample);
+        float ifrac = (float)y / size.h;
+        ifrac = exp2m1(ifrac);
+        float ifloat = ifrac * SPECTRUMSIZE;
+        uint ifloor = ifloat;
+        uint iceil = ceilf(ifloat);
+        float ti = ifloat - ifloor;
 
+        cplx sfloor = fft[ifloor];
+        cplx sceil = fft[iceil];
+        float sl = smooth_step(crealf(sfloor), crealf(sceil), ti);
+        float sr = smooth_step(cimagf(sfloor), cimagf(sceil), ti);
+
+        sl = pow(sl, 1.2) * size.w * 0.5 * 0.8;
+        sr = pow(sr, 1.2) * size.w * 0.5 * 0.8;
+        // clinearf(fft[ifloor], fft[iceil], ti) * size.w * 0.5 * 0.8;
+
+        Uint8 channel = y * 255 / size.h;
+        Uint8 green = SDL_min(16 + 3 * (sl + sr), 255);
+
+        RNDR_COLOR(255 - channel, green, 128 + channel / 2, 255);
         RNDR_RECT_WH(size.w / 2.0 - sl, size.h - y, sl, 1.0);
         RNDR_RECT_WH(size.w / 2.0, size.h - y, sr, 1.0);
+
+        cplx s = *buffer_get(ifloor);
+        Uint8 c1 = crealf(s) > 0.0 ? 255 : 0;
+        Uint8 c2 = cimagf(s) > 0.0 ? 255 : 0;
+
+        RNDR_COLOR(c1, 0, c2, 255);
+        RNDR_RECT_WH(size.w / 2.0 - 1, size.h - y, 2, 1);
     }
 
     RNDR_FLUSH();

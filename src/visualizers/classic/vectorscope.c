@@ -10,7 +10,7 @@ constexpr uint BUFFERSIZE = 128;
 void visualizer_vectorscope(Program *prog) {
     cplx buffer[BUFFERSIZE];
     buffer_read(buffer, BUFFERSIZE);
-    buffer_rotate_left(BUFFERSIZE / 2);
+    buffer_slide(BUFFERSIZE / 2);
 
     RNDR_SET_TARGET(prog->renderer);
 

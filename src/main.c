@@ -1,18 +1,13 @@
 #include "audio.h"
-#include "declare.h"
 #include "program.h"
 #include "render.h"
 #include "visualizer.h"
 
 #include <assert.h>
-#include <math.h>
 #include <stdlib.h>
 
 #define SIZE 512
 #define PRINT_SIZE 64
-
-static cplx *buffer = NULL;
-static cplx *fft = NULL;
 
 #define SDL_MAIN_USE_CALLBACKS 1 /* use the callbacks instead of main() */
 #include <SDL3/SDL.h>
@@ -31,13 +26,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
     init_audio();
 
-    buffer = calloc(SIZE, sizeof(cplx));
-    fft = calloc(SIZE, sizeof(cplx));
-    assert(buffer && fft);
-
-    for (int i = 0; i < SIZE; i++)
-        fft[i] = 0.0;
-
     return SDL_APP_CONTINUE; /* carry on with the program! */
 }
 
@@ -55,7 +43,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     // visualizer_vectorscope(program);
     visualizer_spectrum(program);
 
-    SDL_Delay(program->refreshrate);
+    // SDL_Delay(program->refreshrate);
 
     return SDL_APP_CONTINUE; /* carry on with the program! */
 }
@@ -66,9 +54,6 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result) {
 
     renderer_end(program->renderer);
     free(program);
-
-    free(buffer);
-    free(fft);
 
     free_audio();
 }

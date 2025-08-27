@@ -34,14 +34,13 @@ void window_renderer_init(Renderer *r) {
 
     auto flags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALWAYS_ON_TOP;
 
-    wr->window = SDL_CreateWindow("cvis", r->width * 2, r->height * 2, flags);
-    assert(wr->window);
-
-    wr->renderer = SDL_CreateRenderer(wr->window, NULL);
-    assert(wr->window);
+    assert(SDL_CreateWindowAndRenderer("cvis", r->width * 2, r->height * 2,
+                                       flags, &wr->window, &wr->renderer));
 
     SDL_SetRenderLogicalPresentation(wr->renderer, r->width, r->height,
                                      SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
+
+    assert(SDL_SetRenderVSync(wr->renderer, 1));
 
     r->renderer = wr;
     r->api = SDL_DRAW_FUNC_MAP;
