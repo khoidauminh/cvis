@@ -5,7 +5,7 @@
 #include <SDL3/SDL_stdinc.h>
 
 typedef float complex cplx;
-typedef unsigned int uint;
+typedef unsigned long uint;
 typedef long sint;
 typedef struct size { uint w; uint h; } Size;
 

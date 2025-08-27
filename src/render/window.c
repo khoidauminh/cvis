@@ -32,12 +32,14 @@ void window_renderer_init(Renderer *r) {
 
     assert(SDL_Init(SDL_INIT_VIDEO));
 
-    int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALWAYS_ON_TOP;
+    SDL_WindowFlags flags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALWAYS_ON_TOP;
 
-    assert(SDL_CreateWindowAndRenderer("cvis", r->width * 2, r->height * 2,
-                                       flags, &wr->window, &wr->renderer));
+    assert(SDL_CreateWindowAndRenderer("cvis", (int)r->width * 2,
+                                       (int)r->height * 2, flags, &wr->window,
+                                       &wr->renderer));
 
-    SDL_SetRenderLogicalPresentation(wr->renderer, r->width, r->height,
+    SDL_SetRenderLogicalPresentation(wr->renderer, (int)r->width,
+                                     (int)r->height,
                                      SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
 
     assert(SDL_SetRenderVSync(wr->renderer, 1));

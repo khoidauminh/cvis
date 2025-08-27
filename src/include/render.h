@@ -32,7 +32,7 @@ uint renderer_get_width(Renderer *);
 uint renderer_get_height(Renderer *);
 Size renderer_get_size(Renderer *r);
 
-void render_set_color(Renderer *renderer, uint r, uint g, uint b, uint a);
+void render_set_color(Renderer *renderer, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 void render_plot(Renderer *r, float x, float y);
 void render_rect_wh(Renderer *r, float x, float y, float w, float h);
 void render_rect_xy(Renderer *r, float x1, float y1, float x2, float y2);

@@ -27,12 +27,15 @@ static AudioBuffer *gbuffer = NULL;
 static ma_device gdevice;
 
 void data_callback(ma_device *, void *restrict, const void *restrict pInput,
-                   uint frame_count) {
+                   unsigned int frame_count);
+
+void data_callback(ma_device *, void *restrict, const void *restrict pInput,
+                   unsigned int frame_count) {
     const cplx *buffer =
         pInput; // direct cast allowed since we're forcing f32 format.
 
-    const int input_size = frame_count / 2;
-    int amount_left = input_size;
+    const uint input_size = frame_count / 2;
+    uint amount_left = input_size;
 
     while (amount_left > 0) {
         uint available = BUFFER_SIZE - gbuffer->write;
@@ -40,7 +43,7 @@ void data_callback(ma_device *, void *restrict, const void *restrict pInput,
         uint write_amount = (amount_left < available) ? amount_left : available;
 
         memcpy(gbuffer->data + gbuffer->write, buffer,
-               sizeof(cplx[write_amount]));
+               sizeof(cplx) * write_amount);
 
         buffer += write_amount;
         amount_left -= write_amount;
@@ -64,10 +67,10 @@ uint buffer_read(cplx *cplx_array, uint amount) {
     uint start = gbuffer->start;
 
     while (amount > 0) {
-        int available = BUFFER_SIZE - start;
+        uint available = BUFFER_SIZE - start;
         uint write_amount = (amount < available) ? amount : available;
 
-        memcpy(cplx_array, gbuffer->data + start, sizeof(cplx[write_amount]));
+        memcpy(cplx_array, gbuffer->data + start, sizeof(cplx) * write_amount);
 
         amount -= write_amount;
         cplx_array += write_amount;

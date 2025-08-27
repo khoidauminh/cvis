@@ -18,7 +18,7 @@ static cplx fft[SPECTRUMSIZE + 1] = {};
 
 void prepare() {
     uint read_size = buffer_read(buffer, BUFFERSIZE);
-    memset(buffer + read_size, 0, sizeof(cplx[BUFFERSIZE - read_size]));
+    memset(buffer + read_size, 0, sizeof(cplx) * (BUFFERSIZE - read_size));
     buffer_slide(BUFFERSIZE / 4);
 
     fft_inplace_stereo(buffer, BUFFERSIZE, SPECTRUMSIZE, false);
@@ -51,24 +51,24 @@ void visualizer_spectrum(Program *prog) {
     Size size = RNDR_SIZE();
 
     for (uint y = 0; y < size.h; y++) {
-        float ifrac = (float)y / size.h;
-        ifrac = exp2m1(ifrac);
+        float ifrac = (float)y / (float)size.h;
+        ifrac = exp2m1f(ifrac);
         float ifloat = ifrac * SPECTRUMSIZE;
-        uint ifloor = ifloat;
-        uint iceil = ceilf(ifloat);
-        float ti = ifloat - ifloor;
+        uint ifloor = (uint)ifloat;
+        uint iceil = (uint)(ceilf(ifloat));
+        float ti = ifloat - (float)ifloor;
 
         cplx sfloor = fft[ifloor];
         cplx sceil = fft[iceil];
         float sl = smooth_step(crealf(sfloor), crealf(sceil), ti);
         float sr = smooth_step(cimagf(sfloor), cimagf(sceil), ti);
 
-        sl = pow(sl, 1.2) * size.w * 0.5 * 0.8;
-        sr = pow(sr, 1.2) * size.w * 0.5 * 0.8;
+        sl = powf(sl, 1.2f) * (float)(size.w) * 0.5f * 0.8f;
+        sr = powf(sr, 1.2f) * (float)(size.w) * 0.5f * 0.8f;
         // clinearf(fft[ifloor], fft[iceil], ti) * size.w * 0.5 * 0.8;
 
-        Uint8 channel = y * 255 / size.h;
-        Uint8 green = SDL_min(16 + 3 * (sl + sr), 255);
+        Uint8 channel = (Uint8)(y * 255 / size.h);
+        Uint8 green = (Uint8)SDL_min(16 + (int)(3.0f * (sl + sr)), 255);
 
         RNDR_COLOR(255 - channel, green, 128 + channel / 2, 255);
         RNDR_RECT_WH(size.w / 2.0 - sl, size.h - y, sl, 1.0);

@@ -13,8 +13,6 @@ struct vector {
 typedef struct vector Vector;
 typedef struct vector String;
 
-#define VECTOR(type) (vec_new(sizeof(type)))
-
 Vector vec_new(uint itemsize);
 void vec_push(Vector*, void*);
 void *vec_pop(Vector*);

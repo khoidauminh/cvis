@@ -18,6 +18,7 @@ Renderer *renderer_init(RendererType type, uint width, uint height) {
         break;
     case rt_console:
         terminal_renderer_init(out);
+        break;
     default:
         die("Invalid renderer type.");
     }
@@ -32,6 +33,9 @@ void renderer_end(Renderer *r) {
         break;
     case rt_console:
         terminal_renderer_end(r);
+        break;
+    default:
+        die("Invalid Value");
     }
     free(r);
 }
@@ -44,7 +48,7 @@ Size renderer_get_size(Renderer *r) {
     return (Size){.w = r->width, .h = r->height};
 }
 
-void render_set_color(Renderer *renderer, uint r, uint g, uint b, uint a) {
+void render_set_color(Renderer *renderer, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
     DrawParameter c = {.color = {
                            .r = r,
                            .g = g,

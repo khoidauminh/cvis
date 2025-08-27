@@ -15,12 +15,14 @@ void terminal_draw_rect_wh(Renderer *, DrawParameter *);
 void terminal_draw_rect_xy(Renderer *, DrawParameter *);
 void terminal_clear(Renderer *, DrawParameter *);
 void terminal_flush(Renderer *, DrawParameter *);
+void terminal_set_color(Renderer *, DrawParameter *);
 
 static DrawFunc *TERMINAL_DRAW_FUNC_MAP[] = {
     [dt_plot] = &terminal_draw_plot,
     [dt_rect_wh] = &terminal_draw_rect_wh,
     [dt_rect_xy] = &terminal_draw_rect_xy,
     [dt_flush] = &terminal_flush,
+    [dt_color] = &terminal_set_color,
     [dt_fill] = &terminal_clear,
 };
 
@@ -83,8 +85,8 @@ void terminal_draw_rect_wh(Renderer *r, DrawParameter *param) {
         return;
     }
 
-    char *line = malloc(sizeof(char[w]));
-    memset(line, tr->ch, sizeof(char[w]));
+    char *line = malloc(sizeof(char) * (uint)w);
+    memset(line, tr->ch, sizeof(char) * (uint)w);
 
     for (int row = 0; row < h; row++) {
         mvwprintw(tr->win, starty + row, startx, "%s", line);
@@ -106,8 +108,8 @@ void terminal_draw_rect_xy(Renderer *r, DrawParameter *param) {
         return;
     }
 
-    char *line = malloc(sizeof(char[w]));
-    memset(line, tr->ch, sizeof(char[w]));
+    char *line = malloc(sizeof(char) * (uint)w);
+    memset(line, tr->ch, sizeof(char) * (uint)w);
 
     for (int row = 0; row < h; row++) {
         mvwprintw(tr->win, starty + row, startx, "%s", line);
