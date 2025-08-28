@@ -19,7 +19,7 @@ typedef void(DrawFunc)(Renderer*, DrawParameter*);
 constexpr uint DEFAULE_SCALE = 2;
 constexpr uint DEFAULT_WIN_SIZE = 84;
 
-Renderer *renderer_init(RendererType type, uint width, uint height);
+Renderer *renderer_new(RendererType type, uint width, uint height);
 void renderer_end(Renderer *);
 
 void **renderer_inner(Renderer *r);

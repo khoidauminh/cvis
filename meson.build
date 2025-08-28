@@ -36,6 +36,7 @@ sources = [
 
   'src/visualizers/classic/spectrum.c',
   'src/visualizers/classic/vectorscope.c',
+  'src/visualizers/visualizer.c',
 
   'src/program/program.c',
 

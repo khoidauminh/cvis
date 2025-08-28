@@ -10,9 +10,16 @@ constexpr uint ROTATESIZE_DEFAULT = 256;
 
 typedef struct program Program;
 
-Renderer *pg_renderer(Program *p);
 Program *pg_new(RendererType, uint rr);
+
+void pg_eventloop(Program*);
+
+Renderer *pg_renderer(Program *p);
 void pg_attach_renderer(Program *p, Renderer *r);
 void pg_end(Program *p);
+
+#include "visualizer.h"
+
+VisManager *pg_vismanager(Program *p);
 
 #endif

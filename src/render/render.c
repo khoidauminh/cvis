@@ -10,7 +10,7 @@
 
 #include "renderer-private.h" // IWYU pragma: keep.
 
-Renderer *renderer_init(RendererType type, uint width, uint height) {
+Renderer *renderer_new(RendererType type, uint width, uint height) {
     Renderer *out = malloc(sizeof(Renderer));
     assert(out);
 
