@@ -38,6 +38,7 @@ sources = [
   'src/visualizers/classic/vectorscope.c',
   'src/visualizers/visualizer.c',
 
+  'src/program/config.c',
   'src/program/program.c',
 
   'src/main.c',

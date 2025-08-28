@@ -1,31 +1,31 @@
+#include <SDL3/SDL_timer.h>
 #include <assert.h>
 #include <stdlib.h>
 
-#include "declare.h"
-#include "render.h"
-
+#include "config.h"
 #include "program.h"
-
+#include "render.h"
 #include "visualizer.h"
 
 struct program {
     Renderer *renderer;
     VisManager *vismanager;
-    uint refreshrate;
+    Config cfg;
 };
 
-Program *pg_new(RendererType type, uint rr) {
+Program *pg_new(Config config) {
     Program *p = calloc(1, sizeof(*p));
     assert(p);
 
-    p->renderer = renderer_new(type, DEFAULT_WIN_SIZE, DEFAULT_WIN_SIZE);
-    p->vismanager = vm_new();
-    p->refreshrate = rr;
+    p->cfg = config;
+    p->renderer = renderer_new(&p->cfg);
+    p->vismanager = vm_new(config.visname);
 
     return p;
 }
 
-void pg_eventloop(Program *p) {
+void pg_eventloop_win(Program *p) {
+    assert(renderer_get_type(pg_renderer(p)) == renderertype_sdl);
 
     bool running = true;
 
@@ -47,7 +47,10 @@ void pg_eventloop(Program *p) {
             }
         }
 
-        (vm_current(pg_vismanager(p)))(p);
+        vm_perform(p);
+
+        if (p->cfg.refreshmode == refreshmode_set)
+            SDL_Delay(1000 / p->cfg.refreshrate);
     }
 }
 

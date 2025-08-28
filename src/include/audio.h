@@ -3,6 +3,8 @@
 
 #include "declare.h"
 
+constexpr uint SAMPLERATE = 44100;
+
 uint buffer_read(cplx*, uint);
 void buffer_autoslide();
 cplx *buffer_get(uint index);

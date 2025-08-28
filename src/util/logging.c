@@ -9,7 +9,7 @@ static SDL_AtomicInt quiet = {0};
 
 void set_logging_disabled(bool b) { SDL_SetAtomicInt(&quiet, (int)b); }
 
-bool is_logging_disabled() { return SDL_GetAtomicInt(&quiet) == 0; }
+bool is_logging_disabled() { return SDL_GetAtomicInt(&quiet) == 1; }
 
 #define PERFORM_PRINT                                                          \
     va_list argptr;                                                            \
@@ -28,16 +28,24 @@ void warn(const char *msg, ...) {
     if (is_logging_disabled())
         return;
 
-    printf("WARNING: ");
+    fprintf(stderr, "\x1B[95;1m");
+    fprintf(stderr, "!!! WARNING: ");
 
     PERFORM_PRINT;
+
+    fprintf(stderr, "\x1B[0m");
 }
 
 void die(const char *msg, ...) {
     if (is_logging_disabled())
         return;
 
+    fprintf(stderr, "\x1B[31;1m");
+    fprintf(stderr, "!!! ERROR: ");
+
     PERFORM_PRINT;
+
+    fprintf(stderr, "\x1B[0m");
 
     abort();
 }

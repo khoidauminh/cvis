@@ -14,6 +14,8 @@
 
 #include <unistdio.h>
 
+constexpr int MAX_STR_LEN = 256;
+
 typedef struct terminal_renderer {
     WINDOW *win;
     char ch;
@@ -51,14 +53,14 @@ void terminal_draw_rect_wh(Renderer *r, DrawParameter *param) {
         return;
     }
 
-    char *line = malloc(sizeof(char) * (uint)w);
-    memset(line, tr->ch, sizeof(char) * (uint)w);
+    char line[MAX_STR_LEN] = {};
+    uint copysize = w < MAX_STR_LEN ? w : MAX_STR_LEN;
+
+    memset(line, tr->ch, sizeof(char) * copysize);
 
     for (int row = 0; row < h; row++) {
         mvwprintw(tr->win, starty + row, startx, "%s", line);
     }
-
-    free(line);
 }
 
 void terminal_draw_rect_xy(Renderer *r, DrawParameter *param) {
@@ -74,14 +76,14 @@ void terminal_draw_rect_xy(Renderer *r, DrawParameter *param) {
         return;
     }
 
-    char *line = malloc(sizeof(char) * (uint)w);
-    memset(line, tr->ch, sizeof(char) * (uint)w);
+    char line[MAX_STR_LEN] = {};
+    uint copysize = w < MAX_STR_LEN ? w : MAX_STR_LEN;
+
+    memset(line, tr->ch, sizeof(char) * copysize);
 
     for (int row = 0; row < h; row++) {
         mvwprintw(tr->win, starty + row, startx, "%s", line);
     }
-
-    free(line);
 }
 
 void terminal_clear(Renderer *, DrawParameter *) { clear(); }
@@ -89,13 +91,13 @@ void terminal_clear(Renderer *, DrawParameter *) { clear(); }
 void terminal_flush(Renderer *, DrawParameter *) { refresh(); }
 
 static DrawFunc *TERMINAL_DRAW_FUNC_MAP[] = {
-    [dt_plot] = &terminal_draw_plot,
-    [dt_rect_wh] = &terminal_draw_rect_wh,
-    [dt_rect_xy] = &terminal_draw_rect_xy,
-    [dt_clear] = &terminal_clear,
-    [dt_flush] = &terminal_flush,
-    [dt_color] = &terminal_set_color,
-    [dt_fill] = &terminal_clear,
+    [drawtype_plot] = &terminal_draw_plot,
+    [drawtype_rect_wh] = &terminal_draw_rect_wh,
+    [drawtype_rect_xy] = &terminal_draw_rect_xy,
+    [drawtype_clear] = &terminal_clear,
+    [drawtype_flush] = &terminal_flush,
+    [drawtype_color] = &terminal_set_color,
+    [drawtype_fill] = &terminal_clear,
 };
 
 void terminal_renderer_init(Renderer *r) {

@@ -1,10 +1,10 @@
 #include "declare.h"
-#include "logging.h"
 
 #include "fft.h"
 
 #include <assert.h>
 #include <complex.h>
+#include <stdbit.h>
 #include <stdlib.h>
 
 #define MAX_FFT_POWER 13
@@ -12,11 +12,14 @@
 
 static cplx *TWIDDLE_ARRAY = NULL;
 
+void free_twiddle_array() {
+    free(TWIDDLE_ARRAY);
+    TWIDDLE_ARRAY = NULL;
+}
+
 void contruct_twiddle_array() {
-    TWIDDLE_ARRAY = malloc(sizeof(cplx[MAX_FFT_LENGTH + 1]));
-    if (TWIDDLE_ARRAY == NULL) {
-        die("Failed to contruct twiddles.");
-    }
+    TWIDDLE_ARRAY = malloc(sizeof(cplx) * (MAX_FFT_LENGTH + 1));
+    assert(TWIDDLE_ARRAY);
 
     uint i = 1;
 
@@ -29,6 +32,8 @@ void contruct_twiddle_array() {
             TWIDDLE_ARRAY[i++] = twiddle;
         }
     }
+
+    atexit(free_twiddle_array);
 }
 
 uint reverse_bit(uint index, uint power) {
@@ -56,10 +61,8 @@ void butterfly(cplx *arr, uint len, uint power) {
 }
 
 uint ulog2(uint x) {
-    uint y = 0;
-    while (x >>= 1)
-        ++y;
-    return y;
+    constexpr uint UINT_SIZE = 8 * sizeof(uint);
+    return UINT_SIZE - stdc_leading_zeros(x >> 1);
 }
 
 void fft_inplace(cplx *const arr, const uint len) {

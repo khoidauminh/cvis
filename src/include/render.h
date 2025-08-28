@@ -7,9 +7,9 @@
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_pixels.h>
 
-typedef enum renderer_type {
-    rt_sdl,
-    rt_console,
+typedef enum renderertype {
+    renderertype_sdl,
+    renderertype_console,
 } RendererType;
 
 typedef struct renderer Renderer;
@@ -19,11 +19,12 @@ typedef void(DrawFunc)(Renderer*, DrawParameter*);
 constexpr uint DEFAULE_SCALE = 2;
 constexpr uint DEFAULT_WIN_SIZE = 84;
 
-Renderer *renderer_new(RendererType type, uint width, uint height);
+#include "config.h"
+
+Renderer *renderer_new(Config *cfg);
 void renderer_end(Renderer *);
 
-void **renderer_inner(Renderer *r);
-
+RendererType renderer_get_type(Renderer *r);
 uint renderer_get_width(Renderer *);
 uint renderer_get_height(Renderer *);
 Size renderer_get_size(Renderer *r);

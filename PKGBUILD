@@ -1,7 +1,7 @@
 pkgname='cvis'
 pkgver=0.1.0
 pkgrel=1
-pkgdesc='Tiny Music Visualizer - C port'
+pkgdesc='Tiny Music Vissualizer - C port'
 arch=('x86_64')
 source=()
 depends=('sdl3' 'ncurses')

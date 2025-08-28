@@ -10,7 +10,6 @@
 #include "declare.h"
 #include "interpolation.h"
 
-constexpr uint SAMPLERATE = 44100;
 constexpr uint CHUNK_SIZE = SAMPLERATE * 30 / 1000;
 constexpr uint BUFFER_SIZE = 1 << 15;
 constexpr uint BUFFER_MASK = BUFFER_SIZE - 1;

@@ -54,8 +54,8 @@ void window_fill(Renderer *r, DrawParameter *) {
 
 void window_clear(Renderer *r, DrawParameter *) {
     WRenederer *wr = r->renderer;
-    SDL_SetRenderDrawColor(wr->renderer, r->background.r, r->background.g,
-                           r->background.b, r->background.a);
+    SDL_Color c = r->cfg->background;
+    SDL_SetRenderDrawColor(wr->renderer, c.r, c.g, c.b, c.a);
     SDL_RenderClear(wr->renderer);
 }
 
@@ -65,10 +65,13 @@ void window_present(Renderer *r, DrawParameter *) {
 }
 
 static DrawFunc *SDL_DRAW_FUNC_MAP[] = {
-    [dt_plot] = &window_draw_plot,       [dt_rect_wh] = &window_draw_rect_wh,
-    [dt_rect_xy] = &window_draw_rect_xy, [dt_fill] = &window_fill,
-    [dt_clear] = &window_clear,          [dt_color] = &window_set_color,
-    [dt_flush] = &window_present,
+    [drawtype_plot] = &window_draw_plot,
+    [drawtype_rect_wh] = &window_draw_rect_wh,
+    [drawtype_rect_xy] = &window_draw_rect_xy,
+    [drawtype_fill] = &window_fill,
+    [drawtype_clear] = &window_clear,
+    [drawtype_color] = &window_set_color,
+    [drawtype_flush] = &window_present,
 };
 
 void window_renderer_init(Renderer *r) {
@@ -79,15 +82,18 @@ void window_renderer_init(Renderer *r) {
 
     SDL_WindowFlags flags = SDL_WINDOW_VULKAN | SDL_WINDOW_ALWAYS_ON_TOP;
 
-    assert(SDL_CreateWindowAndRenderer("cvis", r->width * DEFAULE_SCALE,
-                                       r->height * DEFAULE_SCALE, flags,
+    assert(SDL_CreateWindowAndRenderer("cvis", r->cfg->width * DEFAULE_SCALE,
+                                       r->cfg->height * DEFAULE_SCALE, flags,
                                        &wr->window, &wr->renderer));
 
-    SDL_SetRenderLogicalPresentation(wr->renderer, (int)r->width,
-                                     (int)r->height,
+    SDL_SetRenderLogicalPresentation(wr->renderer, (int)r->cfg->width,
+                                     (int)r->cfg->height,
                                      SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
 
-    assert(SDL_SetRenderVSync(wr->renderer, 1));
+    if (r->cfg->refreshmode == refreshmode_sync)
+        assert(SDL_SetRenderVSync(wr->renderer, 1));
+    else
+        assert(SDL_SetRenderVSync(wr->renderer, 0));
 
     r->renderer = wr;
     r->api = SDL_DRAW_FUNC_MAP;

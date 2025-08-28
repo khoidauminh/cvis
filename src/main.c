@@ -1,16 +1,19 @@
 #include "audio.h"
+#include "config.h"
 #include "program.h"
-#include "render.h"
-#include "visualizer.h"
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_events.h>
 
-int main() {
+int main(int argc, const char *argv[]) {
     init_audio();
-    Program *program = pg_new(rt_sdl, 1000 / 144);
 
-    pg_eventloop(program);
+    Config cfg = config_parse_args(argc, argv);
+    config_print(&cfg);
+
+    Program *program = pg_new(cfg);
+
+    pg_eventloop_win(program);
 
     pg_end(program);
 

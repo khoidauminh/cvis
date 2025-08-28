@@ -2,16 +2,11 @@
 #define RENDERER_PRIVATE_H
 
 #include "render.h"
-#include "declare.h"
-#include <SDL3/SDL_pixels.h>
 
 struct renderer {
-    enum renderer_type type;
+    RendererType type;
     void *renderer;
-    uint width;
-    uint height;
-    uint scale;
-    SDL_Color background;
+    Config *cfg;
     DrawFunc **api;
 };
 

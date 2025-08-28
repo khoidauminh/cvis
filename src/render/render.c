@@ -1,30 +1,30 @@
+#include <SDL3/SDL_pixels.h>
 #include <assert.h>
 #include <stdlib.h>
 
+#include "config.h"
 #include "declare.h"
 #include "logging.h"
 #include "render.h"
 #include "terminal.h"
 #include "window.h"
-#include <SDL3/SDL_pixels.h>
 
 #include "renderer-private.h" // IWYU pragma: keep.
 
-Renderer *renderer_new(RendererType type, uint width, uint height) {
+Renderer *renderer_new(Config *cfg) {
     Renderer *out = malloc(sizeof(Renderer));
     assert(out);
 
-    *out = (Renderer){.type = type,
-                      .width = width,
-                      .height = height,
-                      .background =
-                          (SDL_Color){.r = 30, .g = 30, .b = 30, .a = 255}};
+    *out = (Renderer){
+        .type = displaymode_get_renderer(cfg->displaymode),
+        .cfg = cfg,
+    };
 
-    switch (type) {
-    case rt_sdl:
+    switch (out->type) {
+    case renderertype_sdl:
         window_renderer_init(out);
         break;
-    case rt_console:
+    case renderertype_console:
         terminal_renderer_init(out);
         break;
     default:
@@ -36,10 +36,10 @@ Renderer *renderer_new(RendererType type, uint width, uint height) {
 
 void renderer_end(Renderer *r) {
     switch (r->type) {
-    case rt_sdl:
+    case renderertype_sdl:
         window_renderer_end(r);
         break;
-    case rt_console:
+    case renderertype_console:
         terminal_renderer_end(r);
         break;
     default:
@@ -48,12 +48,14 @@ void renderer_end(Renderer *r) {
     free(r);
 }
 
-uint renderer_get_width(Renderer *r) { return r->width; }
+RendererType renderer_get_type(Renderer *r) { return r->type; }
 
-uint renderer_get_height(Renderer *r) { return r->height; }
+uint renderer_get_width(Renderer *r) { return r->cfg->width; }
+
+uint renderer_get_height(Renderer *r) { return r->cfg->height; }
 
 Size renderer_get_size(Renderer *r) {
-    return (Size){.w = r->width, .h = r->height};
+    return (Size){.w = r->cfg->width, .h = r->cfg->height};
 }
 
 void render_set_color(Renderer *renderer, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
@@ -63,29 +65,29 @@ void render_set_color(Renderer *renderer, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
                            .b = b,
                            .a = a,
                        }};
-    (renderer->api[dt_color])(renderer, &c);
+    (renderer->api[drawtype_color])(renderer, &c);
 }
 
 void render_plot(Renderer *r, float x, float y) {
     DrawParameter p = {.plot = {x, y}};
-    (r->api[dt_plot])(r, &p);
+    (r->api[drawtype_plot])(r, &p);
 }
 
 void render_rect_wh(Renderer *r, float x, float y, float w, float h) {
     DrawParameter p = {.rect_wh = {x, y, w, h}};
-    (r->api[dt_rect_wh])(r, &p);
+    (r->api[drawtype_rect_wh])(r, &p);
 }
 
 void render_rect_xy(Renderer *r, float x1, float y1, float x2, float y2) {
     DrawParameter p = {.rect_xy = {x1, y1, x2, y2}};
-    (r->api[dt_rect_xy])(r, &p);
+    (r->api[drawtype_rect_xy])(r, &p);
 }
 
-void render_fill(Renderer *r) { (r->api[dt_fill])(r, NULL); }
+void render_fill(Renderer *r) { (r->api[drawtype_fill])(r, NULL); }
 
-void render_flush(Renderer *r) { (r->api[dt_flush])(r, NULL); }
+void render_flush(Renderer *r) { (r->api[drawtype_flush])(r, NULL); }
 
-void render_clear(Renderer *r) { (r->api[dt_clear])(r, NULL); }
+void render_clear(Renderer *r) { (r->api[drawtype_clear])(r, NULL); }
 
 static Renderer *RENDERER = NULL;
 
