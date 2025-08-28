@@ -14,8 +14,8 @@ constexpr uint READ_SIZE = BUFFERSIZE / 2;
 constexpr uint SPECTRUMSIZE = 64;
 constexpr float SMOOTHING = 0.91f;
 
-static cplx buffer[BUFFERSIZE] = {};
-static cplx fft[SPECTRUMSIZE + 1] = {};
+static thread_local cplx buffer[BUFFERSIZE] = {};
+static thread_local cplx fft[SPECTRUMSIZE + 1] = {};
 
 void prepare() {
     uint read_size = buffer_read(buffer, READ_SIZE);

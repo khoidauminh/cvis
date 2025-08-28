@@ -8,7 +8,7 @@
 constexpr uint BUFFERSIZE = 128;
 
 void draw_cross(Program *prog) {
-    static bool vertical = false;
+    static thread_local bool vertical = false;
     RNDR_SET_TARGET(pg_renderer(prog));
     RNDR_COLOR(44, 44, 44, 255);
 

@@ -89,7 +89,7 @@ void render_flush(Renderer *r) { (r->api[drawtype_flush])(r, nullptr); }
 
 void render_clear(Renderer *r) { (r->api[drawtype_clear])(r, nullptr); }
 
-static Renderer *RENDERER = nullptr;
+static thread_local Renderer *RENDERER = nullptr;
 
 void RNDR_SET_TARGET(Renderer *r) {
     assert(r);

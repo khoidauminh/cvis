@@ -183,7 +183,7 @@ void normalize_average(cplx *samples, uint len) {
 }
 
 void slow_regain(cplx *samples, uint len, float gain, float t) {
-    static float max = 0.0f;
+    static thread_local float max = 0.0f;
 
     float newmax = 0.0f;
 
@@ -350,10 +350,9 @@ constexpr int MMAX_WINDOW_SIZE = 20;
 constexpr int MAVE_WINDOW_SIZE = MMAX_WINDOW_SIZE * 3 / 4;
 constexpr int MMAX_CAPACITY = 256;
 
-static float mave_buffer[MAVE_WINDOW_SIZE];
-static Numpair mmax_buffer[MMAX_CAPACITY];
-
 void compress(cplx *samples, uint len, float limit, float gain) {
+    static thread_local float mave_buffer[MAVE_WINDOW_SIZE];
+    static thread_local Numpair mmax_buffer[MMAX_CAPACITY];
     assert(len + MMAX_WINDOW_SIZE <= MMAX_CAPACITY);
 
     MovingAverage mave =
