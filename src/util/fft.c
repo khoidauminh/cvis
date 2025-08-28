@@ -10,11 +10,11 @@
 #define MAX_FFT_POWER 13
 #define MAX_FFT_LENGTH (1 << MAX_FFT_POWER)
 
-static cplx *TWIDDLE_ARRAY = NULL;
+static cplx *TWIDDLE_ARRAY = nullptr;
 
 void free_twiddle_array() {
     free(TWIDDLE_ARRAY);
-    TWIDDLE_ARRAY = NULL;
+    TWIDDLE_ARRAY = nullptr;
 }
 
 void contruct_twiddle_array() {
@@ -66,7 +66,7 @@ uint ulog2(uint x) {
 }
 
 void fft_inplace(cplx *const arr, const uint len) {
-    if (TWIDDLE_ARRAY == NULL) {
+    if (TWIDDLE_ARRAY == nullptr) {
         contruct_twiddle_array();
     }
 

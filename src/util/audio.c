@@ -33,7 +33,7 @@ typedef struct audiobuffer {
     cplx data[BUFFER_SIZE];
 } AudioBuffer;
 
-static AudioBuffer *gbuffer = NULL;
+static AudioBuffer *gbuffer = nullptr;
 static ma_device gdevice;
 
 void buffer_normalize();
@@ -148,7 +148,7 @@ void init_audio() {
     deviceConfig.sampleRate = SAMPLERATE;
     deviceConfig.dataCallback = data_callback;
 
-    result = ma_device_init(NULL, &deviceConfig, &gdevice);
+    result = ma_device_init(nullptr, &deviceConfig, &gdevice);
 
     assert(result == MA_SUCCESS);
 
@@ -161,7 +161,7 @@ void free_audio() {
     free(gbuffer);
 
     memset(&gdevice, 0, sizeof(gdevice));
-    gbuffer = NULL;
+    gbuffer = nullptr;
 }
 
 void normalize_average(cplx *samples, uint len) {

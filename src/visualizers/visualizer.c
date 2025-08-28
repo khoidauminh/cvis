@@ -22,7 +22,7 @@ struct visualizer_manager {
 static Visualizer FUNC_ARRAY[] = {
     {.name = "spectrum", .func = &visualizer_spectrum},
     {.name = "vectorscope", .func = &visualizer_vectorscope},
-    {.name = NULL, .func = NULL}};
+    {.name = nullptr, .func = nullptr}};
 
 void vm_select_by_name(VisManager *v, const char *name);
 
@@ -32,7 +32,7 @@ VisManager *vm_new(const char *name) {
 
     v->list = FUNC_ARRAY;
     v->ptr = v->list;
-    v->instant = time(NULL);
+    v->instant = time(nullptr);
     v->autoswitch = false;
 
     if (name && strlen(name) != 0) {
@@ -60,7 +60,7 @@ void vm_select_by_name(VisManager *v, const char *name) {
 
 void vm_selfupdate(VisManager *v) {
     if (v->autoswitch) {
-        time_t newinstant = time(NULL);
+        time_t newinstant = time(nullptr);
 
         if (difftime(newinstant, v->instant) >= AUTOSWITCH_ITERVAL) {
             v->instant = newinstant;

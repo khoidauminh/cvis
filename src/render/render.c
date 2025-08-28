@@ -83,13 +83,13 @@ void render_rect_xy(Renderer *r, float x1, float y1, float x2, float y2) {
     (r->api[drawtype_rect_xy])(r, &p);
 }
 
-void render_fill(Renderer *r) { (r->api[drawtype_fill])(r, NULL); }
+void render_fill(Renderer *r) { (r->api[drawtype_fill])(r, nullptr); }
 
-void render_flush(Renderer *r) { (r->api[drawtype_flush])(r, NULL); }
+void render_flush(Renderer *r) { (r->api[drawtype_flush])(r, nullptr); }
 
-void render_clear(Renderer *r) { (r->api[drawtype_clear])(r, NULL); }
+void render_clear(Renderer *r) { (r->api[drawtype_clear])(r, nullptr); }
 
-static Renderer *RENDERER = NULL;
+static Renderer *RENDERER = nullptr;
 
 void RNDR_SET_TARGET(Renderer *r) {
     assert(r);

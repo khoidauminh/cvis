@@ -103,6 +103,6 @@ void window_renderer_end(Renderer *r) {
     WRenederer *wr = r->renderer;
     SDL_DestroyWindow(wr->window);
     SDL_DestroyRenderer(wr->renderer);
-    r->renderer = NULL;
+    r->renderer = nullptr;
     free(wr);
 }

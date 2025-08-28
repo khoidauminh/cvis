@@ -119,5 +119,5 @@ void terminal_renderer_init(Renderer *r) {
 void terminal_renderer_end(Renderer *r) {
     endwin();
     free(r->renderer);
-    r->renderer = NULL;
+    r->renderer = nullptr;
 }
