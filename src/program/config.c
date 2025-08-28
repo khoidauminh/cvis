@@ -23,7 +23,7 @@ RendererType displaymode_get_renderer(DisplayMode d) {
     case displaymode_graphical:
         return renderertype_sdl;
     case displaymode_terminal:
-        return renderertype_console;
+        return renderertype_terminal;
     default:
         die("Invalid display mode.");
     }

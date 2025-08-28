@@ -24,7 +24,7 @@ Renderer *renderer_new(Config *cfg) {
     case renderertype_sdl:
         window_renderer_init(out);
         break;
-    case renderertype_console:
+    case renderertype_terminal:
         terminal_renderer_init(out);
         break;
     default:
@@ -39,7 +39,7 @@ void renderer_end(Renderer *r) {
     case renderertype_sdl:
         window_renderer_end(r);
         break;
-    case renderertype_console:
+    case renderertype_terminal:
         terminal_renderer_end(r);
         break;
     default:
@@ -59,35 +59,37 @@ Size renderer_get_size(Renderer *r) {
 }
 
 void render_set_color(Renderer *renderer, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-    DrawParameter c = {.color = {
-                           .r = r,
-                           .g = g,
-                           .b = b,
-                           .a = a,
-                       }};
-    (renderer->api[drawtype_color])(renderer, &c);
+    APIParameter c = {.color = {
+                          .r = r,
+                          .g = g,
+                          .b = b,
+                          .a = a,
+                      }};
+    (renderer->api[renderapi_color])(renderer, &c);
 }
 
 void render_plot(Renderer *r, float x, float y) {
-    DrawParameter p = {.plot = {x, y}};
-    (r->api[drawtype_plot])(r, &p);
+    APIParameter p = {.plot = {x, y}};
+    (r->api[renderapi_plot])(r, &p);
 }
 
 void render_rect_wh(Renderer *r, float x, float y, float w, float h) {
-    DrawParameter p = {.rect_wh = {x, y, w, h}};
-    (r->api[drawtype_rect_wh])(r, &p);
+    APIParameter p = {.rect_wh = {x, y, w, h}};
+    (r->api[renderapi_rect_wh])(r, &p);
 }
 
 void render_rect_xy(Renderer *r, float x1, float y1, float x2, float y2) {
-    DrawParameter p = {.rect_xy = {x1, y1, x2, y2}};
-    (r->api[drawtype_rect_xy])(r, &p);
+    APIParameter p = {.rect_xy = {x1, y1, x2, y2}};
+    (r->api[renderapi_rect_xy])(r, &p);
 }
 
-void render_fill(Renderer *r) { (r->api[drawtype_fill])(r, nullptr); }
+void render_fill(Renderer *r) { (r->api[renderapi_fill])(r, nullptr); }
 
-void render_flush(Renderer *r) { (r->api[drawtype_flush])(r, nullptr); }
+void render_flush(Renderer *r) { (r->api[renderapi_flush])(r, nullptr); }
 
-void render_clear(Renderer *r) { (r->api[drawtype_clear])(r, nullptr); }
+void render_clear(Renderer *r) { (r->api[renderapi_clear])(r, nullptr); }
+
+void render_autoresize(Renderer *r) { (r->api[renderapi_resize])(r, nullptr); }
 
 static thread_local Renderer *RENDERER = nullptr;
 
@@ -117,3 +119,5 @@ void RNDR_FILL() { render_fill(RENDERER); }
 void RNDR_CLEAR() { render_clear(RENDERER); }
 
 void RNDR_FLUSH() { render_flush(RENDERER); }
+
+void RNDR_AUTORESIZE() { render_autoresize(RENDERER); }

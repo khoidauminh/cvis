@@ -13,7 +13,7 @@ int main(int argc, const char *argv[]) {
 
     Program *program = pg_new(cfg);
 
-    pg_eventloop_win(program);
+    pg_eventloop(program);
 
     pg_end(program);
 

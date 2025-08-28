@@ -2,19 +2,28 @@
 #define RENDER_H
 
 #include "declare.h"
-#include "draw.h"
 
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_pixels.h>
 
+typedef union api_paremeter {
+    float rect_wh[4];
+    float rect_xy[4];
+    float plot[2];
+    float line[4];
+    SDL_Color color;
+    uint fade;
+    uint resize[2];
+} APIParameter;
+
 typedef enum renderertype {
     renderertype_sdl,
-    renderertype_console,
+    renderertype_terminal,
 } RendererType;
 
 typedef struct renderer Renderer;
 
-typedef void(DrawFunc)(Renderer*, DrawParameter*);
+typedef void(DrawFunc)(Renderer*, APIParameter*);
 
 constexpr uint DEFAULE_SCALE = 2;
 constexpr uint DEFAULT_WIN_SIZE = 84;
@@ -36,6 +45,7 @@ void render_rect_xy(Renderer *r, float x1, float y1, float x2, float y2);
 void render_fill(Renderer *r);
 void render_clear(Renderer *r);
 void render_flush(Renderer *r);
+void render_autoresize(Renderer*);
 
 // helper functions to set a render target only once.
 void RNDR_SET_TARGET(Renderer *r);
@@ -47,5 +57,6 @@ void RNDR_RECT_XY(float x1, float y1, float x2, float y2);
 void RNDR_FILL();
 void RNDR_CLEAR();
 void RNDR_FLUSH();
+void RNDR_AUTORESIZE();
 
 #endif

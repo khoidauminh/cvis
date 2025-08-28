@@ -15,7 +15,7 @@ typedef struct program Program;
 
 Program *pg_new(Config);
 
-void pg_eventloop_win(Program*);
+void pg_eventloop(Program*);
 
 Renderer *pg_renderer(Program *p);
 void pg_attach_renderer(Program *p, Renderer *r);
