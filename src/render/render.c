@@ -1,10 +1,14 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#include "declare.h"
 #include "logging.h"
 #include "render.h"
 #include "terminal.h"
 #include "window.h"
+#include <SDL3/SDL_pixels.h>
+
+#include "renderer-private.h" // IWYU pragma: keep.
 
 Renderer *renderer_init(RendererType type, uint width, uint height) {
     Renderer *out = malloc(sizeof(Renderer));

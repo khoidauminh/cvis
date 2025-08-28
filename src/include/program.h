@@ -8,11 +8,11 @@ constexpr uint REFRESHRATE_MAX = 192 * 1000;
 constexpr uint REFRESHRATE_DEFAULT = 60 * 1000;
 constexpr uint ROTATESIZE_DEFAULT = 256;
 
-typedef struct program {
-    Renderer *renderer;
-    uint refreshrate;
-} Program;
+typedef struct program Program;
 
-Program *program_new(RendererType, uint rr);
+Renderer *pg_renderer(Program *p);
+Program *pg_new(RendererType, uint rr);
+void pg_attach_renderer(Program *p, Renderer *r);
+void pg_end(Program *p);
 
 #endif

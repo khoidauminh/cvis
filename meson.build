@@ -6,14 +6,22 @@ project(
     'c_std=c23',
     'warning_level=3',
     'buildtype=release',
+    'c_args=-ffast-math',
+    'auto-features=disabled',
   ],
 )
 
 cc = meson.get_compiler('c')
-math = cc.find_library('m', required: true)
-sdl3 = cc.find_library('SDL3', required: true)
+math = cc.find_library('m', required: false)
+sdl3 = cc.find_library('SDL3', required: false)
 ncurses = cc.find_library('ncurses', required: false)
-miniaudio = dependency('miniaudio')
+
+miniaudio = dependency(
+  'miniaudio',
+  default_options: [
+    'c_args=-DMA_ENABLE_ONLY_SPECIFIC_BACKENDS -DMA_ENABLE_PULSEAUDIO -DMA_NO_DECODING -DMA_NO_ENCODING -DMA_NO_NODE_GRAPH -DMA_NO_GENERATION',
+  ],
+)
 
 sources = [
   'src/util/common.c',
@@ -37,7 +45,8 @@ sources = [
 executable(
   'cvis',
   sources,
+  # c_args: ['-ffast-math'],
   install: true,
   dependencies: [sdl3, math, miniaudio, ncurses],
-  include_directories: include_directories(['src/include', 'src/visualizers/']),
+  include_directories: ['src/include', 'src/visualizers/'],
 )

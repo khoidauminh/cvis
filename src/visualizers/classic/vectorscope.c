@@ -12,7 +12,7 @@ void visualizer_vectorscope(Program *prog) {
     buffer_read(buffer, BUFFERSIZE);
     buffer_autoslide();
 
-    RNDR_SET_TARGET(prog->renderer);
+    RNDR_SET_TARGET(pg_renderer(prog));
 
     RNDR_COLOR(0, 0, 0, 0);
     RNDR_FILL();

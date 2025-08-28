@@ -2,8 +2,12 @@
 #include "declare.h"
 #include "draw.h"
 #include "render.h"
+#include "renderer-private.h" // IWYU pragma: keep.
 
 #include <assert.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include <ncurses.h>
 
 #include <stdlib.h>

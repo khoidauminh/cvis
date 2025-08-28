@@ -43,7 +43,7 @@ void prepare() {
 void visualizer_spectrum(Program *prog) {
     prepare();
 
-    RNDR_SET_TARGET(prog->renderer);
+    RNDR_SET_TARGET(pg_renderer(prog));
 
     RNDR_CLEAR();
 

@@ -1,36 +1,43 @@
 #include <miniaudio.h>
 
+#include <assert.h>
+#include <complex.h>
+#include <math.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "audio.h"
 #include "declare.h"
 #include "interpolation.h"
-#include "logging.h"
-#include <assert.h>
-#include <math.h>
-#include <pthread.h>
-
-#include <stdlib.h>
 
 constexpr uint SAMPLERATE = 44100;
 constexpr uint CHUNK_SIZE = SAMPLERATE * 30 / 1000;
 constexpr uint BUFFER_SIZE = 1 << 15;
 constexpr uint BUFFER_MASK = BUFFER_SIZE - 1;
 constexpr uint DEFAULT_ROTATE_SIZE = CHUNK_SIZE / 4;
+constexpr float NORMALIZE_SPEED_FACTOR = 0.97f;
+constexpr float NORMALIZE_MIN_THRESHOLD = 0.01f;
+constexpr float NORMALIZE_MAX_THRESHOLD = 1.0f;
 
 typedef struct audiobuffer {
     uint start;
 
     uint write;
-    uint sampleswritten;
-    uint idealstart;
-    uint rotated;
+    uint oldwrite;
+    uint lastwritesize;
+
     uint autorotatesize;
     uint rotatessinceupdate;
+
+    float max;
 
     cplx data[BUFFER_SIZE];
 } AudioBuffer;
 
 static AudioBuffer *gbuffer = NULL;
 static ma_device gdevice;
+
+void buffer_normalize();
 
 void data_callback(ma_device *, void *restrict, const void *restrict pInput,
                    unsigned int frame_count) {
@@ -39,6 +46,8 @@ void data_callback(ma_device *, void *restrict, const void *restrict pInput,
 
     const uint input_size = frame_count / 2;
     uint amount_left = input_size;
+
+    gbuffer->oldwrite = gbuffer->write;
 
     while (amount_left > 0) {
         uint available = BUFFER_SIZE - gbuffer->write;
@@ -54,12 +63,42 @@ void data_callback(ma_device *, void *restrict, const void *restrict pInput,
         gbuffer->write &= BUFFER_MASK;
     }
 
+    gbuffer->lastwritesize = input_size;
+
     gbuffer->start = (gbuffer->write - CHUNK_SIZE) & BUFFER_MASK;
 
     gbuffer->autorotatesize = input_size / (gbuffer->rotatessinceupdate + 3);
 
     gbuffer->rotatessinceupdate = 0;
-    gbuffer->rotated = 0;
+
+    buffer_normalize();
+}
+
+void buffer_normalize() {
+    const uint bound = gbuffer->lastwritesize;
+
+    float max = 0.0f;
+
+    for (uint i = 0; i < bound; i++) {
+        uint index = (i + gbuffer->oldwrite) & BUFFER_MASK;
+        max = fmaxf(cmaxf(gbuffer->data[index]), max);
+    }
+
+    // Buffer is empty so skip normalization.
+    if (max < NORMALIZE_MIN_THRESHOLD) {
+        return;
+    }
+
+    max = clampf(NORMALIZE_MIN_THRESHOLD, max, NORMALIZE_MAX_THRESHOLD);
+
+    gbuffer->max = decay(gbuffer->max, max, NORMALIZE_SPEED_FACTOR);
+
+    float scale = 1.0 / gbuffer->max;
+
+    for (uint i = 0; i < bound; i++) {
+        uint index = (i + gbuffer->oldwrite) & BUFFER_MASK;
+        gbuffer->data[index] *= scale;
+    }
 }
 
 cplx *buffer_get(uint index) {
@@ -67,7 +106,7 @@ cplx *buffer_get(uint index) {
 }
 
 uint buffer_read(cplx *cplx_array, uint amount) {
-    amount = SDL_min(amount, CHUNK_SIZE);
+    amount = amount < CHUNK_SIZE ? amount : CHUNK_SIZE;
     uint return_amount = amount;
 
     uint start = gbuffer->start;
@@ -88,21 +127,8 @@ uint buffer_read(cplx *cplx_array, uint amount) {
 }
 
 void buffer_autoslide() {
-    gbuffer->rotated += gbuffer->autorotatesize;
     gbuffer->rotatessinceupdate += 1;
     gbuffer->start += gbuffer->autorotatesize;
-    gbuffer->start &= BUFFER_MASK;
-}
-
-void buffer_slide(uint amount) {
-    // if ((gbuffer->rotated += ammount) >= CHUNK_SIZE) {
-    //     gbuffer->start = gbuffer->idealstart;
-    //     return;
-    // }
-
-    gbuffer->rotated += amount;
-    gbuffer->rotatessinceupdate += 1;
-    gbuffer->start += amount;
     gbuffer->start &= BUFFER_MASK;
 }
 
@@ -110,10 +136,7 @@ void init_audio() {
     assert(!gbuffer); // Don't allow 2nd innitialization.
 
     gbuffer = calloc(1, sizeof(AudioBuffer));
-
-    if (gbuffer == NULL) {
-        die("Failed to allocate audio buffer.");
-    }
+    assert(gbuffer);
 
     gbuffer->autorotatesize = DEFAULT_ROTATE_SIZE;
 
@@ -128,30 +151,19 @@ void init_audio() {
 
     result = ma_device_init(NULL, &deviceConfig, &gdevice);
 
-    if (result != MA_SUCCESS) {
-        die("Failed to initialize capture device.\n");
-    }
+    assert(result == MA_SUCCESS);
 
     result = ma_device_start(&gdevice);
-    if (result != MA_SUCCESS) {
-        die("Failed to start device.\n");
-    }
+    assert(result == MA_SUCCESS);
 }
 
 void free_audio() {
     ma_device_uninit(&gdevice);
     free(gbuffer);
+
+    memset(&gdevice, 0, sizeof(gdevice));
+    gbuffer = NULL;
 }
-
-// constexpr uint MOVING_AVERAGE_SIZE = 16;
-
-// typedef struct movingaverage {
-//     float window[MOVING_AVERAGE_SIZE];
-//     float average;
-//     uint index;
-// } MovingAverage;
-
-// void moving_average_update()
 
 void normalize_average(cplx *samples, uint len) {
     float sum_of_squares = 0.0;
