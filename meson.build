@@ -24,24 +24,20 @@ miniaudio = dependency(
 )
 
 sources = [
-  'src/util/common.c',
-  'src/util/audio.c',
-  'src/util/fft.c',
-  'src/util/logging.c',
-  'src/util/interpolation.c',
-
-  'src/render/render.c',
-  'src/render/terminal.c',
-  'src/render/window.c',
-
-  'src/visualizers/classic/spectrum.c',
-  'src/visualizers/classic/vectorscope.c',
-  'src/visualizers/visualizer.c',
-
-  'src/program/config.c',
-  'src/program/program.c',
-
-  'src/main.c',
+  'util/common.c',
+  'util/audio.c',
+  'util/fft.c',
+  'util/logging.c',
+  'util/interpolation.c',
+  'render/render.c',
+  'render/terminal.c',
+  'render/window.c',
+  'visualizers/classic/spectrum.c',
+  'visualizers/classic/vectorscope.c',
+  'visualizers/visualizer.c',
+  'program/config.c',
+  'program/program.c',
+  'main.c',
 ]
 
 executable(
@@ -50,5 +46,5 @@ executable(
   # c_args: ['-ffast-math'],
   install: true,
   dependencies: [sdl3, math, miniaudio, ncurses],
-  include_directories: ['src/include', 'src/visualizers/'],
+  include_directories: ['include', 'visualizers/'],
 )
