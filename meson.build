@@ -8,14 +8,22 @@ project(
     'buildtype=release',
     'c_args=-ffast-math',
     'auto-features=disabled',
+    'default_both_libraries=static',
+    'prefer_static=true',
   ],
 )
 
 cc = meson.get_compiler('c')
 math = cc.find_library('m', required: false)
-sdl3 = cc.find_library('SDL3', required: false)
-ncurses = cc.find_library('ncurses', required: false)
-miniaudio = cc.find_library('miniaudio')
+sdl3 = dependency('SDL3')
+ncurses = dependency('ncurses')
+
+miniaudio = dependency(
+  'miniaudio',
+  default_options: [
+    'c_args=-DMA_ENABLE_ONLY_SPECIFIC_BACKENDS -DMA_ENABLE_PULSEAUDIO -DMA_NO_DECODING -DMA_NO_ENCODING -DMA_NO_NODE_GRAPH -DMA_NO_GENERATION -ffast-math -O3',
+  ],
+)
 
 sources = [
   'util/common.c',
