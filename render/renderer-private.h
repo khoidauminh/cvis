@@ -5,8 +5,7 @@
 
 typedef enum renderapi {
     renderapi_plot = 0,
-    renderapi_rect_wh,
-    renderapi_rect_xy,
+    renderapi_rect,
     renderapi_line,
     renderapi_fill,
     renderapi_fade,

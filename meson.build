@@ -2,6 +2,7 @@ project(
   'cvis',
   'c',
   version: '0.1.0',
+  meson_version: '>=1.1',
   default_options: [
     'c_std=c23',
     'warning_level=3',
@@ -16,6 +17,7 @@ project(
 cc = meson.get_compiler('c')
 math = cc.find_library('m', required: false)
 sdl3 = dependency('SDL3')
+raylib = dependency('raylib', required: get_option('raylib'))
 ncurses = dependency('ncurses')
 miniaudio = dependency('miniaudio')
 
@@ -27,7 +29,7 @@ sources = [
   'util/interpolation.c',
   'render/render.c',
   'render/terminal.c',
-  'render/window.c',
+  'render/sdl.c',
   'visualizers/classic/spectrum.c',
   'visualizers/classic/vectorscope.c',
   'visualizers/visualizer.c',
@@ -36,10 +38,15 @@ sources = [
   'main.c',
 ]
 
+if get_option('raylib')
+  add_project_arguments('-DUSE_RAYLIB', language: 'c')
+  sources += 'render/rl.c'
+endif
+
 executable(
   'cvis',
   sources,
   install: true,
-  dependencies: [sdl3, math, miniaudio, ncurses],
+  dependencies: [sdl3, raylib, math, miniaudio, ncurses],
   include_directories: ['include', 'visualizers/'],
 )

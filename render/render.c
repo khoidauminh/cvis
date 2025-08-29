@@ -6,8 +6,11 @@
 #include "config.h"
 #include "logging.h"
 #include "render.h"
+#ifdef USE_RAYLIB
+#include "rl.h"
+#endif
+#include "sdl.h"
 #include "terminal.h"
-#include "window.h"
 
 #include "renderer-private.h" // IWYU pragma: keep.
 
@@ -22,8 +25,13 @@ Renderer *renderer_new(Config *cfg) {
 
     switch (out->type) {
     case renderertype_sdl:
-        window_renderer_init(out);
+        sdl_renderer_init(out);
         break;
+#ifdef USE_RAYLIB
+    case renderertype_raylib:
+        raylib_init(out);
+        break;
+#endif
     case renderertype_terminal:
         terminal_renderer_init(out);
         break;
@@ -37,8 +45,13 @@ Renderer *renderer_new(Config *cfg) {
 void renderer_end(Renderer *r) {
     switch (r->type) {
     case renderertype_sdl:
-        window_renderer_end(r);
+        sdl_renderer_end(r);
         break;
+#ifdef USE_RAYLIB
+    case renderertype_raylib:
+        raylib_end(r);
+        break;
+#endif
     case renderertype_terminal:
         terminal_renderer_end(r);
         break;
@@ -73,14 +86,9 @@ void render_plot(Renderer *r, float x, float y) {
     (r->api[renderapi_plot])(r, &p);
 }
 
-void render_rect_wh(Renderer *r, float x, float y, float w, float h) {
-    APIParameter p = {.rect_wh = {x, y, w, h}};
-    (r->api[renderapi_rect_wh])(r, &p);
-}
-
-void render_rect_xy(Renderer *r, float x1, float y1, float x2, float y2) {
-    APIParameter p = {.rect_xy = {x1, y1, x2, y2}};
-    (r->api[renderapi_rect_xy])(r, &p);
+void render_rect(Renderer *r, float x, float y, float w, float h) {
+    APIParameter p = {.rect = {x, y, w, h}};
+    (r->api[renderapi_rect])(r, &p);
 }
 
 void render_fill(Renderer *r) { (r->api[renderapi_fill])(r, nullptr); }
@@ -106,12 +114,8 @@ void RNDR_COLOR(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
 
 void RNDR_PLOT(float x, float y) { render_plot(RENDERER, x, y); }
 
-void RNDR_RECT_WH(float x, float y, float w, float h) {
-    render_rect_wh(RENDERER, x, y, w, h);
-}
-
-void RNDR_RECT_XY(float x1, float y1, float x2, float y2) {
-    render_rect_xy(RENDERER, x1, y1, x2, y2);
+void RNDR_RECT(float x, float y, float w, float h) {
+    render_rect(RENDERER, x, y, w, h);
 }
 
 void RNDR_FILL() { render_fill(RENDERER); }

@@ -21,7 +21,11 @@ Config config_default() {
 RendererType displaymode_get_renderer(DisplayMode d) {
     switch (d) {
     case displaymode_graphical:
+#ifdef USE_RAYLIB
+        return renderertype_raylib;
+#else
         return renderertype_sdl;
+#endif
     case displaymode_terminal:
         return renderertype_terminal;
     default:

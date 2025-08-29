@@ -1,6 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+// #define USE_RAYLIB
+
 #include <complex.h>
 #include <SDL3/SDL_stdinc.h>
 

@@ -63,15 +63,15 @@ void visualizer_spectrum(Program *prog) {
         Uint8 green = (Uint8)SDL_min(16 + (int)(3.0f * (sl + sr)), 255);
 
         RNDR_COLOR(255 - channel, green, 128 + channel / 2, 255);
-        RNDR_RECT_WH(size.w / 2.0 - sl, size.h - y, sl, 1.0);
-        RNDR_RECT_WH(size.w / 2.0, size.h - y, sr, 1.0);
+        RNDR_RECT(size.w / 2.0 - sl, size.h - y, sl, 1.0);
+        RNDR_RECT(size.w / 2.0, size.h - y, sr, 1.0);
 
         cplx s = *buffer_get(ifloor);
         Uint8 c1 = crealf(s) > 0.0 ? 255 : 0;
         Uint8 c2 = cimagf(s) > 0.0 ? 255 : 0;
 
         RNDR_COLOR(c1, 0, c2, 255);
-        RNDR_RECT_WH(size.w / 2.0 - 1, size.h - y, 2, 1);
+        RNDR_RECT(size.w / 2.0 - 1, size.h - y, 2, 1);
     }
 
     RNDR_FLUSH();

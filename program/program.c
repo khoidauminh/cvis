@@ -7,6 +7,11 @@
 #include "logging.h"
 #include "program.h"
 #include "render.h"
+
+#include "rl.h"
+#include "sdl.h"
+#include "terminal.h"
+
 #include "visualizer.h"
 
 struct program {
@@ -26,65 +31,16 @@ Program *pg_new(Config config) {
     return p;
 }
 
-void pg_eventloop_term(Program *p) {
-    assert(renderer_get_type(pg_renderer(p)) == renderertype_terminal);
-
-    bool running = true;
-
-    while (running) {
-        const char key = getch();
-
-        switch (key) {
-        case 'q':
-            running = false;
-            break;
-        case ' ':
-            vm_next(pg_vismanager(p));
-            break;
-        default: {
-        }
-        }
-
-        render_autoresize(pg_renderer(p));
-        vm_perform(p);
-        SDL_Delay(1000 / 60);
-    }
-}
-
-void pg_eventloop_win(Program *p) {
-    assert(renderer_get_type(pg_renderer(p)) == renderertype_sdl);
-
-    bool running = true;
-
-    while (running) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-            case SDL_EVENT_QUIT:
-                running = false;
-                break;
-            case SDL_EVENT_KEY_DOWN:
-                if (event.key.key == SDLK_SPACE) {
-                    vm_next(pg_vismanager(p));
-                }
-
-                break;
-            default: {
-            }
-            }
-        }
-
-        vm_perform(p);
-
-        if (p->cfg.refreshmode == refreshmode_set)
-            SDL_Delay(1000 / p->cfg.refreshrate);
-    }
-}
+Config *pg_config(Program *p) { return &p->cfg; }
 
 void pg_eventloop(Program *p) {
     switch (p->cfg.displaymode) {
     case displaymode_graphical:
-        pg_eventloop_win(p);
+#ifdef USE_RAYLIB
+        pg_eventloop_raylib(p);
+#else
+        pg_eventloop_sdl(p);
+#endif
         break;
     case displaymode_terminal:
         pg_eventloop_term(p);

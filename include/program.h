@@ -17,6 +17,7 @@ Program *pg_new(Config);
 
 void pg_eventloop(Program*);
 
+Config *pg_config(Program *p);
 Renderer *pg_renderer(Program *p);
 void pg_attach_renderer(Program *p, Renderer *r);
 void pg_end(Program *p);

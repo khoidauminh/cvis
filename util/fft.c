@@ -12,6 +12,7 @@
 #define MAX_FFT_LENGTH (1 << MAX_FFT_POWER)
 
 static cplx *TWIDDLE_ARRAY = nullptr;
+static uint *BUTTERFLY_ARRAY = nullptr;
 
 void free_twiddle_array() {
     free(TWIDDLE_ARRAY);
@@ -49,10 +50,38 @@ uint reverse_bit(uint index, uint power) {
     return out;
 }
 
-void butterfly_inplace(cplx *arr, uint len, uint power) {
+void free_butterfly_array() {
+    free(BUTTERFLY_ARRAY);
+    BUTTERFLY_ARRAY = nullptr;
+}
+
+void construct_butterfly_array() {
+    BUTTERFLY_ARRAY = malloc(sizeof(uint) * MAX_FFT_LENGTH);
+    assert(BUTTERFLY_ARRAY);
+
+    for (uint power = 0; power < MAX_FFT_POWER; power++) {
+        uint k = 1 << power;
+        uint *arr = BUTTERFLY_ARRAY + k;
+
+        for (uint j = 0; j < k; j++) {
+            arr[j] = reverse_bit(j, power);
+        }
+    }
+
+    atexit(free_butterfly_array);
+}
+
+void butterfly_inplace(cplx *arr, uint len) {
+    if (BUTTERFLY_ARRAY == nullptr) {
+        construct_butterfly_array();
+    }
+
+    const uint *butterfy = BUTTERFLY_ARRAY + len;
+
     len -= 1;
+
     for (uint i = 1; i < len; i++) {
-        uint ni = reverse_bit(i, power);
+        uint ni = butterfy[i];
         if (ni > i) {
             cplx z = arr[i];
             arr[i] = arr[ni];
@@ -61,18 +90,7 @@ void butterfly_inplace(cplx *arr, uint len, uint power) {
     }
 }
 
-void butterfly_io(cplx *in, cplx *out, uint len, uint power) {
-    len -= 1;
-    for (uint i = 1; i < len; i++) {
-        uint ni = reverse_bit(i, power);
-        out[ni] = in[i];
-    }
-}
-
-uint ulog2(uint x) {
-    constexpr uint UINT_SIZE = 8 * sizeof(uint);
-    return UINT_SIZE - stdc_leading_zeros(x >> 1);
-}
+uint ulog2(uint x) { return stdc_bit_width(x >> 1); }
 
 void compute_fft_inplace(cplx *const arr, const uint len) {
     if (TWIDDLE_ARRAY == nullptr) {
@@ -97,8 +115,7 @@ void compute_fft_inplace(cplx *const arr, const uint len) {
 }
 
 void fft_inplace(cplx *arr, uint len) {
-    const uint power = ulog2(len);
-    butterfly_inplace(arr, len, power);
+    butterfly_inplace(arr, len);
     compute_fft_inplace(arr, len);
 }
 
@@ -112,12 +129,6 @@ void fft_inplace_stereo(cplx *arr, uint len, uint upto) {
         cplx z2 = conjf(arr[len - i]);
         arr[i] = CMPLXF(l1norm(z1 + z2), l1norm(z1 - z2));
     }
-}
-
-void fft_io_stereo(cplx *in, cplx *out, uint len, uint upto) {
-    const uint power = ulog2(len);
-    butterfly_io(in, out, len, power);
-    fft_inplace_stereo(out, len, upto);
 }
 
 void fft_prettify(cplx *arr, const uint originallen, const uint upto) {

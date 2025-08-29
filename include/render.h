@@ -7,8 +7,7 @@
 #include <SDL3/SDL_pixels.h>
 
 typedef union api_paremeter {
-    float rect_wh[4];
-    float rect_xy[4];
+    float rect[4];
     float plot[2];
     float line[4];
     SDL_Color color;
@@ -18,6 +17,7 @@ typedef union api_paremeter {
 
 typedef enum renderertype {
     renderertype_sdl,
+    renderertype_raylib,
     renderertype_terminal,
 } RendererType;
 
@@ -40,8 +40,7 @@ Size renderer_get_size(Renderer *r);
 
 void render_set_color(Renderer *renderer, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 void render_plot(Renderer *r, float x, float y);
-void render_rect_wh(Renderer *r, float x, float y, float w, float h);
-void render_rect_xy(Renderer *r, float x1, float y1, float x2, float y2);
+void render_rect(Renderer *r, float x, float y, float w, float h);
 void render_fill(Renderer *r);
 void render_clear(Renderer *r);
 void render_flush(Renderer *r);
@@ -52,8 +51,7 @@ void RNDR_SET_TARGET(Renderer *r);
 Size RNDR_SIZE();
 void RNDR_COLOR(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 void RNDR_PLOT(float x, float y);
-void RNDR_RECT_WH(float x , float y, float w, float h);
-void RNDR_RECT_XY(float x1, float y1, float x2, float y2);
+void RNDR_RECT(float x , float y, float w, float h);
 void RNDR_FILL();
 void RNDR_CLEAR();
 void RNDR_FLUSH();

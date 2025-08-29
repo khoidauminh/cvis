@@ -15,6 +15,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <SDL3/SDL_timer.h>
+
 #include <unistdio.h>
 
 constexpr int MAX_STR_LEN = 256;
@@ -44,37 +46,14 @@ void terminal_draw_plot(Renderer *r, APIParameter *param) {
     mvwaddch(tr->win, y, x, tr->ch);
 }
 
-void terminal_draw_rect_wh(Renderer *r, APIParameter *param) {
+void terminal_draw_rect(Renderer *r, APIParameter *param) {
     TRenderer *tr = r->renderer;
 
-    int startx = (int)param->rect_wh[0];
-    int starty = (int)param->rect_wh[1];
-    int w = (int)param->rect_wh[2];
-    int h = (int)param->rect_wh[3];
+    int startx = (int)param->rect[0];
+    int starty = (int)param->rect[1];
+    int w = (int)param->rect[2];
+    int h = (int)param->rect[3];
 
-    if (w <= 0 || h <= 0) {
-        return;
-    }
-
-    char line[MAX_STR_LEN] = {};
-    uint copysize = w < MAX_STR_LEN ? w : MAX_STR_LEN;
-
-    memset(line, tr->ch, sizeof(char) * copysize);
-
-    for (int row = 0; row < h; row++) {
-        mvwprintw(tr->win, starty + row, startx, "%s", line);
-    }
-}
-
-void terminal_draw_rect_xy(Renderer *r, APIParameter *param) {
-    TRenderer *tr = r->renderer;
-    int startx = (int)param->rect_xy[0];
-    int starty = (int)param->rect_xy[1];
-    int endx = (int)param->rect_xy[2];
-    int endy = (int)param->rect_xy[3];
-
-    int w = endx - startx + 1;
-    int h = endy - starty + 1;
     if (w <= 0 || h <= 0) {
         return;
     }
@@ -105,8 +84,7 @@ void terminal_autoresize(Renderer *r, APIParameter *) {
 
 static DrawFunc *TERMINAL_DRAW_FUNC_MAP[] = {
     [renderapi_plot] = &terminal_draw_plot,
-    [renderapi_rect_wh] = &terminal_draw_rect_wh,
-    [renderapi_rect_xy] = &terminal_draw_rect_xy,
+    [renderapi_rect] = &terminal_draw_rect,
     [renderapi_clear] = &terminal_clear,
     [renderapi_flush] = &terminal_flush,
     [renderapi_color] = &terminal_set_color,
@@ -143,4 +121,31 @@ void terminal_renderer_end(Renderer *r) {
     printf("\x1B[?25h");
     free(r->renderer);
     r->renderer = nullptr;
+}
+
+#include "program.h"
+
+void pg_eventloop_term(Program *p) {
+    assert(renderer_get_type(pg_renderer(p)) == renderertype_terminal);
+
+    bool running = true;
+
+    while (running) {
+        const char key = getch();
+
+        switch (key) {
+        case 'q':
+            running = false;
+            break;
+        case ' ':
+            vm_next(pg_vismanager(p));
+            break;
+        default: {
+        }
+        }
+
+        render_autoresize(pg_renderer(p));
+        vm_perform(p);
+        SDL_Delay(1000 / 60);
+    }
 }

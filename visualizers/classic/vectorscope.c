@@ -18,9 +18,9 @@ void draw_cross(Program *prog) {
     float h = size.h;
 
     if (vertical ^= true) {
-        RNDR_RECT_WH(w / 2.0f, h / 10.0f, 1.0f, h - h / 5.0f + 1.0f);
+        RNDR_RECT(w / 2.0f, h / 10.0f, 1.0f, h - h / 5.0f + 1.0f);
     } else {
-        RNDR_RECT_WH(w / 10.0f, h / 2.0f, h - h / 5.0f + 1.0f, 1.0f);
+        RNDR_RECT(w / 10.0f, h / 2.0f, h - h / 5.0f + 1.0f, 1.0f);
     }
 }
 
