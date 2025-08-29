@@ -6,5 +6,9 @@ subprojects/*
 
 compile_commands.json
 
+cvis/
+src/
 pkg/
+.SRCINFO
+
 /*.pkg.tar.zst

@@ -15,13 +15,7 @@ cc = meson.get_compiler('c')
 math = cc.find_library('m', required: false)
 sdl3 = cc.find_library('SDL3', required: false)
 ncurses = cc.find_library('ncurses', required: false)
-
-miniaudio = dependency(
-  'miniaudio',
-  default_options: [
-    'c_args=-DMA_ENABLE_ONLY_SPECIFIC_BACKENDS -DMA_ENABLE_PULSEAUDIO -DMA_NO_DECODING -DMA_NO_ENCODING -DMA_NO_NODE_GRAPH -DMA_NO_GENERATION',
-  ],
-)
+miniaudio = cc.find_library('miniaudio')
 
 sources = [
   'util/common.c',
