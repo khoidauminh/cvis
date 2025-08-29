@@ -7,16 +7,17 @@
 #include <string.h>
 
 #include "audio.h"
-#include "declare.h"
+#include "common.h"
 #include "interpolation.h"
 
 constexpr uint CHUNK_SIZE = SAMPLERATE * 30 / 1000;
 constexpr uint BUFFER_SIZE = 1 << 15;
 constexpr uint BUFFER_MASK = BUFFER_SIZE - 1;
 constexpr uint DEFAULT_ROTATE_SIZE = CHUNK_SIZE / 4;
-constexpr float NORMALIZE_SPEED_FACTOR = 0.97f;
-constexpr float NORMALIZE_MIN_THRESHOLD = 0.01f;
-constexpr float NORMALIZE_MAX_THRESHOLD = 1.0f;
+constexpr float NORMALIZE_SPEED_FACTOR = 0.99f;
+constexpr float NORMALIZE_MIN_THRESHOLD = 0.001f;
+constexpr float ZEROF = 0.0f;
+constexpr float ONEF = 1.0;
 
 typedef struct audiobuffer {
     uint start;
@@ -83,14 +84,12 @@ void buffer_normalize() {
         max = fmaxf(cmaxf(gbuffer->data[index]), max);
     }
 
+    gbuffer->max = decay(gbuffer->max, max, NORMALIZE_SPEED_FACTOR);
+
     // Buffer is empty so skip normalization.
     if (max < NORMALIZE_MIN_THRESHOLD) {
         return;
     }
-
-    max = clampf(NORMALIZE_MIN_THRESHOLD, max, NORMALIZE_MAX_THRESHOLD);
-
-    gbuffer->max = decay(gbuffer->max, max, NORMALIZE_SPEED_FACTOR);
 
     float scale = 1.0 / gbuffer->max;
 
@@ -223,17 +222,16 @@ typedef struct moving_average {
     float average;
 } MovingAverage;
 
-MovingAverage moving_average_new(float *buffer, uint size, float val) {
+MovingAverage moving_average_new(float *buffer, uint size) {
     MovingAverage ma;
     ma.size = size;
     ma.index = 0;
-    ma.sum = (float)size * val;
-    ma.average = val;
+    ma.sum = (float)size * 0.0f;
+    ma.average = 0.0f;
     ma.denom = 1.0 / (float)size;
     ma.data = buffer;
 
-    for (uint i = 0; i < size; i++)
-        ma.data[i] = val;
+    memset(buffer, 0, size * sizeof(float));
 
     return ma;
 }
@@ -346,32 +344,34 @@ float moving_maximum_update(MovingMaximum *mm, float new) {
     return moving_maximum_peek(mm)->val;
 }
 
-constexpr int MMAX_WINDOW_SIZE = 20;
-constexpr int MAVE_WINDOW_SIZE = MMAX_WINDOW_SIZE * 3 / 4;
-constexpr int MMAX_CAPACITY = 256;
+constexpr uint MMAX_WINDOW_SIZE = 15;
+constexpr uint MAVE_WINDOW_SIZE = MMAX_WINDOW_SIZE * 3 / 4;
+constexpr uint MMAX_CAPACITY = 256;
 
-void compress(cplx *samples, uint len, float limit, float gain) {
+void compress(cplx *samples, uint len, float lo, float hi) {
     static thread_local float mave_buffer[MAVE_WINDOW_SIZE];
     static thread_local Numpair mmax_buffer[MMAX_CAPACITY];
     assert(len + MMAX_WINDOW_SIZE <= MMAX_CAPACITY);
+    assert(lo <= hi);
 
-    MovingAverage mave =
-        moving_average_new(mave_buffer, MAVE_WINDOW_SIZE, limit);
+    MovingAverage mave = moving_average_new(mave_buffer, MAVE_WINDOW_SIZE);
     MovingMaximum mmax = moving_maximum_new(mmax_buffer, MMAX_WINDOW_SIZE);
 
-    const int length = (int)len;
-    const int bound = (int)len + MAVE_WINDOW_SIZE;
+    const uint bound = len + MAVE_WINDOW_SIZE;
 
-    for (int i = 0; i < bound; i++) {
-        float smp = (i < length) ? fmaxf(cmaxf(samples[i]), limit) : limit;
+    for (uint i = 0; i < bound; i++) {
+        float smp1 = (i < len) ? cmaxf(samples[i]) : ZEROF;
 
-        float mult =
-            moving_average_update(&mave, moving_maximum_update(&mmax, smp));
+        float smp2 =
+            moving_average_update(&mave, moving_maximum_update(&mmax, smp1));
 
-        int j = i - MAVE_WINDOW_SIZE;
+        float scale = (smp2 > hi)   ? hi / smp2
+                      : (smp2 < lo) ? lo / fmaxf(smp2, NORMALIZE_MIN_THRESHOLD)
+                                    : ONEF;
 
-        if (j >= 0 && j < bound) {
-            float scale = gain / mult;
+        uint j = i - MAVE_WINDOW_SIZE;
+
+        if (j < bound) {
             samples[j] *= scale;
         }
     }

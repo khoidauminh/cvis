@@ -2,7 +2,7 @@
 #define PROGRAM_H
 
 #include "audio.h"
-#include "declare.h"
+#include "common.h"
 
 constexpr uint REFRESHRATE_MAX = 192;
 constexpr uint REFRESHRATE_DEFAULT = 60;

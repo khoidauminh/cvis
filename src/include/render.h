@@ -1,7 +1,7 @@
 #ifndef RENDER_H
 #define RENDER_H
 
-#include "declare.h"
+#include "common.h"
 
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_pixels.h>

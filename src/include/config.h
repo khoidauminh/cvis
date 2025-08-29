@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include "declare.h"
+#include "common.h"
 
 #include <SDL3/SDL_pixels.h>
 

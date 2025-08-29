@@ -2,8 +2,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#include "common.h"
 #include "config.h"
-#include "declare.h"
 #include "logging.h"
 #include "render.h"
 #include "terminal.h"

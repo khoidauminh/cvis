@@ -14,24 +14,18 @@ constexpr uint READ_SIZE = BUFFERSIZE / 2;
 constexpr uint SPECTRUMSIZE = 64;
 constexpr float SMOOTHING = 0.91f;
 
-static thread_local cplx buffer[BUFFERSIZE] = {};
 static thread_local cplx fft[SPECTRUMSIZE + 1] = {};
 
 void prepare() {
-    uint read_size = buffer_read(buffer, READ_SIZE);
-    memset(buffer + read_size, 0, sizeof(cplx) * (BUFFERSIZE - read_size));
+    static thread_local cplx buffer[BUFFERSIZE] = {0.0f};
+    uint read = buffer_read(buffer, READ_SIZE);
+    memset(buffer + read, 0, sizeof(cplx) * (BUFFERSIZE - read));
     buffer_autoslide();
 
-    fft_inplace_stereo(buffer, BUFFERSIZE, SPECTRUMSIZE, false);
+    fft_inplace_stereo(buffer, BUFFERSIZE, SPECTRUMSIZE);
+    fft_prettify(buffer, BUFFERSIZE, SPECTRUMSIZE);
 
-    const float gain = 0.25f / SPECTRUMSIZE;
-
-    for (uint i = 0; i < SPECTRUMSIZE; i++) {
-        float scale = log2p1f((float)(i));
-        buffer[i] = quad1(buffer[i]) * scale * gain;
-    }
-
-    compress(buffer, SPECTRUMSIZE, 1.5f, 0.9f);
+    compress(buffer, SPECTRUMSIZE, 0.0f, 0.9f);
 
     for (uint i = 0; i < SPECTRUMSIZE; i++) {
         float re = decay(crealf(fft[i]), crealf(buffer[i]), SMOOTHING);

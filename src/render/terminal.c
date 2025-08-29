@@ -1,5 +1,5 @@
 #include "terminal.h"
-#include "declare.h"
+#include "common.h"
 #include "render.h"
 #include "renderer-private.h" // IWYU pragma: keep.
 

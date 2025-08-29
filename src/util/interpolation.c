@@ -1,5 +1,5 @@
 #include "interpolation.h"
-#include "declare.h"
+#include "common.h"
 
 #include <math.h>
 

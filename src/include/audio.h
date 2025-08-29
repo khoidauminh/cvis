@@ -1,7 +1,7 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
-#include "declare.h"
+#include "common.h"
 
 constexpr uint SAMPLERATE = 44100;
 
@@ -15,6 +15,6 @@ void free_audio();
 void normalize_average(cplx*, uint);
 void normalize_max(cplx*, uint, float);
 void slow_regain(cplx *samples, uint len, float gain, float t);
-void compress(cplx *samples, uint len, float limit, float gain);
+void compress(cplx *samples, uint len, float lo, float hi);
 
 #endif

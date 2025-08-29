@@ -1,4 +1,4 @@
-#include "declare.h"
+#include "common.h"
 
 #include <math.h>
 
@@ -9,3 +9,5 @@ float cmaxf(cplx x) { return fmaxf(fabsf(crealf(x)), fabsf(cimagf(x))); }
 float clampf(float min, float x, float max) {
     return fmaxf(min, fminf(x, max));
 }
+
+uint uint_min(uint a, uint b) { return (a < b) ? a : b; }

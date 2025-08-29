@@ -1,9 +1,10 @@
-#include "declare.h"
+#include "common.h"
 
 #include "fft.h"
 
 #include <assert.h>
 #include <complex.h>
+#include <math.h>
 #include <stdbit.h>
 #include <stdlib.h>
 
@@ -48,7 +49,7 @@ uint reverse_bit(uint index, uint power) {
     return out;
 }
 
-void butterfly(cplx *arr, uint len, uint power) {
+void butterfly_inplace(cplx *arr, uint len, uint power) {
     len -= 1;
     for (uint i = 1; i < len; i++) {
         uint ni = reverse_bit(i, power);
@@ -60,18 +61,23 @@ void butterfly(cplx *arr, uint len, uint power) {
     }
 }
 
+void butterfly_io(cplx *in, cplx *out, uint len, uint power) {
+    len -= 1;
+    for (uint i = 1; i < len; i++) {
+        uint ni = reverse_bit(i, power);
+        out[ni] = in[i];
+    }
+}
+
 uint ulog2(uint x) {
     constexpr uint UINT_SIZE = 8 * sizeof(uint);
     return UINT_SIZE - stdc_leading_zeros(x >> 1);
 }
 
-void fft_inplace(cplx *const arr, const uint len) {
+void compute_fft_inplace(cplx *const arr, const uint len) {
     if (TWIDDLE_ARRAY == nullptr) {
         contruct_twiddle_array();
     }
-
-    const uint power = ulog2(len);
-    butterfly(arr, len, power);
 
     for (uint half_window = 1; half_window < len; half_window *= 2) {
         const uint window = half_window * 2;
@@ -90,22 +96,35 @@ void fft_inplace(cplx *const arr, const uint len) {
     }
 }
 
-void fft_inplace_stereo(cplx *arr, uint len, uint upto, bool normalize) {
+void fft_inplace(cplx *arr, uint len) {
+    const uint power = ulog2(len);
+    butterfly_inplace(arr, len, power);
+    compute_fft_inplace(arr, len);
+}
+
+void fft_inplace_stereo(cplx *arr, uint len, uint upto) {
     fft_inplace(arr, len);
 
-    uint bound = SDL_min(len / 2, upto);
+    uint bound = uint_min(len / 2, upto);
 
     for (uint i = 1; i < bound; i++) {
         cplx z1 = arr[i];
         cplx z2 = conjf(arr[len - i]);
         arr[i] = CMPLXF(l1norm(z1 + z2), l1norm(z1 - z2));
     }
+}
 
-    if (normalize) {
-        float norm = 1.0f / (float)len;
+void fft_io_stereo(cplx *in, cplx *out, uint len, uint upto) {
+    const uint power = ulog2(len);
+    butterfly_io(in, out, len, power);
+    fft_inplace_stereo(out, len, upto);
+}
 
-        for (uint i = 0; i < bound; i++) {
-            arr[i] *= norm;
-        }
+void fft_prettify(cplx *arr, const uint originallen, const uint upto) {
+    const uint bound = uint_min(originallen / 2, upto);
+    const float normalize = 2.f / (float)(originallen);
+
+    for (uint i = 0; i < bound; i++) {
+        arr[i] *= (log2f((float)(i + 1)) * normalize);
     }
 }
