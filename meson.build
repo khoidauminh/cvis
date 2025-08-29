@@ -22,6 +22,7 @@ miniaudio = dependency(
   default_options: [
     'c_args=-DMA_ENABLE_ONLY_SPECIFIC_BACKENDS -DMA_ENABLE_PULSEAUDIO -DMA_NO_DECODING -DMA_NO_ENCODING -DMA_NO_NODE_GRAPH -DMA_NO_GENERATION -ffast-math -O3',
   ],
+  required: false,
 )
 
 sources = [
