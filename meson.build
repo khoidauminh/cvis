@@ -17,7 +17,6 @@ cc = meson.get_compiler('c')
 math = cc.find_library('m', required: false)
 sdl3 = dependency('SDL3')
 ncurses = dependency('ncurses')
-
 miniaudio = dependency(
   'miniaudio',
   default_options: [

@@ -4,12 +4,12 @@ pkgrel=1
 pkgdesc='Tiny Music Vissualizer - C port'
 arch=('x86_64')
 source=('git+https://github.com/khoidauminh/cvis')
-depends=('sdl3' 'ncurses')
+depends=('sdl3' 'ncurses' 'miniaudio-git')
 makedepends=('meson')
-b2sum=('SKIP')
+b2sums=('SKIP')
 
 build() {
-    meson setup --prefix=/usr --buildtype=plain "$pkgver" build
+    meson setup --prefix=/usr --buildtype=plain "$pkgname" build
     meson compile -C build
 }
 
