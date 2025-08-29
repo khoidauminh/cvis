@@ -20,6 +20,10 @@ typedef enum renderapi {
 struct renderer {
     RendererType type;
     void *renderer;
+    
+    void (*init)(Renderer*);
+    void (*exit)(Renderer*);
+    
     Config *cfg;
     DrawFunc **api;
 };

@@ -8,7 +8,10 @@
 #include "program.h"
 #include "render.h"
 
+#ifdef USE_RAYLIB
 #include "rl.h"
+#endif
+
 #include "sdl.h"
 #include "terminal.h"
 
@@ -18,6 +21,7 @@ struct program {
     Renderer *renderer;
     VisManager *vismanager;
     Config cfg;
+    void (*eventloop_func)(Program *);
 };
 
 Program *pg_new(Config config) {
@@ -28,27 +32,27 @@ Program *pg_new(Config config) {
     p->renderer = renderer_new(&p->cfg);
     p->vismanager = vm_new(config.visname);
 
+    switch (p->cfg.displaymode) {
+    case displaymode_graphical:
+#ifdef USE_RAYLIB
+        p->eventloop_func = &pg_eventloop_raylib;
+#else
+        p->eventloop_func = &pg_eventloop_sdl;
+#endif
+        break;
+    case displaymode_terminal:
+        p->eventloop_func = &pg_eventloop_term;
+        break;
+    default:
+        die("Invalid displaymode value! It might be corrupt.");
+    }
+
     return p;
 }
 
 Config *pg_config(Program *p) { return &p->cfg; }
 
-void pg_eventloop(Program *p) {
-    switch (p->cfg.displaymode) {
-    case displaymode_graphical:
-#ifdef USE_RAYLIB
-        pg_eventloop_raylib(p);
-#else
-        pg_eventloop_sdl(p);
-#endif
-        break;
-    case displaymode_terminal:
-        pg_eventloop_term(p);
-        break;
-    default:
-        die("Invalid displaymode value! It might be corrupt.");
-    }
-}
+void pg_eventloop(Program *p) { (p->eventloop_func)(p); }
 
 Renderer *pg_renderer(Program *p) { return p->renderer; }
 VisManager *pg_vismanager(Program *p) { return p->vismanager; }

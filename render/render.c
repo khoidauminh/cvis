@@ -6,9 +6,11 @@
 #include "config.h"
 #include "logging.h"
 #include "render.h"
+
 #ifdef USE_RAYLIB
 #include "rl.h"
 #endif
+
 #include "sdl.h"
 #include "terminal.h"
 
@@ -25,39 +27,30 @@ Renderer *renderer_new(Config *cfg) {
 
     switch (out->type) {
     case renderertype_sdl:
-        sdl_renderer_init(out);
+        out->init = sdl_renderer_init;
+        out->exit = sdl_renderer_end;
         break;
 #ifdef USE_RAYLIB
     case renderertype_raylib:
-        raylib_init(out);
+        out->init = raylib_init;
+        out->exit = raylib_end;
         break;
 #endif
     case renderertype_terminal:
-        terminal_renderer_init(out);
+        out->init = terminal_renderer_init;
+        out->exit = terminal_renderer_end;
         break;
     default:
         die("Invalid renderer type.");
     }
 
+    (out->init)(out);
+
     return out;
 }
 
 void renderer_end(Renderer *r) {
-    switch (r->type) {
-    case renderertype_sdl:
-        sdl_renderer_end(r);
-        break;
-#ifdef USE_RAYLIB
-    case renderertype_raylib:
-        raylib_end(r);
-        break;
-#endif
-    case renderertype_terminal:
-        terminal_renderer_end(r);
-        break;
-    default:
-        die("Invalid Value");
-    }
+    (r->exit)(r);
     free(r);
 }
 
