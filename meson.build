@@ -22,7 +22,6 @@ miniaudio = dependency(
   default_options: [
     'c_args=-DMA_ENABLE_ONLY_SPECIFIC_BACKENDS -DMA_ENABLE_PULSEAUDIO -DMA_NO_DECODING -DMA_NO_ENCODING -DMA_NO_NODE_GRAPH -DMA_NO_GENERATION -ffast-math -O3',
   ],
-  required: false,
 )
 
 sources = [
@@ -45,7 +44,6 @@ sources = [
 executable(
   'cvis',
   sources,
-  # c_args: ['-ffast-math'],
   install: true,
   dependencies: [sdl3, math, miniaudio, ncurses],
   include_directories: ['include', 'visualizers/'],
