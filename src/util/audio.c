@@ -39,6 +39,14 @@ static ma_device gdevice;
 
 void buffer_normalize();
 
+void cplxcpy(cplx *restrict dst, const cplx *restrict src, uint amount) {
+    memcpy(dst, src, sizeof(cplx) * amount);
+}
+
+void cplxzero(cplx *restrict buf, uint amount) {
+    memset(buf, 0, sizeof(cplx) * amount);
+}
+
 void data_callback(ma_device *, void *restrict, const void *restrict pInput,
                    unsigned int frame_count) {
     const cplx *buffer =
@@ -54,8 +62,7 @@ void data_callback(ma_device *, void *restrict, const void *restrict pInput,
 
         uint write_amount = (amount_left < available) ? amount_left : available;
 
-        memcpy(gbuffer->data + gbuffer->write, buffer,
-               sizeof(cplx) * write_amount);
+        cplxcpy(gbuffer->data + gbuffer->write, buffer, write_amount);
 
         buffer += write_amount;
         amount_left -= write_amount;
@@ -113,7 +120,7 @@ uint buffer_read(cplx *cplx_array, uint amount) {
         uint available = BUFFER_SIZE - start;
         uint write_amount = (amount < available) ? amount : available;
 
-        memcpy(cplx_array, gbuffer->data + start, sizeof(cplx) * write_amount);
+        cplxcpy(cplx_array, gbuffer->data + start, write_amount);
 
         amount -= write_amount;
         cplx_array += write_amount;

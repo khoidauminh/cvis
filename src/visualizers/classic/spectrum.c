@@ -19,7 +19,7 @@ static thread_local cplx fft[SPECTRUMSIZE + 1] = {};
 void prepare() {
     static thread_local cplx buffer[BUFFERSIZE] = {0.0f};
     uint read = buffer_read(buffer, READ_SIZE);
-    memset(buffer + read, 0, sizeof(cplx) * (BUFFERSIZE - read));
+    cplxzero(buffer + read, BUFFERSIZE - read);
     buffer_autoslide();
 
     fft_inplace_stereo(buffer, BUFFERSIZE, SPECTRUMSIZE);
