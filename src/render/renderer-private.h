@@ -3,7 +3,7 @@
 
 #include "render.h"
 
-typedef enum renderapi {
+typedef enum renderapi: uint {
     renderapi_plot = 0,
     renderapi_rect,
     renderapi_line,

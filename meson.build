@@ -1,41 +1,57 @@
 project(
   'cvis',
   'c',
+  license: 'GPLv3',
+  license_files: ['LICENSE'],
   version: '0.1.0',
-  meson_version: '>=1.1',
+  meson_version: '>=1.7',
   default_options: [
     'c_std=c23',
     'warning_level=3',
     'buildtype=release',
     'c_args=-ffast-math',
-    'auto-features=disabled',
-    'default_both_libraries=static',
-    'prefer_static=true',
   ],
 )
 
 cc = meson.get_compiler('c')
-math = cc.find_library('m', required: false)
-sdl3 = dependency('SDL3')
-raylib = dependency('raylib', required: get_option('raylib'))
-ncurses = dependency('ncurses')
-miniaudio = dependency('miniaudio')
+
+depencendies = [
+  cc.find_library('m', required: false),
+  dependency('SDL3'),
+  dependency('ncurses'),
+  dependency(
+    'miniaudio',
+    default_options: [
+      'decoding=false',
+      'encoding=false',
+      'resource_manager=disabled',
+      'generation=false',
+
+      'dr_wav=false',
+      'dr_flac=false',
+      'dr_mp3=false',
+      'examples=disabled',
+      'tests=disabled',
+    ],
+  ),
+  dependency('raylib', required: get_option('raylib')),
+]
 
 sources = [
-  'util/common.c',
-  'util/audio.c',
-  'util/fft.c',
-  'util/logging.c',
-  'util/interpolation.c',
-  'render/render.c',
-  'render/terminal.c',
-  'render/sdl.c',
-  'visualizers/classic/spectrum.c',
-  'visualizers/classic/vectorscope.c',
-  'visualizers/visualizer.c',
-  'program/config.c',
-  'program/program.c',
-  'main.c',
+  'src/util/common.c',
+  'src/util/audio.c',
+  'src/util/fft.c',
+  'src/util/logging.c',
+  'src/util/interpolation.c',
+  'src/render/render.c',
+  'src/render/terminal.c',
+  'src/render/sdl.c',
+  'src/visualizers/classic/spectrum.c',
+  'src/visualizers/classic/vectorscope.c',
+  'src/visualizers/visualizer.c',
+  'src/program/config.c',
+  'src/program/program.c',
+  'src/main.c',
 ]
 
 if get_option('raylib')
@@ -47,6 +63,6 @@ executable(
   'cvis',
   sources,
   install: true,
-  dependencies: [sdl3, raylib, math, miniaudio, ncurses],
-  include_directories: ['include', 'visualizers/'],
+  dependencies: depencendies,
+  include_directories: ['include'],
 )
