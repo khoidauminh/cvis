@@ -11,9 +11,6 @@
 #include "rl.h"
 #endif
 
-#include "sdl.h"
-#include "terminal.h"
-
 #include "renderer-private.h" // IWYU pragma: keep.
 
 Renderer *renderer_new(Config *cfg) {

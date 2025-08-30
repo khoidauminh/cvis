@@ -18,9 +18,9 @@ static thread_local cplx fft[SPECTRUMSIZE + 1] = {};
 
 void prepare() {
     static thread_local cplx buffer[BUFFERSIZE] = {0.0f};
-    uint read = buffer_read(buffer, READ_SIZE);
+    uint read = BUFFER_READ(buffer, READ_SIZE);
     cplxzero(buffer + read, BUFFERSIZE - read);
-    buffer_autoslide();
+    BUFFER_AUTOSLIDE();
 
     fft_inplace_stereo(buffer, BUFFERSIZE, SPECTRUMSIZE);
     fft_prettify(buffer, BUFFERSIZE, SPECTRUMSIZE);
@@ -66,7 +66,7 @@ void visualizer_spectrum(Program *prog) {
         RNDR_RECT(size.w / 2.0 - sl, size.h - y, sl, 1.0);
         RNDR_RECT(size.w / 2.0, size.h - y, sr, 1.0);
 
-        cplx s = *buffer_get(ifloor);
+        cplx s = *BUFFER_GET(ifloor);
         Uint8 c1 = crealf(s) > 0.0 ? 255 : 0;
         Uint8 c2 = cimagf(s) > 0.0 ? 255 : 0;
 

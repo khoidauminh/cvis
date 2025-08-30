@@ -9,11 +9,12 @@
 #include "render.h"
 
 #ifdef USE_RAYLIB
-#include "rl.h"
+void pg_eventloop_raylib(Program *p);
 #endif
 
-#include "sdl.h"
-#include "terminal.h"
+void pg_eventloop_sdl(Program *p);
+
+void pg_eventloop_term(Program *p);
 
 #include "visualizer.h"
 

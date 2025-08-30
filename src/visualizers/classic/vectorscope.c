@@ -18,16 +18,16 @@ void draw_cross(Program *prog) {
     float h = size.h;
 
     if (vertical ^= true) {
-        RNDR_RECT(w / 2.0f, h / 10.0f, 1.0f, h - h / 5.0f + 1.0f);
+        RNDR_RECT(w * 0.5f, h * 0.1f, 1.0f, h * 0.8f + 1.0f);
     } else {
-        RNDR_RECT(w / 10.0f, h / 2.0f, h - h / 5.0f + 1.0f, 1.0f);
+        RNDR_RECT(w * 0.1f, h * 0.5f, h * 0.8f + 1.0f, 1.0f);
     }
 }
 
 void visualizer_vectorscope(Program *prog) {
     cplx buffer[BUFFERSIZE];
-    buffer_read(buffer, BUFFERSIZE);
-    buffer_autoslide();
+    BUFFER_READ(buffer, BUFFERSIZE);
+    BUFFER_AUTOSLIDE();
 
     RNDR_SET_TARGET(pg_renderer(prog));
 

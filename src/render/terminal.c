@@ -1,4 +1,3 @@
-#include "terminal.h"
 #include "common.h"
 #include "render.h"
 #include "renderer-private.h" // IWYU pragma: keep.
@@ -129,6 +128,7 @@ void pg_eventloop_term(Program *p) {
     assert(renderer_get_type(pg_renderer(p)) == renderertype_terminal);
 
     bool running = true;
+    RNDR_SET_TARGET(pg_renderer(p));
 
     while (running) {
         const char key = getch();
@@ -144,7 +144,7 @@ void pg_eventloop_term(Program *p) {
         }
         }
 
-        render_autoresize(pg_renderer(p));
+        RNDR_AUTORESIZE();
         vm_perform(p);
         SDL_Delay(1000 / 60);
     }

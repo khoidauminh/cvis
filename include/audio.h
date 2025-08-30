@@ -8,9 +8,9 @@ constexpr uint SAMPLERATE = 44100;
 void cplxcpy(cplx *restrict dst, const cplx *restrict src, uint amount);
 void cplxzero(cplx *restrict buf, uint amount);
 
-uint buffer_read(cplx*, uint);
-void buffer_autoslide();
-cplx *buffer_get(uint index);
+uint BUFFER_READ(cplx*, uint);
+void BUFFER_AUTOSLIDE();
+cplx *BUFFER_GET(uint index);
 
 void init_audio();
 void free_audio();

@@ -1,5 +1,3 @@
-#include "sdl.h"
-
 #include "render.h"
 #include "renderer-private.h" // IWYU pragma: keep.
 

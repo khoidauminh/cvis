@@ -1,5 +1,3 @@
-#include "rl.h"
-
 #include "program.h"
 #include "render.h"
 #include "renderer-private.h" // IWYU pragma: keep.
@@ -126,8 +124,10 @@ void raylib_end(Renderer *r) {
 void pg_eventloop_raylib(Program *p) {
     assert(renderer_get_type(pg_renderer(p)) == renderertype_raylib);
 
+    RNDR_SET_TARGET(pg_renderer(p));
+
     while (!WindowShouldClose()) {
-        render_autoresize(pg_renderer(p));
+        RNDR_AUTORESIZE();
 
         if (IsKeyPressed(KEY_Q)) {
             break;

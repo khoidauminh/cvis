@@ -106,11 +106,11 @@ void buffer_normalize() {
     }
 }
 
-cplx *buffer_get(uint index) {
+cplx *BUFFER_GET(uint index) {
     return gbuffer->data + (index + gbuffer->start);
 }
 
-uint buffer_read(cplx *cplx_array, uint amount) {
+uint BUFFER_READ(cplx *cplx_array, uint amount) {
     amount = amount < CHUNK_SIZE ? amount : CHUNK_SIZE;
     uint return_amount = amount;
 
@@ -131,7 +131,7 @@ uint buffer_read(cplx *cplx_array, uint amount) {
     return return_amount;
 }
 
-void buffer_autoslide() {
+void BUFFER_AUTOSLIDE() {
     gbuffer->rotatessinceupdate += 1;
     gbuffer->start += gbuffer->autorotatesize;
     gbuffer->start &= BUFFER_MASK;
