@@ -7,10 +7,6 @@
 #include "logging.h"
 #include "render.h"
 
-#ifdef USE_RAYLIB
-#include "rl.h"
-#endif
-
 #include "renderer-private.h" // IWYU pragma: keep.
 
 Renderer *renderer_new(Config *cfg) {

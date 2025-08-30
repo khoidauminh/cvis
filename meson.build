@@ -56,7 +56,7 @@ sources = [
 
 if get_option('raylib')
   add_project_arguments('-DUSE_RAYLIB', language: 'c')
-  sources += 'render/rl.c'
+  sources += 'src/render/rl.c'
 endif
 
 executable(

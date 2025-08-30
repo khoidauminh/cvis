@@ -17,6 +17,15 @@ typedef enum renderapi: uint {
     renderapi_count,
 } RenderAPI;
 
+typedef union api_paremeter {
+    float rect[4];
+    float plot[2];
+    float line[4];
+    SDL_Color color;
+    uint fade;
+    uint resize[2];
+} APIParameter;
+
 struct renderer {
     RendererType type;
     void *renderer;

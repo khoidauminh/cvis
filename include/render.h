@@ -6,15 +6,6 @@
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_pixels.h>
 
-typedef union api_paremeter {
-    float rect[4];
-    float plot[2];
-    float line[4];
-    SDL_Color color;
-    uint fade;
-    uint resize[2];
-} APIParameter;
-
 typedef enum renderertype {
     renderertype_sdl,
     renderertype_raylib,
@@ -22,6 +13,7 @@ typedef enum renderertype {
 } RendererType;
 
 typedef struct renderer Renderer;
+typedef union api_paremeter APIParameter;
 
 typedef void(DrawFunc)(Renderer*, APIParameter*);
 
