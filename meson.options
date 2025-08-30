@@ -1,1 +1,1 @@
-option('raylib', type: 'boolean', description: 'Use Raylib to render')
+option('raylib', type: 'boolean', value: false, description: 'Use Raylib to render')
