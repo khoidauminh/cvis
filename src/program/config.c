@@ -68,7 +68,7 @@ const char *argv_next(const char ***argv, const char **const end) {
     ++(*argv);
 
     if (*argv >= end) {
-        die("Unexpected end of input.\n");
+        die("Unexpected end of arguments.\n");
     }
 
     return **argv;
@@ -77,12 +77,7 @@ const char *argv_next(const char ***argv, const char **const end) {
 Config config_parse_args(const int argc, const char **argv) {
     Config cfg = config_default();
 
-    if (argc < 2) {
-        return cfg;
-    }
-
-    const char **argvend = argv + argc;
-    argv_next(&argv, argvend);
+    const char **argvend = (argv++) + argc;
 
     for (; *argv; ++argv) {
         if (!strcmp(*argv, "--size")) {
