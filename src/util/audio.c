@@ -360,8 +360,8 @@ constexpr uint MAVE_WINDOW_SIZE = MMAX_WINDOW_SIZE * 3 / 4;
 constexpr uint MMAX_CAPACITY = 256;
 
 void compress(cplx *samples, uint len, float lo, float hi) {
-    static thread_local float mave_buffer[MAVE_WINDOW_SIZE];
-    static thread_local Numpair mmax_buffer[MMAX_CAPACITY];
+    float mave_buffer[MAVE_WINDOW_SIZE];
+    Numpair mmax_buffer[MMAX_CAPACITY];
     assert(len + MMAX_WINDOW_SIZE <= MMAX_CAPACITY);
     assert(lo <= hi);
 
