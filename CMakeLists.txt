@@ -9,8 +9,6 @@ set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(CURSES_NEED_NCURSES TRUE)
 
-add_compile_options(-Wall -Wextra -Wpedantic -ffast-math)
-
 include(FetchContent)
 FetchContent_Declare(
   miniaudio
@@ -46,6 +44,7 @@ set(SOURCES
 )
 
 add_executable(cvis ${SOURCES})
+add_compile_options(-Wall -Wextra -Wpedantic -ffast-math)
 
 set_property(TARGET cvis PROPERTY C_STANDARD 23)
 set_property(TARGET cvis PROPERTY C_STANDARD_REQUIRED ON)
@@ -54,10 +53,10 @@ set_property(TARGET cvis PROPERTY C_EXTENSIONS OFF)
 option(raylib "Use Raylib" OFF)
 
 if(raylib)
-    find_package(raylib REQUIRED) # REQUIRED fails if not found
+    find_package(raylib REQUIRED)
     if(raylib_FOUND)
         target_link_libraries(cvis raylib)
-        add_definitions(-DUSE_RAYLIB)
+        add_compile_definitions(-DUSE_RAYLIB)
         target_sources(cvis PRIVATE "src/render/rl.c")
     else()
         message(FATAL_ERROR "Missing required Raylib dependency!")
