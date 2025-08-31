@@ -38,16 +38,18 @@ void visualizer_vectorscope(Program *prog) {
     float center_x = size.w / 2.0;
     float center_y = size.h / 2.0;
 
-    float scale = (size.w < size.h ? size.w : size.h) * 0.4;
+    float scale = (size.w < size.h ? size.w : size.h) * 0.4f;
 
-    for (uint i = 0; i < BUFFERSIZE; i++) {
+    constexpr uint PHASE = BUFFERSIZE / 4;
+
+    for (uint i = PHASE; i < BUFFERSIZE; i++) {
         uint il = i;
-        uint ir = (i + ROTATESIZE_DEFAULT) % BUFFERSIZE;
+        uint ir = i - PHASE;
 
         float x = crealf(buffer[il]) * scale;
         float y = cimagf(buffer[ir]) * scale;
 
-        float redf = (fabsf(x) + fabsf(y)) * 7.0;
+        float redf = (fabsf(x) + fabsf(y)) * 7.0f;
         Uint8 red = SDL_min((int)(redf), 255);
 
         RNDR_COLOR(red, 255, 0, 255);
