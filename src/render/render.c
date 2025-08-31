@@ -85,7 +85,7 @@ void render_clear(Renderer *r) { (r->api[renderapi_clear])(r, nullptr); }
 
 void render_autoresize(Renderer *r) { (r->api[renderapi_resize])(r, nullptr); }
 
-static thread_local Renderer *RENDERER = nullptr;
+static Renderer *RENDERER = nullptr;
 
 void RNDR_SET_TARGET(Renderer *r) {
     assert(r);

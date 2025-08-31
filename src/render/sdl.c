@@ -1,3 +1,4 @@
+#include "logging.h"
 #include "render.h"
 #include "renderer-private.h" // IWYU pragma: keep.
 
@@ -65,22 +66,36 @@ void sdl_renderer_init(Renderer *r) {
     SDLRenederer *sdlr = malloc(sizeof(SDLRenederer));
     assert(sdlr);
 
-    assert(SDL_Init(SDL_INIT_VIDEO));
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
+        die("Failed to initialize SDL Video.");
+    }
 
-    SDL_WindowFlags flags = SDL_WINDOW_ALWAYS_ON_TOP;
+    bool result;
 
-    assert(SDL_CreateWindowAndRenderer("cvis", r->cfg->width * r->cfg->scale,
-                                       r->cfg->height * r->cfg->scale, flags,
-                                       &sdlr->window, &sdlr->renderer));
+    result = SDL_CreateWindowAndRenderer(
+        "cvis", r->cfg->width * r->cfg->scale, r->cfg->height * r->cfg->scale,
+        SDL_WINDOW_ALWAYS_ON_TOP, &sdlr->window, &sdlr->renderer);
 
-    SDL_SetRenderLogicalPresentation(sdlr->renderer, (int)r->cfg->width,
-                                     (int)r->cfg->height,
-                                     SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
+    if (!result) {
+        die("Failed to create SDL window and renderer.");
+    }
+
+    result = SDL_SetRenderLogicalPresentation(
+        sdlr->renderer, (int)r->cfg->width, (int)r->cfg->height,
+        SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
+
+    if (!result) {
+        die("Failed to set renderer resolution.");
+    }
 
     if (r->cfg->refreshmode == refreshmode_sync)
-        assert(SDL_SetRenderVSync(sdlr->renderer, 1));
+        result = SDL_SetRenderVSync(sdlr->renderer, 1);
     else
-        assert(SDL_SetRenderVSync(sdlr->renderer, 0));
+        result = SDL_SetRenderVSync(sdlr->renderer, 0);
+
+    if (!result) {
+        die("Failed to set configure Vsync.");
+    }
 
     r->renderer = sdlr;
     r->api = SDL_DRAW_FUNC_MAP;
@@ -120,6 +135,8 @@ void pg_eventloop_sdl(Program *p) {
         }
 
         vm_perform(p);
+
+        RNDR_FLUSH();
 
         if (pg_config(p)->refreshmode == refreshmode_set)
             SDL_Delay(1000 / pg_config(p)->refreshrate);

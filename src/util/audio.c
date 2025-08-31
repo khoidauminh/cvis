@@ -9,6 +9,7 @@
 #include "audio.h"
 #include "common.h"
 #include "interpolation.h"
+#include "logging.h"
 
 constexpr uint CHUNK_SIZE = SAMPLERATE * 30 / 1000;
 constexpr uint BUFFER_SIZE = 1 << 15;
@@ -145,21 +146,24 @@ void init_audio() {
 
     gbuffer->autorotatesize = DEFAULT_ROTATE_SIZE;
 
-    ma_result result;
     ma_device_config deviceConfig;
-
     deviceConfig = ma_device_config_init(ma_device_type_capture);
     deviceConfig.capture.format = ma_format_f32;
     deviceConfig.capture.channels = 2;
     deviceConfig.sampleRate = SAMPLERATE;
     deviceConfig.dataCallback = data_callback;
 
-    result = ma_device_init(nullptr, &deviceConfig, &gdevice);
+    ma_result ma_result;
 
-    assert(result == MA_SUCCESS);
+    ma_result = ma_device_init(nullptr, &deviceConfig, &gdevice);
+    if (ma_result != MA_SUCCESS) {
+        die("Failed to initialize device.");
+    }
 
-    result = ma_device_start(&gdevice);
-    assert(result == MA_SUCCESS);
+    ma_result = ma_device_start(&gdevice);
+    if (ma_result != MA_SUCCESS) {
+        die("Failed to start device.");
+    }
 }
 
 void free_audio() {

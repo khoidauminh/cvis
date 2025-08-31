@@ -73,6 +73,4 @@ void visualizer_spectrum(Program *prog) {
         RNDR_COLOR(c1, 0, c2, 255);
         RNDR_RECT(size.w / 2.0 - 1, size.h - y, 2, 1);
     }
-
-    RNDR_FLUSH();
 }

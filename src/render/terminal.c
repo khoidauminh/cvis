@@ -125,7 +125,7 @@ void terminal_renderer_end(Renderer *r) {
 #include "program.h"
 
 void pg_eventloop_term(Program *p) {
-    assert(renderer_get_type(pg_renderer(p)) == renderertype_terminal);
+    assert(renderer_get_type(pg_renderer(p)) != renderertype_terminal);
 
     bool running = true;
     RNDR_SET_TARGET(pg_renderer(p));

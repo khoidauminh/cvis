@@ -4,19 +4,32 @@ See the original project [here](https://github.com/khoidauminh/coffeevis_rs).
 
 ## Building
 
-In the root directory (containing `meson.build`):
+**NOTE: CVIS 0.2.0 AND LATER USES CMAKE**
+
+In the root directory (containing `CMakeLists.txt`):
 
 ```
-meson setup build
-meson compile -C build
+cmake -B build
+cmake --build build
 ```
 
 Cvis has support for Raylib, to use it:
 
 ```
-meson setup -Draylib=true build
-meson compile -C build
+cmake -B build -Draylib=on
+cmake --build build
 ```
+
+Cvis can then be called in the `build` directory:
+
+```
+./build/cvis
+```
+
+## Archlinux PKGBUILD
+
+Cvis also provides a PKGBUILD in `arch-build` that builds from the local repository.
+Building with Raylib is not supported at the moment.
 
 ## Commandline Arguments
 

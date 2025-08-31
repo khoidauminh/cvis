@@ -1,0 +1,26 @@
+pkgname='cvis'
+pkgver=0.2.0
+pkgrel=1
+pkgdesc='Tiny Music Vissualizer - C port'
+arch=('x86_64')
+source=('https://github.com/mackron/miniaudio/archive/refs/tags/0.11.22.tar.gz')
+depends=('sdl3' 'ncurses')
+makedepends=('cmake')
+b2sums=('SKIP')
+
+build() {
+    local cmake_options=(
+        -B build
+        -S "../.."
+        -DFETCHCONTENT_FULLY_DISCONNECTED=ON
+        -DFETCHCONTENT_SOURCE_DIR_MINIAUDIO="$srcdir/miniaudio-0.11.22"
+        -W no-dev
+        -D CMAKE_INSTALL_PREFIX=/usr
+    )
+    cmake "${cmake_options[@]}"
+    cmake --build build
+}
+
+package() {
+    DESTDIR="$pkgdir" cmake --install build
+}

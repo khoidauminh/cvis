@@ -6,4 +6,7 @@ subprojects/*
 
 compile_commands.json
 
+/arch-build/*
+!/arch-build/PKGBUILD
+
 cvis/

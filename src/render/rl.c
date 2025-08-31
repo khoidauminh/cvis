@@ -137,6 +137,8 @@ void pg_eventloop_raylib(Program *p) {
             vm_next(pg_vismanager(p));
         }
 
+        RNDR_FLUSH();
+
         vm_perform(p);
     }
 }

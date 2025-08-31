@@ -55,6 +55,4 @@ void visualizer_vectorscope(Program *prog) {
     }
 
     draw_cross(prog);
-
-    RNDR_FLUSH();
 }
