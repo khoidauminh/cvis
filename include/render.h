@@ -17,9 +17,6 @@ typedef union api_paremeter APIParameter;
 
 typedef void(DrawFunc)(Renderer*, APIParameter*);
 
-constexpr uint DEFAULE_SCALE = 2;
-constexpr uint DEFAULT_WIN_SIZE = 84;
-
 #include "config.h"
 
 Renderer *renderer_new(Config *cfg);

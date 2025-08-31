@@ -67,10 +67,10 @@ void sdl_renderer_init(Renderer *r) {
 
     assert(SDL_Init(SDL_INIT_VIDEO));
 
-    SDL_WindowFlags flags = SDL_WINDOW_VULKAN | SDL_WINDOW_ALWAYS_ON_TOP;
+    SDL_WindowFlags flags = SDL_WINDOW_ALWAYS_ON_TOP;
 
-    assert(SDL_CreateWindowAndRenderer("cvis", r->cfg->width * DEFAULE_SCALE,
-                                       r->cfg->height * DEFAULE_SCALE, flags,
+    assert(SDL_CreateWindowAndRenderer("cvis", r->cfg->width * r->cfg->scale,
+                                       r->cfg->height * r->cfg->scale, flags,
                                        &sdlr->window, &sdlr->renderer));
 
     SDL_SetRenderLogicalPresentation(sdlr->renderer, (int)r->cfg->width,
