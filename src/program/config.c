@@ -7,7 +7,7 @@
 
 Config config_default() {
     return (Config){
-        .background = {30, 30, 30, 255},
+        .background = {40, 40, 40, 255},
         .displaymode = displaymode_graphical,
         .refreshmode = refreshmode_sync,
         .width = 84,

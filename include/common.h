@@ -13,6 +13,9 @@ typedef unsigned int uint;
 typedef struct size { uint w; uint h; } Size;
 
 uint uint_min(uint a, uint b);
+uint uint_max(uint a, uint b);
+int int_max(int a, int b);
+
 cplx quad1(cplx x);
 float l1norm(cplx x);
 float clampf(float, float, float);

@@ -112,7 +112,7 @@ cplx *BUFFER_GET(uint index) {
 }
 
 uint BUFFER_READ(cplx *cplx_array, uint amount) {
-    amount = amount < CHUNK_SIZE ? amount : CHUNK_SIZE;
+    amount = uint_min(gbuffer->lastwritesize, amount);
     uint return_amount = amount;
 
     uint start = gbuffer->start;

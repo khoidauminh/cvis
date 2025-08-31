@@ -11,3 +11,6 @@ float clampf(float min, float x, float max) {
 }
 
 uint uint_min(uint a, uint b) { return (a < b) ? a : b; }
+uint uint_max(uint a, uint b) { return (a > b) ? a : b; }
+
+int int_max(int a, int b) { return (a > b) ? a : b; }

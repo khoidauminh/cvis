@@ -44,7 +44,7 @@ set(SOURCES
 )
 
 add_executable(cvis ${SOURCES})
-add_compile_options(-Wall -Wextra -Wpedantic -ffast-math)
+add_compile_options(-Wall -Wextra -Wpedantic -ffast-math -msse2 -mavx2)
 
 set_property(TARGET cvis PROPERTY C_STANDARD 23)
 set_property(TARGET cvis PROPERTY C_STANDARD_REQUIRED ON)
