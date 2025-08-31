@@ -10,7 +10,7 @@ b2sums=('SKIP')
 
 build() {
     local cmake_options=(
-        -B build
+        -B build --fresh
         -S "../.."
         -DFETCHCONTENT_FULLY_DISCONNECTED=ON
         -DFETCHCONTENT_SOURCE_DIR_MINIAUDIO="$srcdir/miniaudio-0.11.22"
