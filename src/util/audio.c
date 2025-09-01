@@ -84,7 +84,7 @@ static void data_callback(ma_device *, void *restrict,
     gbuffer->readend = (gbuffer->writeend - input_size) & BUFFER_MASK;
 
     gbuffer->autorotatesize =
-        input_size / uint_max(gbuffer->rotatessinceupdate, 5);
+        input_size / uint_max(gbuffer->rotatessinceupdate, 8);
 
     gbuffer->rotatessinceupdate = 0;
 
