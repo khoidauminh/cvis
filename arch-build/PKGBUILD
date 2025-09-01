@@ -16,6 +16,8 @@ build() {
         -DFETCHCONTENT_SOURCE_DIR_MINIAUDIO="$srcdir/miniaudio-0.11.22"
         -W no-dev
         -D CMAKE_INSTALL_PREFIX=/usr
+        # Uncomment below to enable Raylib
+        # -Draylib=on
     )
     cmake "${cmake_options[@]}"
     cmake --build build

@@ -29,7 +29,6 @@ Cvis can then be called in the `build` directory:
 ## Archlinux PKGBUILD
 
 Cvis also provides a PKGBUILD in `arch-build` that builds from the local repository.
-Building with Raylib is not supported at the moment.
 
 ## Commandline Arguments
 
