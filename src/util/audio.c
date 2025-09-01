@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <complex.h>
 #include <math.h>
+#include <stdbit.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -12,23 +13,27 @@
 #include "logging.h"
 
 constexpr uint CHUNK_SIZE = SAMPLERATE * 30 / 1000;
-constexpr uint BUFFER_SIZE = 1 << 15;
+constexpr uint DOUBLE_CHUNK_SIZE = CHUNK_SIZE * 2;
+constexpr uint CHANNELS = 2;
+constexpr uint BUFFER_SIZE = 1 << 18;
 constexpr uint BUFFER_MASK = BUFFER_SIZE - 1;
 constexpr uint DEFAULT_ROTATE_SIZE = CHUNK_SIZE / 4;
 constexpr float NORMALIZE_SPEED_FACTOR = 0.99f;
 constexpr float NORMALIZE_MIN_THRESHOLD = 0.001f;
+
 constexpr float ZEROF = 0.0f;
 constexpr float ONEF = 1.0;
 
 typedef struct audiobuffer {
-    uint start;
+    uint writeend;
+    uint oldwriteend;
 
-    uint write;
-    uint oldwrite;
-    uint lastwritesize;
+    uint readend;
 
+    uint samplesscanned;
     uint autorotatesize;
     uint rotatessinceupdate;
+    uint lastwritesize;
 
     float max;
 
@@ -37,8 +42,9 @@ typedef struct audiobuffer {
 
 static AudioBuffer *gbuffer = nullptr;
 static ma_device gdevice;
+static ma_mutex locker;
 
-void buffer_normalize();
+static void buffer_normalize();
 
 void cplxcpy(cplx *restrict dst, const cplx *restrict src, uint amount) {
     memcpy(dst, src, sizeof(cplx) * amount);
@@ -48,47 +54,51 @@ void cplxzero(cplx *restrict buf, uint amount) {
     memset(buf, 0, sizeof(cplx) * amount);
 }
 
-void data_callback(ma_device *, void *restrict, const void *restrict pInput,
-                   unsigned int frame_count) {
+static void data_callback(ma_device *, void *restrict,
+                          const void *restrict pInput,
+                          const unsigned int input_size) {
     const cplx *buffer =
         pInput; // direct cast allowed since we're forcing f32 format.
 
-    const uint input_size = frame_count / 2;
     uint amount_left = input_size;
 
-    gbuffer->oldwrite = gbuffer->write;
+    ma_mutex_lock(&locker);
+
+    gbuffer->oldwriteend = gbuffer->writeend;
 
     while (amount_left > 0) {
-        uint available = BUFFER_SIZE - gbuffer->write;
+        uint available = BUFFER_SIZE - gbuffer->writeend;
 
         uint write_amount = (amount_left < available) ? amount_left : available;
 
-        cplxcpy(gbuffer->data + gbuffer->write, buffer, write_amount);
+        cplxcpy(gbuffer->data + gbuffer->writeend, buffer, write_amount);
 
         buffer += write_amount;
         amount_left -= write_amount;
-        gbuffer->write += write_amount;
-        gbuffer->write &= BUFFER_MASK;
+        gbuffer->writeend += write_amount;
+        gbuffer->writeend &= BUFFER_MASK;
     }
 
     gbuffer->lastwritesize = input_size;
 
-    gbuffer->start = (gbuffer->write - CHUNK_SIZE) & BUFFER_MASK;
+    gbuffer->readend = (gbuffer->writeend - input_size) & BUFFER_MASK;
 
-    gbuffer->autorotatesize = input_size / (gbuffer->rotatessinceupdate + 3);
+    gbuffer->autorotatesize =
+        input_size / uint_max(gbuffer->rotatessinceupdate, 5);
 
     gbuffer->rotatessinceupdate = 0;
 
     buffer_normalize();
+    ma_mutex_unlock(&locker);
 }
 
-void buffer_normalize() {
+static void buffer_normalize() {
     const uint bound = gbuffer->lastwritesize;
 
     float max = 0.0f;
 
     for (uint i = 0; i < bound; i++) {
-        uint index = (i + gbuffer->oldwrite) & BUFFER_MASK;
+        uint index = (i + gbuffer->oldwriteend) & BUFFER_MASK;
         max = fmaxf(cmaxf(gbuffer->data[index]), max);
     }
 
@@ -102,20 +112,22 @@ void buffer_normalize() {
     float scale = 1.0 / gbuffer->max;
 
     for (uint i = 0; i < bound; i++) {
-        uint index = (i + gbuffer->oldwrite) & BUFFER_MASK;
+        uint index = (i + gbuffer->oldwriteend) & BUFFER_MASK;
         gbuffer->data[index] *= scale;
     }
 }
 
-cplx *BUFFER_GET(uint index) {
-    return gbuffer->data + (index + gbuffer->start);
+cplx BUFFER_GET(uint index) {
+    return gbuffer->data[(index + gbuffer->readend) & BUFFER_MASK];
 }
 
 uint BUFFER_READ(cplx *cplx_array, uint amount) {
-    amount = uint_min(gbuffer->lastwritesize, amount);
+    amount = uint_min(BUFFER_SIZE, amount);
     uint return_amount = amount;
 
-    uint start = gbuffer->start;
+    ma_mutex_lock(&locker);
+
+    uint start = (gbuffer->readend + BUFFER_SIZE - amount) & BUFFER_MASK;
 
     while (amount > 0) {
         uint available = BUFFER_SIZE - start;
@@ -129,14 +141,20 @@ uint BUFFER_READ(cplx *cplx_array, uint amount) {
         start &= BUFFER_MASK;
     }
 
+    ma_mutex_unlock(&locker);
+
     return return_amount;
 }
 
-void BUFFER_AUTOSLIDE() {
+void BUFFER_SLIDE(const uint amount) {
+    ma_mutex_lock(&locker);
     gbuffer->rotatessinceupdate += 1;
-    gbuffer->start += gbuffer->autorotatesize;
-    gbuffer->start &= BUFFER_MASK;
+    gbuffer->readend += amount;
+    gbuffer->readend &= BUFFER_MASK;
+    ma_mutex_unlock(&locker);
 }
+
+void BUFFER_AUTOSLIDE() { BUFFER_SLIDE(gbuffer->autorotatesize); }
 
 void init_audio() {
     assert(!gbuffer); // Don't allow 2nd innitialization.
@@ -149,11 +167,16 @@ void init_audio() {
     ma_device_config deviceConfig;
     deviceConfig = ma_device_config_init(ma_device_type_capture);
     deviceConfig.capture.format = ma_format_f32;
-    deviceConfig.capture.channels = 2;
+    deviceConfig.capture.channels = CHANNELS;
     deviceConfig.sampleRate = SAMPLERATE;
     deviceConfig.dataCallback = data_callback;
 
     ma_result ma_result;
+
+    ma_result = ma_mutex_init(&locker);
+    if (ma_result != MA_SUCCESS) {
+        warn("Failed to initialize mutex.");
+    }
 
     ma_result = ma_device_init(nullptr, &deviceConfig, &gdevice);
     if (ma_result != MA_SUCCESS) {
@@ -169,6 +192,8 @@ void init_audio() {
 void free_audio() {
     ma_device_uninit(&gdevice);
     free(gbuffer);
+
+    ma_mutex_uninit(&locker);
 
     memset(&gdevice, 0, sizeof(gdevice));
     gbuffer = nullptr;

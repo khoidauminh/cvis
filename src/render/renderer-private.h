@@ -13,6 +13,7 @@ typedef enum renderapi: uint {
     renderapi_clear,
     renderapi_flush,
     renderapi_resize,
+    renderapi_blend,
     
     renderapi_count,
 } RenderAPI;
@@ -24,6 +25,7 @@ typedef union api_paremeter {
     SDL_Color color;
     uint fade;
     uint resize[2];
+    SDL_BlendMode blendmode;
 } APIParameter;
 
 struct renderer {

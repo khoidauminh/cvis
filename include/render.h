@@ -30,6 +30,7 @@ Size RNDR_SIZE();
 void RNDR_COLOR(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 void RNDR_PLOT(float x, float y);
 void RNDR_RECT(float x , float y, float w, float h);
+void RNDR_BLEND(SDL_BlendMode blendmode);
 void RNDR_FILL();
 void RNDR_CLEAR();
 void RNDR_FLUSH();

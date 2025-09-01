@@ -9,8 +9,9 @@ void cplxcpy(cplx *restrict dst, const cplx *restrict src, uint amount);
 void cplxzero(cplx *restrict buf, uint amount);
 
 uint BUFFER_READ(cplx*, uint);
+void BUFFER_SLIDE(const uint amount);
 void BUFFER_AUTOSLIDE();
-cplx *BUFFER_GET(uint index);
+cplx BUFFER_GET(uint index);
 
 void init_audio();
 void free_audio();

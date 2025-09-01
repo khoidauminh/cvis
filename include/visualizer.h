@@ -17,5 +17,6 @@ void vm_selfupdate(VisManager*);
 
 void visualizer_spectrum(Program *);
 void visualizer_vectorscope(Program *);
+void visualizer_oscilloscope(Program *prog);
 
 #endif

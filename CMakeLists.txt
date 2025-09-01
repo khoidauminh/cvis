@@ -35,15 +35,20 @@ set(SOURCES
     src/render/render.c
     src/render/terminal.c
     src/render/sdl.c
+
     src/visualizers/classic/spectrum.c
     src/visualizers/classic/vectorscope.c
+    src/visualizers/classic/oscilloscope.c
     src/visualizers/visualizer.c
+
     src/program/config.c
     src/program/program.c
     src/main.c
 )
 
-add_executable(cvis ${SOURCES})
+add_executable(cvis)
+target_sources(cvis PRIVATE ${SOURCES})
+
 add_compile_options(
     -Wall -Wextra -Wpedantic
     -ffast-math -msse2 -mavx512

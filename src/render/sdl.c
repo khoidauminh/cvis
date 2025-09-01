@@ -53,12 +53,21 @@ void sdl_present(Renderer *r, APIParameter *) {
     SDL_RenderPresent(sdlr->renderer);
 }
 
+void sdl_set_blendmode(Renderer *r, APIParameter *param) {
+    SDLRenederer *sdlr = r->renderer;
+    SDL_SetRenderDrawBlendMode(sdlr->renderer, param->blendmode);
+}
+
 void sdl_autoresize(Renderer *, APIParameter *) {}
 
 static DrawFunc *SDL_DRAW_FUNC_MAP[] = {
-    [renderapi_plot] = &sdl_draw_plot,    [renderapi_rect] = &sdl_draw_rect,
-    [renderapi_fill] = &sdl_fill,         [renderapi_clear] = &sdl_clear,
-    [renderapi_color] = &sdl_set_color,   [renderapi_flush] = &sdl_present,
+    [renderapi_plot] = &sdl_draw_plot,
+    [renderapi_rect] = &sdl_draw_rect,
+    [renderapi_fill] = &sdl_fill,
+    [renderapi_clear] = &sdl_clear,
+    [renderapi_color] = &sdl_set_color,
+    [renderapi_flush] = &sdl_present,
+    [renderapi_blend] = &sdl_set_blendmode,
     [renderapi_resize] = &sdl_autoresize,
 };
 
@@ -97,7 +106,10 @@ void sdl_renderer_init(Renderer *r) {
         die("Failed to set configure Vsync.");
     }
 
+    SDL_SetRenderDrawBlendMode(sdlr->renderer, SDL_BLENDMODE_NONE);
+
     r->renderer = sdlr;
+
     r->api = SDL_DRAW_FUNC_MAP;
 }
 

@@ -22,7 +22,8 @@ struct visualizer_manager {
 static Visualizer FUNC_ARRAY[] = {
     {.name = "spectrum", .func = &visualizer_spectrum},
     {.name = "vectorscope", .func = &visualizer_vectorscope},
-    {.name = nullptr, .func = nullptr}};
+    {.name = "oscilloscope", .func = &visualizer_oscilloscope},
+    {}};
 
 void vm_select_by_name(VisManager *v, const char *name);
 

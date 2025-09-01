@@ -77,6 +77,11 @@ void render_rect(Renderer *r, float x, float y, float w, float h) {
     (r->api[renderapi_rect])(r, &p);
 }
 
+void render_set_blendmode(Renderer *r, SDL_BlendMode blendmode) {
+    APIParameter p = {.blendmode = blendmode};
+    (r->api[renderapi_blend])(r, &p);
+}
+
 void render_fill(Renderer *r) { (r->api[renderapi_fill])(r, nullptr); }
 
 void render_flush(Renderer *r) { (r->api[renderapi_flush])(r, nullptr); }
@@ -108,6 +113,13 @@ void RNDR_FILL() { render_fill(RENDERER); }
 
 void RNDR_CLEAR() { render_clear(RENDERER); }
 
-void RNDR_FLUSH() { render_flush(RENDERER); }
+void RNDR_FLUSH() {
+    render_flush(RENDERER);
+    render_set_blendmode(RENDERER, SDL_BLENDMODE_NONE);
+}
+
+void RNDR_BLEND(SDL_BlendMode blendmode) {
+    render_set_blendmode(RENDERER, blendmode);
+}
 
 void RNDR_AUTORESIZE() { render_autoresize(RENDERER); }
