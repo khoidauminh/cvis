@@ -36,10 +36,16 @@ void warn(const char *msg, ...) {
     fprintf(stderr, "\x1B[0m");
 }
 
-void die(const char *msg, ...) {
-    if (is_logging_disabled())
-        return;
+void error(const char *msg, ...) {
+    fprintf(stderr, "\x1B[31;1m");
+    fprintf(stderr, "!!! ERROR: ");
 
+    PERFORM_PRINT;
+
+    fprintf(stderr, "\x1B[0m");
+}
+
+void die(const char *msg, ...) {
     fprintf(stderr, "\x1B[31;1m");
     fprintf(stderr, "!!! ERROR: ");
 
