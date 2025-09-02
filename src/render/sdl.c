@@ -82,8 +82,9 @@ void sdl_renderer_init(Renderer *r) {
     bool result;
 
     result = SDL_CreateWindowAndRenderer(
-        "cvis", r->cfg->width * r->cfg->scale, r->cfg->height * r->cfg->scale,
-        SDL_WINDOW_ALWAYS_ON_TOP, &sdlr->window, &sdlr->renderer);
+        "cvis", (int)(r->cfg->width * r->cfg->scale),
+        (int)(r->cfg->height * r->cfg->scale), SDL_WINDOW_ALWAYS_ON_TOP,
+        &sdlr->window, &sdlr->renderer);
 
     if (!result) {
         die("Failed to create SDL window and renderer.");

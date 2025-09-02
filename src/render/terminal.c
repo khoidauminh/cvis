@@ -28,10 +28,10 @@ typedef struct terminal_renderer {
 static void terminal_set_color(Renderer *r, APIParameter *c) {
     TRenderer *tr = r->renderer;
     const char *ch_map = " -+#@";
-    const uint ch_map_size = strlen(ch_map);
+    const uint ch_map_size = (uint)strlen(ch_map);
 
-    uint gray =
-        (c->color.r + c->color.g + c->color.b * 2) * c->color.a / 256 / 4;
+    uint gray = ((uint)c->color.r + (uint)c->color.g + (uint)c->color.b * 2) *
+                (uint)c->color.a / 256 / 4;
     uint index = gray * ch_map_size / 256;
 
     tr->ch = ch_map[index];
@@ -42,7 +42,7 @@ static void terminal_draw_plot(Renderer *r, APIParameter *param) {
     int x = (int)param->plot[0] + 1;
     int y = (int)param->plot[1] + 1;
 
-    mvwaddch(tr->win, y, x, tr->ch);
+    mvwaddch(tr->win, y, x, (chtype)tr->ch);
 }
 
 static void terminal_draw_rect(Renderer *r, APIParameter *param) {
@@ -58,7 +58,7 @@ static void terminal_draw_rect(Renderer *r, APIParameter *param) {
     }
 
     char line[MAX_STR_LEN] = {};
-    uint copysize = w < MAX_STR_LEN ? w : MAX_STR_LEN;
+    uint copysize = w < MAX_STR_LEN ? (uint)w : MAX_STR_LEN;
 
     memset(line, tr->ch, sizeof(char) * copysize);
 
@@ -77,8 +77,8 @@ static void terminal_autoresize(Renderer *r, APIParameter *) {
     int w = 50, h = 50;
     getmaxyx((tr->win), h, w);
 
-    r->cfg->width = w;
-    r->cfg->height = h;
+    r->cfg->width = (uint)w;
+    r->cfg->height = (uint)h;
 }
 
 static DrawFunc *TERMINAL_DRAW_FUNC_MAP[] = {
@@ -131,7 +131,7 @@ void pg_eventloop_term(Program *p) {
     RNDR_SET_TARGET(pg_renderer(p));
 
     while (running) {
-        const char key = getch();
+        const char key = (char)getch();
 
         switch (key) {
         case 'q':

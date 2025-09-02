@@ -66,7 +66,7 @@ void visualizer_oscilloscope(Program *prog) {
 
     const uint w = uint_max(size.w, 1);
 
-    float index_scale = (float)BUFFERSIZE / w * 0.8f;
+    float index_scale = (float)BUFFERSIZE / (float)w * 0.8f;
 
     const uint samplesperpixel = (BUFFERSIZE + w) / w;
 

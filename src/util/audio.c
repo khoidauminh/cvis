@@ -13,7 +13,6 @@
 #include "logging.h"
 
 constexpr uint CHUNK_SIZE = SAMPLERATE * 30 / 1000;
-constexpr uint DOUBLE_CHUNK_SIZE = CHUNK_SIZE * 2;
 constexpr uint CHANNELS = 2;
 constexpr uint BUFFER_SIZE = 1 << 18;
 constexpr uint BUFFER_MASK = BUFFER_SIZE - 1;
@@ -109,7 +108,7 @@ static void buffer_normalize() {
         return;
     }
 
-    float scale = 1.0 / gbuffer->max;
+    float scale = 1.0f / gbuffer->max;
 
     for (uint i = 0; i < bound; i++) {
         uint index = (i + gbuffer->oldwriteend) & BUFFER_MASK;
@@ -264,7 +263,7 @@ MovingAverage moving_average_new(float *buffer, uint size) {
     ma.index = 0;
     ma.sum = (float)size * 0.0f;
     ma.average = 0.0f;
-    ma.denom = 1.0 / (float)size;
+    ma.denom = 1.0f / (float)size;
     ma.data = buffer;
 
     memset(buffer, 0, size * sizeof(float));

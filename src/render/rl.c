@@ -33,8 +33,8 @@ static void raylib_set_color(Renderer *r, APIParameter *param) {
 static void raylib_rect(Renderer *r, APIParameter *param) {
     RLRenderer *rlr = r->renderer;
     start_drawing(rlr);
-    DrawRectangle(param->rect[0], param->rect[1], param->rect[2],
-                  param->rect[3], rlr->color);
+    DrawRectangle((int)param->rect[0], (int)param->rect[1], (int)param->rect[2],
+                  (int)param->rect[3], rlr->color);
 }
 
 static void raylib_plot(Renderer *r, APIParameter *param) {
@@ -61,10 +61,10 @@ static void raylib_present(Renderer *r, APIParameter *) {
 
     BeginDrawing();
 
-    auto target = rlr->target;
+    RenderTexture2D target = rlr->target;
 
-    float w = (float)r->cfg->width * r->cfg->scale;
-    float h = (float)r->cfg->height * r->cfg->scale;
+    float w = (float)(r->cfg->width * r->cfg->scale);
+    float h = (float)(r->cfg->height * r->cfg->scale);
 
     DrawTexturePro(target.texture,
                    (Rectangle){0.0f, 0.0f, (float)target.texture.width,
@@ -76,8 +76,8 @@ static void raylib_present(Renderer *r, APIParameter *) {
 }
 
 static void raylib_autoresize(Renderer *r, APIParameter *) {
-    r->cfg->width = GetRenderWidth() / r->cfg->scale;
-    r->cfg->height = GetRenderWidth() / r->cfg->scale;
+    r->cfg->width = (uint)GetRenderWidth() / r->cfg->scale;
+    r->cfg->height = (uint)GetRenderWidth() / r->cfg->scale;
 }
 
 static DrawFunc *RAYLIB_FUNC_MAP[] = {
@@ -97,13 +97,13 @@ void raylib_init(Renderer *r) {
     if (r->cfg->refreshmode == refreshmode_sync) {
         SetConfigFlags(FLAG_VSYNC_HINT);
     } else {
-        SetTargetFPS(r->cfg->refreshrate);
+        SetTargetFPS((int)r->cfg->refreshrate);
     }
 
-    InitWindow(r->cfg->width * r->cfg->scale, r->cfg->height * r->cfg->scale,
-               "cvis");
+    InitWindow((int)(r->cfg->width * r->cfg->scale),
+               (int)(r->cfg->height * r->cfg->scale), "cvis");
 
-    rlr->target = LoadRenderTexture(r->cfg->width, r->cfg->height);
+    rlr->target = LoadRenderTexture((int)r->cfg->width, (int)r->cfg->height);
     SetTextureFilter(rlr->target.texture, TEXTURE_FILTER_POINT);
 
     DisableEventWaiting();

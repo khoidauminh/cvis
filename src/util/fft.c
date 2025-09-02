@@ -26,10 +26,10 @@ static void contruct_twiddle_array() {
     uint i = 1;
 
     for (uint k = 1; k < MAX_FFT_LENGTH; k *= 2) {
-        double angle = -SDL_PI_D / (double)k;
+        float angle = -SDL_PI_F / (float)k;
 
         for (uint j = 0; j < k; j++) {
-            cplx twiddle = cexpf((double)j * angle * I);
+            cplx twiddle = cexpf((float)j * angle * I);
 
             TWIDDLE_ARRAY[i++] = twiddle;
         }

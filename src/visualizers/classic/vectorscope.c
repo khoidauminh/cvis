@@ -6,7 +6,6 @@
 #include "visualizer.h"
 
 constexpr uint BUFFERSIZE = 128;
-constexpr uint SHIFT = BUFFERSIZE / 4;
 
 void draw_cross(Program *prog) {
     static thread_local bool vertical = false;
@@ -15,8 +14,8 @@ void draw_cross(Program *prog) {
 
     Size size = RNDR_SIZE();
 
-    float w = size.w;
-    float h = size.h;
+    float w = (float)size.w;
+    float h = (float)size.h;
 
     if (vertical ^= true) {
         RNDR_RECT(w * 0.5f, h * 0.1f, 1.0f, h * 0.8f + 1.0f);
@@ -36,10 +35,10 @@ void visualizer_vectorscope(Program *prog) {
 
     Size size = RNDR_SIZE();
 
-    float center_x = size.w / 2.0;
-    float center_y = size.h / 2.0;
+    float center_x = (float)size.w / 2.0f;
+    float center_y = (float)size.h / 2.0f;
 
-    float scale = (size.w < size.h ? size.w : size.h) * 0.4f;
+    float scale = (float)(size.w < size.h ? size.w : size.h) * 0.4f;
 
     constexpr uint PHASE = 92;
 
@@ -51,7 +50,7 @@ void visualizer_vectorscope(Program *prog) {
         float y = cimagf(BUFFER[ir]) * scale;
 
         float redf = (fabsf(x) + fabsf(y)) * 7.0f;
-        Uint8 red = SDL_min((int)(redf), 255);
+        Uint8 red = (Uint8)uint_min((Uint8)(redf), 255);
 
         RNDR_COLOR(red, 255, 0, 255);
         RNDR_PLOT(center_x + x, center_y + y);

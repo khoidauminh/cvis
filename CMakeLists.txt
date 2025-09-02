@@ -24,8 +24,6 @@ FetchContent_MakeAvailable(miniaudio)
 find_package(SDL3)
 find_package(Curses)
 
-include_directories("include")
-
 set(SOURCES
     src/util/common.c
     src/util/audio.c
@@ -49,15 +47,18 @@ set(SOURCES
 add_executable(cvis)
 target_sources(cvis PRIVATE ${SOURCES})
 
-add_compile_options(
-    -Wall -Wextra -Wpedantic
-    -ffast-math -msse2 -mavx512
-    -march native
+set_property(TARGET cvis PROPERTY C_STANDARD 23)
+set_property(TARGET cvis PROPERTY C_STANDARD_REQUIRED TRUE)
+set_property(TARGET cvis PROPERTY C_EXTENSIONS FALSE)
+
+target_compile_options(cvis PRIVATE
+    -Wall -Wextra -Wpedantic -Wconversion
+    -ffast-math -msse2 -mavx512f
+    -march=native
 )
 
-set_property(TARGET cvis PROPERTY C_STANDARD 23)
-set_property(TARGET cvis PROPERTY C_STANDARD_REQUIRED ON)
-set_property(TARGET cvis PROPERTY C_EXTENSIONS OFF)
+target_include_directories(cvis PRIVATE "include")
+target_link_libraries(cvis m SDL3::SDL3 ncurses miniaudio)
 
 option(raylib "Use Raylib" OFF)
 
@@ -65,7 +66,7 @@ if(raylib)
     find_package(raylib REQUIRED)
     if(raylib_FOUND)
         target_link_libraries(cvis raylib)
-        add_compile_definitions(-DUSE_RAYLIB)
+        target_compile_definitions(cvis PUBLIC USE_RAYLIB)
         target_sources(cvis PRIVATE "src/render/rl.c")
     else()
         message(FATAL_ERROR "Missing required Raylib dependency!")
@@ -74,6 +75,5 @@ else()
     message(STATUS "Raylib disabled")
 endif()
 
-target_link_libraries(cvis m SDL3::SDL3 ncurses miniaudio)
 
 install(TARGETS cvis)

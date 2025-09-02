@@ -43,6 +43,9 @@ void visualizer_spectrum(Program *prog) {
 
     Size size = RNDR_SIZE();
 
+    float wf = (float)size.w;
+    float hf = (float)size.h;
+
     for (uint y = 0; y < size.h; y++) {
         float ifrac = (float)y / (float)size.h;
         ifrac = exp2m1f(ifrac);
@@ -62,15 +65,17 @@ void visualizer_spectrum(Program *prog) {
         Uint8 channel = (Uint8)(y * 255 / size.h);
         Uint8 green = (Uint8)SDL_min(16 + (int)(3.0f * (sl + sr)), 255);
 
+        float yf = (float)y;
+
         RNDR_COLOR(255 - channel, green, 128 + channel / 2, 255);
-        RNDR_RECT(size.w / 2.0 - sl, size.h - y, sl, 1.0);
-        RNDR_RECT(size.w / 2.0, size.h - y, sr, 1.0);
+        RNDR_RECT(wf / 2.0f - sl, hf - yf, sl, 1.0f);
+        RNDR_RECT(wf / 2.0f, hf - yf, sr, 1.0f);
 
         cplx s = BUFFER_GET(ifloor);
         Uint8 c1 = crealf(s) > 0.0 ? 255 : 0;
         Uint8 c2 = cimagf(s) > 0.0 ? 255 : 0;
 
         RNDR_COLOR(c1, 0, c2, 255);
-        RNDR_RECT(size.w / 2.0 - 1, size.h - y, 2, 1);
+        RNDR_RECT(wf / 2.0f - 1, hf - yf, 2, 1);
     }
 }
