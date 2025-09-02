@@ -9,6 +9,14 @@
 
 #include "renderer-private.h" // IWYU pragma: keep.
 
+static void check_api(DrawFunc **func) {
+    for (RenderAPI i = renderapi_null; i < renderapi_count; i++) {
+        if (!func[i]) {
+            die("Render API missing some functions.\n");
+        }
+    }
+}
+
 Renderer *renderer_new(Config *cfg) {
     Renderer *out = malloc(sizeof(Renderer));
     assert(out);
@@ -38,6 +46,8 @@ Renderer *renderer_new(Config *cfg) {
     }
 
     (out->init)(out);
+
+    check_api(out->api);
 
     return out;
 }

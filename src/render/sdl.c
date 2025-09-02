@@ -61,14 +61,10 @@ static void sdl_set_blendmode(Renderer *r, APIParameter *param) {
 static void sdl_autoresize(Renderer *, APIParameter *) {}
 
 static DrawFunc *SDL_DRAW_FUNC_MAP[] = {
-    [renderapi_plot] = &sdl_draw_plot,
-    [renderapi_rect] = &sdl_draw_rect,
-    [renderapi_fill] = &sdl_fill,
-    [renderapi_clear] = &sdl_clear,
-    [renderapi_color] = &sdl_set_color,
-    [renderapi_flush] = &sdl_present,
-    [renderapi_blend] = &sdl_set_blendmode,
-    [renderapi_resize] = &sdl_autoresize,
+    [renderapi_plot] = sdl_draw_plot,      [renderapi_rect] = sdl_draw_rect,
+    [renderapi_fill] = sdl_fill,           [renderapi_clear] = sdl_clear,
+    [renderapi_color] = sdl_set_color,     [renderapi_flush] = sdl_present,
+    [renderapi_blend] = sdl_set_blendmode, [renderapi_resize] = sdl_autoresize,
 };
 
 void sdl_renderer_init(Renderer *r) {

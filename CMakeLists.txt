@@ -5,7 +5,7 @@ project(cvis
     DESCRIPTION "Personal Music Visualizer - C-based sibling of Coffeevis"
 )
 
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE ReleaseWithInfo)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(CURSES_NEED_NCURSES TRUE)
 

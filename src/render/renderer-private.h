@@ -4,14 +4,22 @@
 #include "render.h"
 
 typedef enum renderapi: uint {
+    renderapi_null = 0,
+    
     renderapi_plot = 0,
+    
     renderapi_rect,
-    renderapi_line,
+    
+    // renderapi_line,
+    
     renderapi_fill,
-    renderapi_fade,
+    
+    // renderapi_fade,
+    
     renderapi_color,
     renderapi_clear,
     renderapi_flush,
+    
     renderapi_resize,
     renderapi_blend,
     

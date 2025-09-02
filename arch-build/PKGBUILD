@@ -12,6 +12,7 @@ build() {
     local cmake_options=(
         -B build --fresh
         -S "../.."
+        -DCMAKE_BUILD_TYPE=Release
         -DFETCHCONTENT_FULLY_DISCONNECTED=ON
         -DFETCHCONTENT_SOURCE_DIR_MINIAUDIO="$srcdir/miniaudio-0.11.22"
         -W no-dev

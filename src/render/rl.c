@@ -9,6 +9,7 @@
 typedef struct raylib_renderer {
     Color color;
     bool is_drawing;
+    bool is_blend;
     RenderTexture2D target;
 } RLRenderer;
 
@@ -59,6 +60,11 @@ static void raylib_present(Renderer *r, APIParameter *) {
     rlr->is_drawing = false;
     EndTextureMode();
 
+    if (rlr->is_blend) {
+        rlr->is_blend = false;
+        EndBlendMode();
+    }
+
     BeginDrawing();
 
     RenderTexture2D target = rlr->target;
@@ -75,19 +81,40 @@ static void raylib_present(Renderer *r, APIParameter *) {
     EndDrawing();
 }
 
+static void raylib_set_blendmode(Renderer *r, APIParameter *param) {
+    BlendMode b = BLEND_ALPHA;
+
+    switch (param->blendmode) {
+    case SDL_BLENDMODE_ADD:
+        b = BLEND_ALPHA;
+        break;
+    case SDL_BLENDMODE_MUL:
+        b = BLEND_MULTIPLIED;
+        break;
+    default: {
+    }
+    }
+
+    RLRenderer *rlr = r->renderer;
+    rlr->is_blend = true;
+
+    BeginBlendMode((int)b);
+}
+
 static void raylib_autoresize(Renderer *r, APIParameter *) {
     r->cfg->width = (uint)GetRenderWidth() / r->cfg->scale;
     r->cfg->height = (uint)GetRenderWidth() / r->cfg->scale;
 }
 
 static DrawFunc *RAYLIB_FUNC_MAP[] = {
-    [renderapi_plot] = &raylib_plot,
-    [renderapi_rect] = &raylib_rect,
-    [renderapi_fill] = &raylib_fill,
-    [renderapi_clear] = &raylib_clear,
-    [renderapi_color] = &raylib_set_color,
-    [renderapi_flush] = &raylib_present,
-    [renderapi_resize] = &raylib_autoresize,
+    [renderapi_plot] = raylib_plot,
+    [renderapi_rect] = raylib_rect,
+    [renderapi_fill] = raylib_fill,
+    [renderapi_clear] = raylib_clear,
+    [renderapi_color] = raylib_set_color,
+    [renderapi_flush] = raylib_present,
+    [renderapi_blend] = raylib_set_blendmode,
+    [renderapi_resize] = raylib_autoresize,
 };
 
 void raylib_init(Renderer *r) {

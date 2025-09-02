@@ -19,6 +19,7 @@
 #include <unistdio.h>
 
 constexpr int MAX_STR_LEN = 256;
+constexpr char CHAR_MAP[] = " -+#@";
 
 typedef struct terminal_renderer {
     WINDOW *win;
@@ -27,14 +28,13 @@ typedef struct terminal_renderer {
 
 static void terminal_set_color(Renderer *r, APIParameter *c) {
     TRenderer *tr = r->renderer;
-    const char *ch_map = " -+#@";
-    const uint ch_map_size = (uint)strlen(ch_map);
+    const uint ch_map_size = (uint)strlen(CHAR_MAP);
 
     uint gray = ((uint)c->color.r + (uint)c->color.g + (uint)c->color.b * 2) *
                 (uint)c->color.a / 256 / 4;
     uint index = gray * ch_map_size / 256;
 
-    tr->ch = ch_map[index];
+    tr->ch = CHAR_MAP[index];
 }
 
 static void terminal_draw_plot(Renderer *r, APIParameter *param) {
@@ -67,6 +67,8 @@ static void terminal_draw_rect(Renderer *r, APIParameter *param) {
     }
 }
 
+static void terminal_set_blendmode(Renderer *, APIParameter *) {}
+
 static void terminal_clear(Renderer *, APIParameter *) { clear(); }
 
 static void terminal_flush(Renderer *, APIParameter *) { refresh(); }
@@ -82,13 +84,14 @@ static void terminal_autoresize(Renderer *r, APIParameter *) {
 }
 
 static DrawFunc *TERMINAL_DRAW_FUNC_MAP[] = {
-    [renderapi_plot] = &terminal_draw_plot,
-    [renderapi_rect] = &terminal_draw_rect,
-    [renderapi_clear] = &terminal_clear,
-    [renderapi_flush] = &terminal_flush,
-    [renderapi_color] = &terminal_set_color,
-    [renderapi_fill] = &terminal_clear,
-    [renderapi_resize] = &terminal_autoresize,
+    [renderapi_plot] = terminal_draw_plot,
+    [renderapi_rect] = terminal_draw_rect,
+    [renderapi_clear] = terminal_clear,
+    [renderapi_flush] = terminal_flush,
+    [renderapi_color] = terminal_set_color,
+    [renderapi_fill] = terminal_clear,
+    [renderapi_blend] = terminal_set_blendmode,
+    [renderapi_resize] = terminal_autoresize,
 };
 
 void terminal_renderer_init(Renderer *r) {
@@ -125,7 +128,7 @@ void terminal_renderer_end(Renderer *r) {
 #include "program.h"
 
 void pg_eventloop_term(Program *p) {
-    assert(renderer_get_type(pg_renderer(p)) != renderertype_terminal);
+    assert(renderer_get_type(pg_renderer(p)) == renderertype_terminal);
 
     bool running = true;
     RNDR_SET_TARGET(pg_renderer(p));
