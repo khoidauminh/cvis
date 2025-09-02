@@ -8,9 +8,13 @@
 
 #include <SDL3/SDL_render.h>
 
-constexpr uint BUFFERSIZE = 1024;
-constexpr uint PADDING = BUFFERSIZE;
-constexpr uint START = BUFFERSIZE / 2;
+static constexpr uint BUFFERSIZE = 1024;
+static constexpr uint PADDING = BUFFERSIZE;
+static constexpr uint START = BUFFERSIZE / 2;
+static constexpr uint PRESMOOTH = START / 8;
+static constexpr float LOWPASS_FACTOR = 0.01f;
+static constexpr uint SHIFTBACK = 50; // The lowpass causes a delay so shift
+                                      // the index_start back (approxmiate).
 
 static thread_local cplx BUFFER[BUFFERSIZE + PADDING];
 static thread_local uint indexstart = 0;
@@ -22,12 +26,16 @@ static void prepare() {
     uint INDICES[STORESIZE] = {START};
     uint indices_last = 1;
 
-    cplx smp1 = BUFFER[START];
-    cplx smp2 = clinearf(smp1, BUFFER[START + 1], 0.01f);
-    cplx smp3 = clinearf(smp2, BUFFER[START + 2], 0.01f);
+    cplx smp1 = {}, smp2 = {}, smp3 = {};
+
+    for (uint i = START - PRESMOOTH; i < START; i++) {
+        smp3 = clinearf(smp3, BUFFER[i], LOWPASS_FACTOR);
+        smp1 = smp2;
+        smp2 = smp3;
+    }
 
     for (uint i = START; i < PADDING + START; i++) {
-        smp3 = clinearf(smp2, BUFFER[i], 0.01f);
+        smp3 = clinearf(smp3, BUFFER[i], LOWPASS_FACTOR);
 
         if (crealf(smp1) >= 0.0f && crealf(smp3) < 0.0f) {
             INDICES[indices_last++] = i;
@@ -47,9 +55,9 @@ static void prepare() {
         smp2 = smp3;
     }
 
-    indexstart = INDICES[indices_last - 1] - START;
+    indexstart = INDICES[indices_last - 1] - START - SHIFTBACK;
 
-    BUFFER_SLIDE(indexstart / 2);
+    BUFFER_AUTOSLIDE();
 }
 
 void visualizer_oscilloscope(Program *prog) {
@@ -66,12 +74,14 @@ void visualizer_oscilloscope(Program *prog) {
 
     const uint w = uint_max(size.w, 1);
 
-    float index_scale = (float)BUFFERSIZE / (float)w * 0.8f;
+    const float buffer_size_smaller = (float)BUFFERSIZE * 0.8f;
+    const float index_scale = buffer_size_smaller / (float)w;
+    const uint base = (uint)((float)BUFFERSIZE * 0.1f);
 
     const uint samplesperpixel = (BUFFERSIZE + w) / w;
 
     for (uint x = 0; x < size.w; x++) {
-        const uint istart = (uint)((float)x * index_scale);
+        const uint istart = (uint)((float)x * index_scale) + indexstart + base;
         const uint iend = istart + samplesperpixel;
 
         float left_min = 100.f;
@@ -81,7 +91,7 @@ void visualizer_oscilloscope(Program *prog) {
         float right_max = -100.f;
 
         for (uint i = istart; i < iend; i++) {
-            uint j = i + indexstart;
+            uint j = i;
 
             float left = crealf(BUFFER[j]);
             float right = cimagf(BUFFER[j]);
