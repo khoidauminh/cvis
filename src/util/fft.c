@@ -14,12 +14,12 @@
 static cplx *TWIDDLE_ARRAY = nullptr;
 static uint *BUTTERFLY_ARRAY = nullptr;
 
-void free_twiddle_array() {
+static void free_twiddle_array() {
     free(TWIDDLE_ARRAY);
     TWIDDLE_ARRAY = nullptr;
 }
 
-void contruct_twiddle_array() {
+static void contruct_twiddle_array() {
     TWIDDLE_ARRAY = malloc(sizeof(cplx) * (MAX_FFT_LENGTH + 1));
     assert(TWIDDLE_ARRAY);
 
@@ -38,7 +38,7 @@ void contruct_twiddle_array() {
     atexit(free_twiddle_array);
 }
 
-uint reverse_bit(uint index, uint power) {
+static uint reverse_bit(uint index, uint power) {
     uint out = 0;
 
     for (uint i = 0; i < power; i++) {
@@ -50,12 +50,12 @@ uint reverse_bit(uint index, uint power) {
     return out;
 }
 
-void free_butterfly_array() {
+static void free_butterfly_array() {
     free(BUTTERFLY_ARRAY);
     BUTTERFLY_ARRAY = nullptr;
 }
 
-void construct_butterfly_array() {
+static void construct_butterfly_array() {
     BUTTERFLY_ARRAY = malloc(sizeof(uint) * MAX_FFT_LENGTH);
     assert(BUTTERFLY_ARRAY);
 
@@ -71,7 +71,7 @@ void construct_butterfly_array() {
     atexit(free_butterfly_array);
 }
 
-void butterfly_inplace(cplx *arr, uint len) {
+static void butterfly_inplace(cplx *arr, uint len) {
     if (BUTTERFLY_ARRAY == nullptr) {
         construct_butterfly_array();
     }
@@ -92,7 +92,7 @@ void butterfly_inplace(cplx *arr, uint len) {
 
 uint ulog2(uint x) { return stdc_bit_width(x >> 1); }
 
-void compute_fft_inplace(cplx *const arr, const uint len) {
+static void compute_fft_inplace(cplx *const arr, const uint len) {
     if (TWIDDLE_ARRAY == nullptr) {
         contruct_twiddle_array();
     }

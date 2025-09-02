@@ -25,7 +25,7 @@ typedef struct terminal_renderer {
     char ch;
 } TRenderer;
 
-void terminal_set_color(Renderer *r, APIParameter *c) {
+static void terminal_set_color(Renderer *r, APIParameter *c) {
     TRenderer *tr = r->renderer;
     const char *ch_map = " -+#@";
     const uint ch_map_size = strlen(ch_map);
@@ -37,7 +37,7 @@ void terminal_set_color(Renderer *r, APIParameter *c) {
     tr->ch = ch_map[index];
 }
 
-void terminal_draw_plot(Renderer *r, APIParameter *param) {
+static void terminal_draw_plot(Renderer *r, APIParameter *param) {
     TRenderer *tr = r->renderer;
     int x = (int)param->plot[0] + 1;
     int y = (int)param->plot[1] + 1;
@@ -45,7 +45,7 @@ void terminal_draw_plot(Renderer *r, APIParameter *param) {
     mvwaddch(tr->win, y, x, tr->ch);
 }
 
-void terminal_draw_rect(Renderer *r, APIParameter *param) {
+static void terminal_draw_rect(Renderer *r, APIParameter *param) {
     TRenderer *tr = r->renderer;
 
     int startx = (int)param->rect[0];
@@ -67,11 +67,11 @@ void terminal_draw_rect(Renderer *r, APIParameter *param) {
     }
 }
 
-void terminal_clear(Renderer *, APIParameter *) { clear(); }
+static void terminal_clear(Renderer *, APIParameter *) { clear(); }
 
-void terminal_flush(Renderer *, APIParameter *) { refresh(); }
+static void terminal_flush(Renderer *, APIParameter *) { refresh(); }
 
-void terminal_autoresize(Renderer *r, APIParameter *) {
+static void terminal_autoresize(Renderer *r, APIParameter *) {
     TRenderer *tr = r->renderer;
 
     int w = 50, h = 50;

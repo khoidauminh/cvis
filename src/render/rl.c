@@ -12,7 +12,7 @@ typedef struct raylib_renderer {
     RenderTexture2D target;
 } RLRenderer;
 
-void start_drawing(RLRenderer *rlr) {
+static void start_drawing(RLRenderer *rlr) {
     if (rlr->is_drawing)
         return;
 
@@ -20,7 +20,7 @@ void start_drawing(RLRenderer *rlr) {
     BeginTextureMode(rlr->target);
 }
 
-void raylib_set_color(Renderer *r, APIParameter *param) {
+static void raylib_set_color(Renderer *r, APIParameter *param) {
     RLRenderer *rlr = r->renderer;
     rlr->color = (Color){
         .r = param->color.r,
@@ -30,31 +30,31 @@ void raylib_set_color(Renderer *r, APIParameter *param) {
     };
 }
 
-void raylib_rect(Renderer *r, APIParameter *param) {
+static void raylib_rect(Renderer *r, APIParameter *param) {
     RLRenderer *rlr = r->renderer;
     start_drawing(rlr);
     DrawRectangle(param->rect[0], param->rect[1], param->rect[2],
                   param->rect[3], rlr->color);
 }
 
-void raylib_plot(Renderer *r, APIParameter *param) {
+static void raylib_plot(Renderer *r, APIParameter *param) {
     RLRenderer *rlr = r->renderer;
     start_drawing(rlr);
     DrawPixelV((Vector2){param->plot[0], param->plot[1]}, rlr->color);
 }
 
-void raylib_fill(Renderer *r, APIParameter *) {
+static void raylib_fill(Renderer *r, APIParameter *) {
     RLRenderer *rlr = r->renderer;
     start_drawing(rlr);
     ClearBackground(rlr->color);
 }
 
-void raylib_clear(Renderer *r, APIParameter *) {
+static void raylib_clear(Renderer *r, APIParameter *) {
     raylib_set_color(r, &(APIParameter){.color = r->cfg->background});
     raylib_fill(r, nullptr);
 }
 
-void raylib_present(Renderer *r, APIParameter *) {
+static void raylib_present(Renderer *r, APIParameter *) {
     RLRenderer *rlr = r->renderer;
     rlr->is_drawing = false;
     EndTextureMode();
@@ -75,7 +75,7 @@ void raylib_present(Renderer *r, APIParameter *) {
     EndDrawing();
 }
 
-void raylib_autoresize(Renderer *r, APIParameter *) {
+static void raylib_autoresize(Renderer *r, APIParameter *) {
     r->cfg->width = GetRenderWidth() / r->cfg->scale;
     r->cfg->height = GetRenderWidth() / r->cfg->scale;
 }

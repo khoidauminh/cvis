@@ -16,18 +16,18 @@ typedef struct sdl_renderer {
     SDL_Renderer *renderer;
 } SDLRenederer;
 
-void sdl_set_color(Renderer *r, APIParameter *c) {
+static void sdl_set_color(Renderer *r, APIParameter *c) {
     SDLRenederer *sdlr = r->renderer;
     SDL_SetRenderDrawColor(sdlr->renderer, c->color.r, c->color.g, c->color.b,
                            c->color.a);
 }
 
-void sdl_draw_plot(Renderer *r, APIParameter *param) {
+static void sdl_draw_plot(Renderer *r, APIParameter *param) {
     SDLRenederer *sdlr = r->renderer;
     SDL_RenderPoint(sdlr->renderer, param->plot[0], param->plot[1]);
 }
 
-void sdl_draw_rect(Renderer *r, APIParameter *param) {
+static void sdl_draw_rect(Renderer *r, APIParameter *param) {
     SDLRenederer *sdlr = r->renderer;
 
     SDL_FRect rect = {param->rect[0], param->rect[1], param->rect[2],
@@ -36,29 +36,29 @@ void sdl_draw_rect(Renderer *r, APIParameter *param) {
     SDL_RenderFillRect(sdlr->renderer, &rect);
 }
 
-void sdl_fill(Renderer *r, APIParameter *) {
+static void sdl_fill(Renderer *r, APIParameter *) {
     SDLRenederer *sdlr = r->renderer;
     SDL_RenderClear(sdlr->renderer);
 }
 
-void sdl_clear(Renderer *r, APIParameter *) {
+static void sdl_clear(Renderer *r, APIParameter *) {
     SDLRenederer *sdlr = r->renderer;
     SDL_Color c = r->cfg->background;
     SDL_SetRenderDrawColor(sdlr->renderer, c.r, c.g, c.b, c.a);
     SDL_RenderClear(sdlr->renderer);
 }
 
-void sdl_present(Renderer *r, APIParameter *) {
+static void sdl_present(Renderer *r, APIParameter *) {
     SDLRenederer *sdlr = r->renderer;
     SDL_RenderPresent(sdlr->renderer);
 }
 
-void sdl_set_blendmode(Renderer *r, APIParameter *param) {
+static void sdl_set_blendmode(Renderer *r, APIParameter *param) {
     SDLRenederer *sdlr = r->renderer;
     SDL_SetRenderDrawBlendMode(sdlr->renderer, param->blendmode);
 }
 
-void sdl_autoresize(Renderer *, APIParameter *) {}
+static void sdl_autoresize(Renderer *, APIParameter *) {}
 
 static DrawFunc *SDL_DRAW_FUNC_MAP[] = {
     [renderapi_plot] = &sdl_draw_plot,

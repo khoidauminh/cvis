@@ -66,10 +66,12 @@ void visualizer_oscilloscope(Program *prog) {
 
     const uint w = uint_max(size.w, 1);
 
+    float index_scale = (float)BUFFERSIZE / w * 0.8f;
+
     const uint samplesperpixel = (BUFFERSIZE + w) / w;
 
     for (uint x = 0; x < size.w; x++) {
-        const uint istart = x * BUFFERSIZE / w;
+        const uint istart = (uint)((float)x * index_scale);
         const uint iend = istart + samplesperpixel;
 
         float left_min = 100.f;
