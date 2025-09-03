@@ -1,8 +1,6 @@
 #ifndef CVIS_COMMON_H
 #define CVIS_COMMON_H
 
-// #define USE_RAYLIB
-
 #include <complex.h>
 #include <SDL3/SDL_stdinc.h>
 

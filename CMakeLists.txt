@@ -5,9 +5,10 @@ project(cvis
     DESCRIPTION "Personal Music Visualizer - C-based sibling of Coffeevis"
 )
 
-set(CMAKE_BUILD_TYPE ReleaseWithInfo)
+set(CMAKE_BUILD_TYPE None)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(CURSES_NEED_NCURSES TRUE)
+set(OpenGL_GL_PREFERENCE GLVND)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -21,8 +22,8 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(miniaudio)
 
-find_package(SDL3)
-find_package(Curses)
+find_package(SDL3 REQUIRED)
+find_package(Curses REQUIRED)
 
 set(SOURCES
     src/util/common.c
@@ -52,6 +53,7 @@ set_property(TARGET cvis PROPERTY C_STANDARD_REQUIRED TRUE)
 set_property(TARGET cvis PROPERTY C_EXTENSIONS FALSE)
 
 target_compile_options(cvis PRIVATE
+    -O2
     -Wall -Wextra -Wpedantic -Wconversion
     -ffast-math -msse2 -mavx512f
     -march=native
@@ -59,21 +61,5 @@ target_compile_options(cvis PRIVATE
 
 target_include_directories(cvis PRIVATE "include")
 target_link_libraries(cvis m SDL3::SDL3 ncurses miniaudio)
-
-option(raylib "Use Raylib" OFF)
-
-if(raylib)
-    find_package(raylib REQUIRED)
-    if(raylib_FOUND)
-        target_link_libraries(cvis raylib)
-        target_compile_definitions(cvis PUBLIC USE_RAYLIB)
-        target_sources(cvis PRIVATE "src/render/rl.c")
-    else()
-        message(FATAL_ERROR "Missing required Raylib dependency!")
-    endif()
-else()
-    message(STATUS "Raylib disabled")
-endif()
-
 
 install(TARGETS cvis)

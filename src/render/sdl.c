@@ -11,11 +11,6 @@
 #include <assert.h>
 #include <stdlib.h>
 
-constexpr uint MIN_PHYSICAL_SIZE = 64;
-constexpr uint MAX_LOGICAL_SIZE = 256;
-constexpr SDL_RendererLogicalPresentation SCALE_MODE =
-    SDL_LOGICAL_PRESENTATION_OVERSCAN;
-
 typedef struct sdl_renderer {
     SDL_Window *window;
     SDL_Renderer *renderer;

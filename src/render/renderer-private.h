@@ -47,11 +47,6 @@ struct renderer {
     DrawFunc **api;
 };
 
-#ifdef USE_RAYLIB
-void raylib_init(Renderer *);
-void raylib_end(Renderer *);
-#endif
-
 void sdl_renderer_init(Renderer *r);
 void sdl_renderer_end(Renderer *r);
 

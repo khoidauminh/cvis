@@ -8,7 +8,6 @@
 
 typedef enum renderertype {
     renderertype_sdl,
-    renderertype_raylib,
     renderertype_terminal,
 } RendererType;
 

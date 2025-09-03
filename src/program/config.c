@@ -22,11 +22,7 @@ Config config_default() {
 RendererType displaymode_get_renderer(DisplayMode d) {
     switch (d) {
     case displaymode_graphical:
-#ifdef USE_RAYLIB
-        return renderertype_raylib;
-#else
         return renderertype_sdl;
-#endif
     case displaymode_terminal:
         return renderertype_terminal;
     default:
@@ -92,6 +88,12 @@ Config config_parse_args(const int argc, const char **argv) {
 
             if (!sscanf(strheight, "%u", &cfg.height)) {
                 die("Invalid or missing height for size.\n");
+            }
+
+            if (cfg.width > MAX_LOGICAL_SIZE || cfg.height > MAX_LOGICAL_SIZE) {
+                cfg.width = uint_min(cfg.width, MAX_LOGICAL_SIZE);
+                cfg.height = uint_min(cfg.height, MAX_LOGICAL_SIZE);
+                warn("Width and/or height clamped to the maximum allowed!\n");
             }
 
             continue;

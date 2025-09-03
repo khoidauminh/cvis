@@ -90,12 +90,7 @@ Renderer *renderer_new(Config *cfg) {
         out->init = sdl_renderer_init;
         out->exit = sdl_renderer_end;
         break;
-#ifdef USE_RAYLIB
-    case renderertype_raylib:
-        out->init = raylib_init;
-        out->exit = raylib_end;
-        break;
-#endif
+
     case renderertype_terminal:
         out->init = terminal_renderer_init;
         out->exit = terminal_renderer_end;

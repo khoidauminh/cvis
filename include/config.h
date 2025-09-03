@@ -4,6 +4,7 @@
 #include "common.h"
 
 #include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_render.h>
 
 typedef enum refreshmode {
     refreshmode_sync,
@@ -30,6 +31,11 @@ typedef struct config {
 
     SDL_Color background;
 } Config;
+
+constexpr uint MIN_PHYSICAL_SIZE = 64;
+constexpr uint MAX_LOGICAL_SIZE = 256;
+constexpr SDL_RendererLogicalPresentation SCALE_MODE =
+    SDL_LOGICAL_PRESENTATION_OVERSCAN;
 
 #include "render.h"
 

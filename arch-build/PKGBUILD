@@ -12,13 +12,13 @@ build() {
     local cmake_options=(
         -B build --fresh
         -S "../.."
-        -DCMAKE_BUILD_TYPE=Release
-        -DFETCHCONTENT_FULLY_DISCONNECTED=ON
-        -DFETCHCONTENT_SOURCE_DIR_MINIAUDIO="$srcdir/miniaudio-0.11.22"
-        -W no-dev
+
+        -D CMAKE_BUILD_TYPE=None
+        -D FETCHCONTENT_FULLY_DISCONNECTED=ON
+        -D FETCHCONTENT_SOURCE_DIR_MINIAUDIO="$srcdir/miniaudio-0.11.22"
         -D CMAKE_INSTALL_PREFIX=/usr
-        # Change below to enable raylib.
-        -Draylib=off
+
+        -W no-dev
     )
     cmake "${cmake_options[@]}"
     cmake --build build

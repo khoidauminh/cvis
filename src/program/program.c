@@ -8,10 +8,6 @@
 #include "program.h"
 #include "render.h"
 
-#ifdef USE_RAYLIB
-void pg_eventloop_raylib(Program *p);
-#endif
-
 void pg_eventloop_sdl(Program *p);
 
 void pg_eventloop_term(Program *p);
@@ -35,11 +31,7 @@ Program *pg_new(Config config) {
 
     switch (p->cfg.displaymode) {
     case displaymode_graphical:
-#ifdef USE_RAYLIB
-        p->eventloop_func = &pg_eventloop_raylib;
-#else
         p->eventloop_func = &pg_eventloop_sdl;
-#endif
         break;
     case displaymode_terminal:
         p->eventloop_func = &pg_eventloop_term;

@@ -4,19 +4,12 @@ See the original project [here](https://github.com/khoidauminh/coffeevis_rs).
 
 ## Building
 
-**NOTE: CVIS 0.2.0 AND LATER USES CMAKE**
+**NOTE: CVIS 0.2.0 AND LATER USES CMAKE. RAYLIB WAS REMOVED.**
 
 In the root directory (containing `CMakeLists.txt`):
 
 ```
 cmake -B build
-cmake --build build
-```
-
-Cvis has support for Raylib, to use it:
-
-```
-cmake -B build -Draylib=on
 cmake --build build
 ```
 
