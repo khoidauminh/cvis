@@ -1,5 +1,5 @@
-#ifndef RENDERER_PRIVATE_H
-#define RENDERER_PRIVATE_H
+#ifndef CVIS_RENDERER_PRIVATE_H
+#define CVIS_RENDERER_PRIVATE_H
 
 #include "render.h"
 

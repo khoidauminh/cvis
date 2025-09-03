@@ -1,5 +1,5 @@
-#ifndef AUDIO_H
-#define AUDIO_H
+#ifndef CVIS_AUDIO_H
+#define CVIS_AUDIO_H
 
 #include "common.h"
 

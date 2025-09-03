@@ -1,5 +1,5 @@
-#ifndef FFT_H
-#define FFT_H
+#ifndef CVIS_FFT_H
+#define CVIS_FFT_H
 
 #include "common.h"
 

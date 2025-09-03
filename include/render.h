@@ -1,5 +1,5 @@
-#ifndef RENDER_H
-#define RENDER_H
+#ifndef CVIS_RENDER_H
+#define CVIS_RENDER_H
 
 #include "common.h"
 

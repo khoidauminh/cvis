@@ -1,5 +1,5 @@
-#ifndef INTERPOLATION_H
-#define INTERPOLATION_H
+#ifndef CVIS_INTERPOLATION_H
+#define CVIS_INTERPOLATION_H
 
 #include "common.h"
 

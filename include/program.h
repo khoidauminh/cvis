@@ -1,5 +1,5 @@
-#ifndef PROGRAM_H
-#define PROGRAM_H
+#ifndef CVIS_PROGRAM_H
+#define CVIS_PROGRAM_H
 
 #include "audio.h"
 #include "common.h"

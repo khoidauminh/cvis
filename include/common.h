@@ -1,5 +1,5 @@
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef CVIS_COMMON_H
+#define CVIS_COMMON_H
 
 // #define USE_RAYLIB
 
