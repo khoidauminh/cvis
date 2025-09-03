@@ -11,6 +11,11 @@
 #include <assert.h>
 #include <stdlib.h>
 
+constexpr uint MIN_PHYSICAL_SIZE = 64;
+constexpr uint MAX_LOGICAL_SIZE = 256;
+constexpr SDL_RendererLogicalPresentation SCALE_MODE =
+    SDL_LOGICAL_PRESENTATION_OVERSCAN;
+
 typedef struct sdl_renderer {
     SDL_Window *window;
     SDL_Renderer *renderer;
@@ -58,7 +63,15 @@ static void sdl_set_blendmode(Renderer *r, APIParameter *param) {
     SDL_SetRenderDrawBlendMode(sdlr->renderer, param->blendmode);
 }
 
-static void sdl_autoresize(Renderer *, APIParameter *) {}
+static void sdl_autoresize(Renderer *r, APIParameter *) {
+    SDLRenederer *sdlr = r->renderer;
+    int w, h;
+    SDL_GetWindowSize(sdlr->window, &w, &h);
+    r->cfg->width = uint_min(MAX_LOGICAL_SIZE, (uint)w / r->cfg->scale);
+    r->cfg->height = uint_min(MAX_LOGICAL_SIZE, (uint)h / r->cfg->scale);
+    SDL_SetRenderLogicalPresentation(sdlr->renderer, (int)r->cfg->width,
+                                     (int)r->cfg->height, SCALE_MODE);
+}
 
 static DrawFunc *SDL_DRAW_FUNC_MAP[] = {
     [renderapi_plot] = sdl_draw_plot,      [renderapi_rect] = sdl_draw_rect,
@@ -77,18 +90,29 @@ void sdl_renderer_init(Renderer *r) {
 
     bool result;
 
-    result = SDL_CreateWindowAndRenderer(
-        "cvis", (int)(r->cfg->width * r->cfg->scale),
-        (int)(r->cfg->height * r->cfg->scale), SDL_WINDOW_ALWAYS_ON_TOP,
-        &sdlr->window, &sdlr->renderer);
+    unsigned long flags = SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_OPENGL;
+
+    if (r->cfg->resizable) {
+        flags |= SDL_WINDOW_RESIZABLE;
+    }
+
+    result = SDL_CreateWindowAndRenderer("cvis",
+                                         (int)(r->cfg->width * r->cfg->scale),
+                                         (int)(r->cfg->height * r->cfg->scale),
+                                         flags, &sdlr->window, &sdlr->renderer);
 
     if (!result) {
         die("Failed to create SDL window and renderer.");
     }
 
+    result = SDL_SetWindowMinimumSize(sdlr->window, MIN_PHYSICAL_SIZE,
+                                      MIN_PHYSICAL_SIZE);
+    if (!result) {
+        warn("Failed to set min window size.");
+    }
+
     result = SDL_SetRenderLogicalPresentation(
-        sdlr->renderer, (int)r->cfg->width, (int)r->cfg->height,
-        SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
+        sdlr->renderer, (int)r->cfg->width, (int)r->cfg->height, SCALE_MODE);
 
     if (!result) {
         die("Failed to set renderer resolution.");
@@ -125,6 +149,8 @@ void pg_eventloop_sdl(Program *p) {
 
     bool running = true;
 
+    RNDR_SET_TARGET(pg_renderer(p));
+
     while (running) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -137,6 +163,15 @@ void pg_eventloop_sdl(Program *p) {
                     vm_next(pg_vismanager(p));
                 }
 
+                if (event.key.key == SDLK_Q) {
+                    running = false;
+                    break;
+                }
+
+                break;
+
+            case SDL_EVENT_WINDOW_RESIZED:
+                RNDR_AUTORESIZE();
                 break;
             default: {
             }

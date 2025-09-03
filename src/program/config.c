@@ -15,6 +15,7 @@ Config config_default() {
         .scale = 2,
         .refreshrate = 60,
         .visname = "",
+        .resizable = false,
     };
 }
 
@@ -146,6 +147,11 @@ Config config_parse_args(const int argc, const char **argv) {
 
         if (!strcmp(*argv, "--terminal")) {
             cfg.displaymode = displaymode_terminal;
+            continue;
+        }
+
+        if (!strcmp(*argv, "--resizable")) {
+            cfg.resizable = true;
             continue;
         }
 

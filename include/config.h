@@ -24,6 +24,8 @@ typedef struct config {
     uint height;
     uint scale;
 
+    bool resizable;
+
     const char *visname;
 
     SDL_Color background;
