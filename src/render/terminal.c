@@ -18,7 +18,6 @@
 
 #include <unistdio.h>
 
-constexpr int MAX_STR_LEN = 256;
 constexpr char CHAR_MAP[] = " -+#@";
 
 typedef struct terminal_renderer {
@@ -51,17 +50,35 @@ static void terminal_draw_rect(Renderer *r, float xf, float yf, float wf,
     int w = (int)wf;
     int h = (int)hf;
 
+    int ww = (int)r->cfg->width;
+    int wh = (int)r->cfg->height;
+
+    if (startx < 0) {
+        w += startx;
+    }
+
+    if (w + startx >= ww) {
+        w = ww - startx;
+    }
+
+    if (starty < 0) {
+        h += starty;
+    }
+
+    if (h + starty >= wh) {
+        h = wh - starty;
+    }
+
     if (w <= 0 || h <= 0) {
         return;
     }
 
-    char line[MAX_STR_LEN] = {};
-    uint copysize = w < MAX_STR_LEN ? (uint)w : MAX_STR_LEN;
-
-    memset(line, tr->ch, sizeof(char) * copysize);
-
     for (int row = 0; row < h; row++) {
-        mvwprintw(tr->win, starty + row, startx, "%s", line);
+        wmove(tr->win, starty + row, startx);
+
+        for (int j = 0; j < w; j++) {
+            waddch(tr->win, (chtype)tr->ch);
+        }
     }
 }
 
