@@ -3,38 +3,16 @@
 
 #include "render.h"
 
-typedef enum renderapi: uint {
-    renderapi_null = 0,
-    
-    renderapi_plot = 0,
-    
-    renderapi_rect,
-    
-    // renderapi_line,
-    
-    renderapi_fill,
-    
-    // renderapi_fade,
-    
-    renderapi_color,
-    renderapi_clear,
-    renderapi_flush,
-    
-    renderapi_resize,
-    renderapi_blend,
-    
-    renderapi_count,
-} RenderAPI;
-
-typedef union api_paremeter {
-    float rect[4];
-    float plot[2];
-    float line[4];
-    SDL_Color color;
-    uint fade;
-    uint resize[2];
-    SDL_BlendMode blendmode;
-} APIParameter;
+typedef struct rende_vtable {
+    void (*plot)(Renderer *, float x, float y);
+    void (*rect)(Renderer *, float x, float y, float w, float h);
+    void (*color)(Renderer *, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+    void (*resize)(Renderer *);
+    void (*blend)(Renderer *, SDL_BlendMode);
+    void (*fill)(Renderer *);
+    void (*clear)(Renderer *);
+    void (*flush)(Renderer *);
+} RenderVTable;
 
 struct renderer {
     RendererType type;
@@ -44,7 +22,7 @@ struct renderer {
     void (*exit)(Renderer*);
     
     Config *cfg;
-    DrawFunc **api;
+    const RenderVTable *vtable;
 };
 
 void sdl_renderer_init(Renderer *r);

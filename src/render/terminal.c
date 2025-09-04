@@ -26,32 +26,30 @@ typedef struct terminal_renderer {
     char ch;
 } TRenderer;
 
-static void terminal_set_color(Renderer *r, APIParameter *c) {
-    TRenderer *tr = r->renderer;
+static void terminal_set_color(Renderer *rndr, Uint8 r, Uint8 g, Uint8 b,
+                               Uint8 a) {
+    TRenderer *tr = rndr->renderer;
     const uint ch_map_size = (uint)strlen(CHAR_MAP);
-
-    uint gray = ((uint)c->color.r + (uint)c->color.g + (uint)c->color.b * 2) *
-                (uint)c->color.a / 256 / 4;
+    uint gray = ((uint)r + (uint)g + (uint)b * 2) * (uint)a / 256 / 4;
     uint index = gray * ch_map_size / 256;
 
     tr->ch = CHAR_MAP[index];
 }
 
-static void terminal_draw_plot(Renderer *r, APIParameter *param) {
+static void terminal_draw_plot(Renderer *r, float x, float y) {
     TRenderer *tr = r->renderer;
-    int x = (int)param->plot[0] + 1;
-    int y = (int)param->plot[1] + 1;
 
-    mvwaddch(tr->win, y, x, (chtype)tr->ch);
+    mvwaddch(tr->win, (int)y + 1, (int)x + 1, (chtype)tr->ch);
 }
 
-static void terminal_draw_rect(Renderer *r, APIParameter *param) {
+static void terminal_draw_rect(Renderer *r, float xf, float yf, float wf,
+                               float hf) {
     TRenderer *tr = r->renderer;
 
-    int startx = (int)param->rect[0];
-    int starty = (int)param->rect[1];
-    int w = (int)param->rect[2];
-    int h = (int)param->rect[3];
+    int startx = (int)xf;
+    int starty = (int)yf;
+    int w = (int)wf;
+    int h = (int)hf;
 
     if (w <= 0 || h <= 0) {
         return;
@@ -67,13 +65,18 @@ static void terminal_draw_rect(Renderer *r, APIParameter *param) {
     }
 }
 
-static void terminal_set_blendmode(Renderer *, APIParameter *) {}
+static void terminal_set_blendmode(Renderer *, SDL_BlendMode) {}
 
-static void terminal_clear(Renderer *, APIParameter *) { clear(); }
+static void terminal_clear(Renderer *) { clear(); }
 
-static void terminal_flush(Renderer *, APIParameter *) { refresh(); }
+static void terminal_fill(Renderer *r) {
+    terminal_draw_rect(r, 0.0f, 0.0f, (float)(r->cfg->width),
+                       (float)(r->cfg->height));
+}
 
-static void terminal_autoresize(Renderer *r, APIParameter *) {
+static void terminal_flush(Renderer *) { refresh(); }
+
+static void terminal_autoresize(Renderer *r) {
     TRenderer *tr = r->renderer;
 
     int w = 50, h = 50;
@@ -83,15 +86,15 @@ static void terminal_autoresize(Renderer *r, APIParameter *) {
     r->cfg->height = (uint)h;
 }
 
-static DrawFunc *TERMINAL_DRAW_FUNC_MAP[] = {
-    [renderapi_plot] = terminal_draw_plot,
-    [renderapi_rect] = terminal_draw_rect,
-    [renderapi_clear] = terminal_clear,
-    [renderapi_flush] = terminal_flush,
-    [renderapi_color] = terminal_set_color,
-    [renderapi_fill] = terminal_clear,
-    [renderapi_blend] = terminal_set_blendmode,
-    [renderapi_resize] = terminal_autoresize,
+static const RenderVTable TERMINAL_VTABLE = {
+    .blend = terminal_set_blendmode,
+    .clear = terminal_clear,
+    .color = terminal_set_color,
+    .fill = terminal_fill,
+    .flush = terminal_flush,
+    .plot = terminal_draw_plot,
+    .rect = terminal_draw_rect,
+    .resize = terminal_autoresize,
 };
 
 void terminal_renderer_init(Renderer *r) {
@@ -115,7 +118,7 @@ void terminal_renderer_init(Renderer *r) {
     noecho();
     keypad(tr->win, TRUE);
 
-    r->api = TERMINAL_DRAW_FUNC_MAP;
+    r->vtable = &TERMINAL_VTABLE;
 }
 
 void terminal_renderer_end(Renderer *r) {

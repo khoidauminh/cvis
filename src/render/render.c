@@ -9,71 +9,42 @@
 
 #include "renderer-private.h" // IWYU pragma: keep.
 
-static void api_debug_print(const RenderAPI api) {
-    const char *n = "";
-    const char *p = "";
-
-    switch (api) {
-    case renderapi_plot:
-        n = "renderapi_plot";
-        p = "Plotting function";
-        break;
-    case renderapi_blend:
-        n = "renderapi_blend";
-        p = "Set blend mode function";
-        break;
-    case renderapi_clear:
-        n = "renderapi_clear";
-        p = "Clear function";
-        break;
-    case renderapi_fill:
-        n = "renderapi_fill";
-        p = "Fill function";
-        break;
-    case renderapi_flush:
-        n = "renderapi_flush";
-        p = ""
-            "Present buffer function "
-            "(can be empty if your renderer doesn't need it)";
-        break;
-    case renderapi_rect:
-        n = "renderapi_rect";
-        p = "Rectangle function";
-        break;
-    case renderapi_color:
-        n = "renderapi_color";
-        p = "Set color function";
-        break;
-    case renderapi_resize:
-        n = "renderapi_resize";
-        p = ""
-            "Resize function "
-            "(your renderer should forward new sizes to cvis here)";
-        break;
-    default: {
-    }
+static void check_vtable_print_error(bool *is_error) {
+    if (!*is_error) {
+        error("Missing functions in the vtable:\n");
     }
 
-    info("%s: %s\n", n, p);
+    *is_error = true;
 }
 
-static void check_api(DrawFunc **func) {
-    bool will_die = false;
+static void check_vtable(const RenderVTable *const vtable) {
 
-    for (RenderAPI i = renderapi_null; i < renderapi_count; i++) {
-        if (!func[i]) {
-            if (!will_die) {
-                error("Render API missing functions:\n");
-            }
-
-            will_die = true;
-            api_debug_print(i);
-        }
+    if (!vtable) {
+        die("VTable missing!");
     }
 
-    if (will_die) {
+    bool error = false;
+
+#define CHECK(field)                                                           \
+    if (!vtable->field) {                                                      \
+        check_vtable_print_error(&error);                                      \
+        info("-- %s\n", #field);                                               \
+    }
+
+    CHECK(plot);
+    CHECK(rect);
+    CHECK(color);
+    CHECK(resize);
+    CHECK(blend);
+    CHECK(fill);
+    CHECK(clear);
+    CHECK(flush);
+
+    if (error) {
         abort();
     }
+
+#undef CHECK
 }
 
 Renderer *renderer_new(Config *cfg) {
@@ -101,7 +72,7 @@ Renderer *renderer_new(Config *cfg) {
 
     (out->init)(out);
 
-    check_api(out->api);
+    check_vtable(out->vtable);
 
     return out;
 }
@@ -122,37 +93,26 @@ Size renderer_get_size(Renderer *r) {
 }
 
 void render_set_color(Renderer *renderer, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-    APIParameter c = {.color = {
-                          .r = r,
-                          .g = g,
-                          .b = b,
-                          .a = a,
-                      }};
-    (renderer->api[renderapi_color])(renderer, &c);
+    (renderer->vtable->color)(renderer, r, g, b, a);
 }
 
-void render_plot(Renderer *r, float x, float y) {
-    APIParameter p = {.plot = {x, y}};
-    (r->api[renderapi_plot])(r, &p);
-}
+void render_plot(Renderer *r, float x, float y) { (r->vtable->plot)(r, x, y); }
 
 void render_rect(Renderer *r, float x, float y, float w, float h) {
-    APIParameter p = {.rect = {x, y, w, h}};
-    (r->api[renderapi_rect])(r, &p);
+    (r->vtable->rect)(r, x, y, w, h);
 }
 
 void render_set_blendmode(Renderer *r, SDL_BlendMode blendmode) {
-    APIParameter p = {.blendmode = blendmode};
-    (r->api[renderapi_blend])(r, &p);
+    (r->vtable->blend)(r, blendmode);
 }
 
-void render_fill(Renderer *r) { (r->api[renderapi_fill])(r, nullptr); }
+void render_flush(Renderer *r) { (r->vtable->flush)(r); }
 
-void render_flush(Renderer *r) { (r->api[renderapi_flush])(r, nullptr); }
+void render_fill(Renderer *r) { (r->vtable->clear)(r); }
 
-void render_clear(Renderer *r) { (r->api[renderapi_clear])(r, nullptr); }
+void render_clear(Renderer *r) { (r->vtable->clear)(r); }
 
-void render_autoresize(Renderer *r) { (r->api[renderapi_resize])(r, nullptr); }
+void render_autoresize(Renderer *r) { (r->vtable->resize)(r); }
 
 static Renderer *RENDERER = nullptr;
 

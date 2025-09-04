@@ -16,49 +16,44 @@ typedef struct sdl_renderer {
     SDL_Renderer *renderer;
 } SDLRenederer;
 
-static void sdl_set_color(Renderer *r, APIParameter *c) {
-    SDLRenederer *sdlr = r->renderer;
-    SDL_SetRenderDrawColor(sdlr->renderer, c->color.r, c->color.g, c->color.b,
-                           c->color.a);
+static void sdl_set_color(Renderer *rndr, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+    SDLRenederer *sdlr = rndr->renderer;
+    SDL_SetRenderDrawColor(sdlr->renderer, r, g, b, a);
 }
 
-static void sdl_draw_plot(Renderer *r, APIParameter *param) {
+static void sdl_draw_plot(Renderer *r, float x, float y) {
     SDLRenederer *sdlr = r->renderer;
-    SDL_RenderPoint(sdlr->renderer, param->plot[0], param->plot[1]);
+    SDL_RenderPoint(sdlr->renderer, x, y);
 }
 
-static void sdl_draw_rect(Renderer *r, APIParameter *param) {
+static void sdl_draw_rect(Renderer *r, float x, float y, float w, float h) {
     SDLRenederer *sdlr = r->renderer;
-
-    SDL_FRect rect = {param->rect[0], param->rect[1], param->rect[2],
-                      param->rect[3]};
-
-    SDL_RenderFillRect(sdlr->renderer, &rect);
+    SDL_RenderFillRect(sdlr->renderer, &(SDL_FRect){x, y, w, h});
 }
 
-static void sdl_fill(Renderer *r, APIParameter *) {
+static void sdl_fill(Renderer *r) {
     SDLRenederer *sdlr = r->renderer;
     SDL_RenderClear(sdlr->renderer);
 }
 
-static void sdl_clear(Renderer *r, APIParameter *) {
+static void sdl_clear(Renderer *r) {
     SDLRenederer *sdlr = r->renderer;
     SDL_Color c = r->cfg->background;
     SDL_SetRenderDrawColor(sdlr->renderer, c.r, c.g, c.b, c.a);
     SDL_RenderClear(sdlr->renderer);
 }
 
-static void sdl_present(Renderer *r, APIParameter *) {
+static void sdl_present(Renderer *r) {
     SDLRenederer *sdlr = r->renderer;
     SDL_RenderPresent(sdlr->renderer);
 }
 
-static void sdl_set_blendmode(Renderer *r, APIParameter *param) {
+static void sdl_set_blendmode(Renderer *r, SDL_BlendMode blendmode) {
     SDLRenederer *sdlr = r->renderer;
-    SDL_SetRenderDrawBlendMode(sdlr->renderer, param->blendmode);
+    SDL_SetRenderDrawBlendMode(sdlr->renderer, blendmode);
 }
 
-static void sdl_autoresize(Renderer *r, APIParameter *) {
+static void sdl_autoresize(Renderer *r) {
     SDLRenederer *sdlr = r->renderer;
     int w, h;
     SDL_GetWindowSize(sdlr->window, &w, &h);
@@ -68,11 +63,15 @@ static void sdl_autoresize(Renderer *r, APIParameter *) {
                                      (int)r->cfg->height, SCALE_MODE);
 }
 
-static DrawFunc *SDL_DRAW_FUNC_MAP[] = {
-    [renderapi_plot] = sdl_draw_plot,      [renderapi_rect] = sdl_draw_rect,
-    [renderapi_fill] = sdl_fill,           [renderapi_clear] = sdl_clear,
-    [renderapi_color] = sdl_set_color,     [renderapi_flush] = sdl_present,
-    [renderapi_blend] = sdl_set_blendmode, [renderapi_resize] = sdl_autoresize,
+static const RenderVTable SDL_VTABLE = {
+    .blend = sdl_set_blendmode,
+    .clear = sdl_clear,
+    .color = sdl_set_color,
+    .fill = sdl_fill,
+    .flush = sdl_present,
+    .plot = sdl_draw_plot,
+    .rect = sdl_draw_rect,
+    .resize = sdl_autoresize,
 };
 
 void sdl_renderer_init(Renderer *r) {
@@ -126,7 +125,7 @@ void sdl_renderer_init(Renderer *r) {
 
     r->renderer = sdlr;
 
-    r->api = SDL_DRAW_FUNC_MAP;
+    r->vtable = &SDL_VTABLE;
 }
 
 void sdl_renderer_end(Renderer *r) {
