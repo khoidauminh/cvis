@@ -3,7 +3,7 @@
 
 #include "render.h"
 
-typedef struct rende_vtable {
+typedef struct render_vtable {
     void (*plot)(Renderer *, float x, float y);
     void (*rect)(Renderer *, float x, float y, float w, float h);
     void (*color)(Renderer *, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
