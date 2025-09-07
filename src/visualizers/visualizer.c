@@ -9,20 +9,20 @@ constexpr double AUTOSWITCH_ITERVAL = 8.0;
 
 typedef struct visualizer {
     const char *const name;
-    VisFunc *const func;
+    VisFunc *func;
 } Visualizer;
 
 struct visualizer_manager {
-    Visualizer *list;
-    Visualizer *ptr;
+    const Visualizer *list;
+    const Visualizer *ptr;
     time_t instant;
     bool autoswitch;
 };
 
-static Visualizer FUNC_ARRAY[] = {
-    {.name = "spectrum", .func = &visualizer_spectrum},
-    {.name = "vectorscope", .func = &visualizer_vectorscope},
-    {.name = "oscilloscope", .func = &visualizer_oscilloscope},
+static const Visualizer FUNC_ARRAY[] = {
+    {.name = "spectrum", .func = visualizer_spectrum},
+    {.name = "vectorscope", .func = visualizer_vectorscope},
+    {.name = "oscilloscope", .func = visualizer_oscilloscope},
     {}};
 
 void vm_select_by_name(VisManager *v, const char *name);
@@ -44,7 +44,7 @@ VisManager *vm_new(const char *name) {
 }
 
 void vm_select_by_name(VisManager *v, const char *name) {
-    for (Visualizer *i = v->list; i->func; i++) {
+    for (const Visualizer *i = v->list; i->func; i++) {
         if (!strcmp(i->name, name)) {
             v->ptr = i;
             return;
@@ -54,7 +54,7 @@ void vm_select_by_name(VisManager *v, const char *name) {
     warn("Failed to find the specified name.\n");
     info("Available names:\n");
 
-    for (Visualizer *i = v->list; i->func; i++) {
+    for (const Visualizer *i = v->list; i->func; i++) {
         info("%s\n", i->name);
     }
 }
