@@ -8,30 +8,9 @@
 #include <math.h>
 #include <threads.h>
 
-#include "logging.h"
-
 static thread_local float ANGLE = 0.0f;
 static thread_local float AMP = 0.0f;
 static thread_local SDL_Color COLOR = {};
-
-constexpr uint READ_SIZE = 200;
-
-static SDL_Color blend(const SDL_Color a, const SDL_Color b) {
-    unsigned long c1 = (unsigned long)(a.a << 24) + (unsigned long)(a.r << 16) +
-                       (unsigned long)(a.b << 8) + (unsigned long)a.r;
-
-    unsigned long c2 = (unsigned long)(b.a << 24) + (unsigned long)(b.r << 16) +
-                       (unsigned long)(b.b << 8) + (unsigned long)b.r;
-
-    unsigned long c3 = (c1 + c2) >> 4;
-
-    return (SDL_Color){
-        .a = (Uint8)(c3 >> 24),
-        .r = (Uint8)(c3 >> 16),
-        .g = (Uint8)(c3 >> 8),
-        .b = (Uint8)(c3),
-    };
-}
 
 static void process_sweep(float *outsweep, float *outhigh) {
     const uint inputsize = BUFFER_INPUTSIZE();
@@ -62,13 +41,12 @@ static void process_sweep(float *outsweep, float *outhigh) {
 
 void visualizer_slice(Program *prog) {
     RNDR_SET_TARGET(pg_renderer(prog));
-    RNDR_FADE(2);
+    RNDR_FADE(10);
 
     Uint2D size = RNDR_SIZE();
 
     const uint radius = uint_min(size.x, size.y);
-    const uint smallradius = radius / 16;
-    const uint bigradius = radius / 3;
+    const uint bigradius = radius / 5;
     const float bigradiusf = (float)bigradius;
 
     const float wf = (float)size.x / 2.0f;
