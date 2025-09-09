@@ -31,6 +31,7 @@ set(SOURCES
     src/util/fft.c
     src/util/logging.c
     src/util/interpolation.c
+
     src/render/render.c
     src/render/terminal.c
     src/render/sdl.c
@@ -38,6 +39,7 @@ set(SOURCES
     src/visualizers/classic/spectrum.c
     src/visualizers/classic/vectorscope.c
     src/visualizers/classic/oscilloscope.c
+    src/visualizers/classic/slice.c
     src/visualizers/visualizer.c
 
     src/program/config.c
@@ -53,10 +55,11 @@ set_property(TARGET cvis PROPERTY C_STANDARD_REQUIRED TRUE)
 set_property(TARGET cvis PROPERTY C_EXTENSIONS FALSE)
 
 target_compile_options(cvis PRIVATE
-    -O2
     -Wall -Wextra -Wpedantic -Wconversion
     -ffast-math -msse2 -mavx512f
     -march=native
+    -fwrapv
+    -O2
 )
 
 target_include_directories(cvis PRIVATE "include")

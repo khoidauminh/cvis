@@ -8,8 +8,8 @@
 Config config_default() {
     return (Config){
         .background = {40, 40, 40, 255},
-        .displaymode = displaymode_graphical,
-        .refreshmode = refreshmode_sync,
+        .displaymode = CVIS_DISPLAYMODE_GRAPHICAL,
+        .refreshmode = CVIS_REFRESHMODE_SYNC,
         .width = 84,
         .height = 84,
         .scale = 2,
@@ -21,10 +21,12 @@ Config config_default() {
 
 RendererType displaymode_get_renderer(DisplayMode d) {
     switch (d) {
-    case displaymode_graphical:
+    case CVIS_DISPLAYMODE_GRAPHICAL:
         return renderertype_sdl;
-    case displaymode_terminal:
+
+    case CVIS_DISPLAYMODE_TERMINAL:
         return renderertype_terminal;
+
     default:
         die("Invalid display mode.");
     }
@@ -38,10 +40,10 @@ void config_print(const Config *cfg) {
 
     info("Display mode: ");
     switch (cfg->displaymode) {
-    case displaymode_graphical:
+    case CVIS_DISPLAYMODE_GRAPHICAL:
         info("graphical\n");
         break;
-    case displaymode_terminal:
+    case CVIS_DISPLAYMODE_TERMINAL:
         info("terminal\n");
         break;
     default: {
@@ -50,7 +52,7 @@ void config_print(const Config *cfg) {
 
     info("Size: %ux%u\n", cfg->width, cfg->height);
 
-    if (cfg->refreshmode == refreshmode_sync) {
+    if (cfg->refreshmode == CVIS_REFRESHMODE_SYNC) {
         info("Vsync-ed\n");
     } else {
         info("Refresh rate: %u\n", cfg->refreshrate);
@@ -130,7 +132,7 @@ Config config_parse_args(const int argc, const char **argv) {
                 die("Invalid or missing value for fps.\n");
             }
 
-            cfg.refreshmode = refreshmode_set;
+            cfg.refreshmode = CVIS_REFRESHMODE_SET;
 
             cfg.refreshrate = fps;
 
@@ -148,7 +150,7 @@ Config config_parse_args(const int argc, const char **argv) {
         }
 
         if (!strcmp(*argv, "--terminal")) {
-            cfg.displaymode = displaymode_terminal;
+            cfg.displaymode = CVIS_DISPLAYMODE_TERMINAL;
             continue;
         }
 

@@ -1,4 +1,5 @@
 #include "audio.h"
+#include "common.h"
 #include "program.h"
 #include "render.h"
 #include <math.h>
@@ -12,10 +13,10 @@ void draw_cross(Program *prog) {
     RNDR_SET_TARGET(pg_renderer(prog));
     RNDR_COLOR(70, 70, 70, 255);
 
-    Size size = RNDR_SIZE();
+    Uint2D size = RNDR_SIZE();
 
-    float w = (float)size.w;
-    float h = (float)size.h;
+    float w = (float)size.x;
+    float h = (float)size.y;
 
     if (vertical ^= true) {
         RNDR_RECT(w * 0.5f, h * 0.1f, 1.0f, h * 0.8f + 1.0f);
@@ -33,12 +34,12 @@ void visualizer_vectorscope(Program *prog) {
 
     RNDR_CLEAR();
 
-    Size size = RNDR_SIZE();
+    Uint2D size = RNDR_SIZE();
 
-    float center_x = (float)size.w / 2.0f;
-    float center_y = (float)size.h / 2.0f;
+    float center_x = (float)size.x / 2.0f;
+    float center_y = (float)size.y / 2.0f;
 
-    float scale = (float)(size.w < size.h ? size.w : size.h) * 0.4f;
+    float scale = (float)(size.x < size.y ? size.x : size.y) * 0.4f;
 
     constexpr uint PHASE = 92;
 

@@ -7,13 +7,13 @@
 #include <SDL3/SDL_render.h>
 
 typedef enum refreshmode {
-    refreshmode_sync,
-    refreshmode_set,
+    CVIS_REFRESHMODE_SYNC,
+    CVIS_REFRESHMODE_SET,
 } RefreshMode;
 
 typedef enum displaymode {
-    displaymode_graphical,
-    displaymode_terminal,
+    CVIS_DISPLAYMODE_GRAPHICAL,
+    CVIS_DISPLAYMODE_TERMINAL,
 } DisplayMode;
 
 typedef struct config {

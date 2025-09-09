@@ -3,8 +3,8 @@
 
 #include "common.h"
 
-#include <SDL3/SDL_render.h>
 #include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_render.h>
 
 typedef enum renderertype {
     renderertype_sdl,
@@ -14,7 +14,7 @@ typedef enum renderertype {
 typedef struct renderer Renderer;
 typedef union api_paremeter APIParameter;
 
-typedef void(DrawFunc)(Renderer*, APIParameter*);
+typedef void(DrawFunc)(Renderer *, APIParameter *);
 
 #include "config.h"
 
@@ -25,10 +25,12 @@ RendererType renderer_get_type(Renderer *r);
 
 // helper functions to set a render target only once.
 void RNDR_SET_TARGET(Renderer *r);
-Size RNDR_SIZE();
+Uint2D RNDR_SIZE();
 void RNDR_COLOR(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 void RNDR_PLOT(float x, float y);
-void RNDR_RECT(float x , float y, float w, float h);
+void RNDR_RECT(float x, float y, float w, float h);
+void RNDR_LINE(float x1, float y1, float x2, float y2);
+void RNDR_FADE(Uint8 a);
 void RNDR_BLEND(SDL_BlendMode blendmode);
 void RNDR_FILL();
 void RNDR_CLEAR();

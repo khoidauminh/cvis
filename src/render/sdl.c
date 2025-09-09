@@ -1,14 +1,24 @@
+#include "config.h"
 #include "logging.h"
 #include "render.h"
 #include "renderer-private.h" // IWYU pragma: keep.
 
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_blendmode.h>
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
+#include <SDL3/SDL_keycode.h>
+#include <SDL3/SDL_oldnames.h>
+#include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
+#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_video.h>
 
 #include <assert.h>
+#include <ncurses.h>
 #include <stdlib.h>
 
 typedef struct sdl_renderer {
@@ -26,6 +36,11 @@ static void sdl_draw_plot(Renderer *r, float x, float y) {
     SDL_RenderPoint(sdlr->renderer, x, y);
 }
 
+static void sdl_draw_line(Renderer *r, float x1, float y1, float x2, float y2) {
+    SDLRenederer *sdlr = r->renderer;
+    SDL_RenderLine(sdlr->renderer, x1, y1, x2, y2);
+}
+
 static void sdl_draw_rect(Renderer *r, float x, float y, float w, float h) {
     SDLRenederer *sdlr = r->renderer;
     SDL_RenderFillRect(sdlr->renderer, &(SDL_FRect){x, y, w, h});
@@ -34,6 +49,23 @@ static void sdl_draw_rect(Renderer *r, float x, float y, float w, float h) {
 static void sdl_fill(Renderer *r) {
     SDLRenederer *sdlr = r->renderer;
     SDL_RenderClear(sdlr->renderer);
+}
+
+static void sdl_fade(Renderer *r, Uint8 a) {
+    SDLRenederer *sdlr = r->renderer;
+    SDL_FRect rect = {.x = 0.0f,
+                      .y = 0.0f,
+                      .w = (float)r->cfg->width,
+                      .h = (float)r->cfg->height};
+
+    SDL_Color newc = r->cfg->background;
+    newc.a = a;
+    sdl_set_color(r, newc.r, newc.g, newc.b, newc.a);
+    SDL_BlendMode b = SDL_BLENDMODE_NONE;
+    SDL_GetRenderDrawBlendMode(sdlr->renderer, &b);
+    SDL_SetRenderDrawBlendMode(sdlr->renderer, SDL_BLENDMODE_BLEND);
+    SDL_RenderFillRect(sdlr->renderer, &rect);
+    SDL_SetRenderDrawBlendMode(sdlr->renderer, b);
 }
 
 static void sdl_clear(Renderer *r) {
@@ -70,6 +102,8 @@ static const RenderVTable SDL_VTABLE = {
     .fill = sdl_fill,
     .flush = sdl_present,
     .plot = sdl_draw_plot,
+    .line = sdl_draw_line,
+    .fade = sdl_fade,
     .rect = sdl_draw_rect,
     .resize = sdl_autoresize,
 };
@@ -112,7 +146,7 @@ void sdl_renderer_init(Renderer *r) {
         die("Failed to set renderer resolution.");
     }
 
-    if (r->cfg->refreshmode == refreshmode_sync)
+    if (r->cfg->refreshmode == CVIS_REFRESHMODE_SYNC)
         result = SDL_SetRenderVSync(sdlr->renderer, 1);
     else
         result = SDL_SetRenderVSync(sdlr->renderer, 0);
@@ -138,6 +172,34 @@ void sdl_renderer_end(Renderer *r) {
 
 #include "program.h"
 
+static void update_keyevent(Program *p, SDL_KeyboardEvent *e, bool set) {
+    switch (e->key) {
+    case SDLK_LEFT:
+        pg_keymap_set(p, keyevents_left, set);
+        break;
+    case SDLK_RIGHT:
+        pg_keymap_set(p, keyevents_right, set);
+        break;
+    case SDLK_UP:
+        pg_keymap_set(p, keyevents_up, set);
+        break;
+    case SDLK_DOWN:
+        pg_keymap_set(p, keyevents_down, set);
+        break;
+    case SDLK_Z:
+        pg_keymap_set(p, keyevents_z, set);
+        break;
+    case SDLK_X:
+        pg_keymap_set(p, keyevents_x, set);
+        break;
+    case SDLK_C:
+        pg_keymap_set(p, keyevents_c, set);
+        break;
+    default:
+        break;
+    }
+}
+
 void pg_eventloop_sdl(Program *p) {
     assert(renderer_get_type(pg_renderer(p)) == renderertype_sdl);
 
@@ -153,15 +215,23 @@ void pg_eventloop_sdl(Program *p) {
                 running = false;
                 break;
             case SDL_EVENT_KEY_DOWN:
-                if (event.key.key == SDLK_SPACE) {
-                    vm_next(pg_vismanager(p));
-                }
 
-                if (event.key.key == SDLK_Q) {
+                switch (event.key.key) {
+                case SDLK_SPACE:
+                    vm_next(pg_vismanager(p));
+                    RNDR_CLEAR();
+                    break;
+                case SDLK_Q:
                     running = false;
                     break;
+                default:
+                    update_keyevent(p, &event.key, true);
                 }
 
+                break;
+
+            case SDL_EVENT_KEY_UP:
+                update_keyevent(p, &event.key, false);
                 break;
 
             case SDL_EVENT_WINDOW_RESIZED:
@@ -176,7 +246,7 @@ void pg_eventloop_sdl(Program *p) {
 
         RNDR_FLUSH();
 
-        if (pg_config(p)->refreshmode == refreshmode_set)
-            SDL_Delay(1000 / pg_config(p)->refreshrate);
+        if (pg_config(p)->refreshmode == CVIS_REFRESHMODE_SET)
+            SDL_DelayPrecise(1'000'000'000 / pg_config(p)->refreshrate);
     }
 }

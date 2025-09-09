@@ -1,4 +1,5 @@
 #include "audio.h"
+#include "common.h"
 #include "fft.h"
 #include "interpolation.h"
 #include "program.h"
@@ -41,13 +42,13 @@ void visualizer_spectrum(Program *prog) {
 
     RNDR_CLEAR();
 
-    Size size = RNDR_SIZE();
+    Uint2D size = RNDR_SIZE();
 
-    float wf = (float)size.w;
-    float hf = (float)size.h;
+    float wf = (float)size.x;
+    float hf = (float)size.y;
 
-    for (uint y = 0; y < size.h; y++) {
-        float ifrac = (float)y / (float)size.h;
+    for (uint y = 0; y < size.y; y++) {
+        float ifrac = (float)y / (float)size.y;
         ifrac = exp2m1f(ifrac);
         float ifloat = ifrac * SPECTRUMSIZE;
         uint ifloor = (uint)ifloat;
@@ -59,10 +60,10 @@ void visualizer_spectrum(Program *prog) {
         float sl = smooth_step(crealf(sfloor), crealf(sceil), ti);
         float sr = smooth_step(cimagf(sfloor), cimagf(sceil), ti);
 
-        sl = powf(sl, 1.3f) * (float)(size.w) * 0.5f;
-        sr = powf(sr, 1.3f) * (float)(size.w) * 0.5f;
+        sl = powf(sl, 1.3f) * (float)(size.x) * 0.5f;
+        sr = powf(sr, 1.3f) * (float)(size.x) * 0.5f;
 
-        Uint8 channel = (Uint8)(y * 255 / size.h);
+        Uint8 channel = (Uint8)(y * 255 / size.y);
         Uint8 green = (Uint8)SDL_min(16 + (int)(3.0f * (sl + sr)), 255);
 
         float yf = (float)y;
@@ -71,7 +72,7 @@ void visualizer_spectrum(Program *prog) {
         RNDR_RECT(wf / 2.0f - sl, hf - yf, sl, 1.0f);
         RNDR_RECT(wf / 2.0f, hf - yf, sr, 1.0f);
 
-        cplx s = BUFFER_GET(ifloor);
+        cplx s = BUFFER_GET(size.y - y);
         Uint8 c1 = crealf(s) > 0.0 ? 255 : 0;
         Uint8 c2 = cimagf(s) > 0.0 ? 255 : 0;
 

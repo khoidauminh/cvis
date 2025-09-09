@@ -17,6 +17,7 @@ void pg_eventloop_term(Program *p);
 struct program {
     Renderer *renderer;
     VisManager *vismanager;
+    KeyEvent keymap[keyevent_null];
     Config cfg;
     void (*eventloop_func)(Program *);
 };
@@ -28,12 +29,13 @@ Program *pg_new(Config config) {
     p->cfg = config;
     p->renderer = renderer_new(&p->cfg);
     p->vismanager = vm_new(config.visname);
+    memset(&p->keymap, 0, sizeof(p->keymap));
 
     switch (p->cfg.displaymode) {
-    case displaymode_graphical:
+    case CVIS_DISPLAYMODE_GRAPHICAL:
         p->eventloop_func = &pg_eventloop_sdl;
         break;
-    case displaymode_terminal:
+    case CVIS_DISPLAYMODE_TERMINAL:
         p->eventloop_func = &pg_eventloop_term;
         break;
     default:
@@ -41,6 +43,15 @@ Program *pg_new(Config config) {
     }
 
     return p;
+}
+
+void pg_keymap_set(Program *p, KeyEvent k, bool b) { p->keymap[k] = b; }
+bool pg_keymap_get(Program *p, KeyEvent k) { return p->keymap[k]; }
+void pg_keymap_print(Program *p) {
+    for (uint i = 0; i < keyevent_null; i++) {
+        info("%d", p->keymap[i]);
+    }
+    info("\n");
 }
 
 Config *pg_config(Program *p) { return &p->cfg; }

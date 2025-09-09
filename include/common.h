@@ -1,14 +1,23 @@
 #ifndef CVIS_COMMON_H
 #define CVIS_COMMON_H
 
-#include <complex.h>
 #include <SDL3/SDL_stdinc.h>
+#include <complex.h>
 
 typedef float complex cplx;
 
+typedef unsigned long ulong;
 typedef unsigned int uint;
 
-typedef struct size { uint w; uint h; } Size;
+typedef struct int2d {
+    int x;
+    int y;
+} Int2D;
+
+typedef struct uint2d {
+    uint x;
+    uint y;
+} Uint2D;
 
 uint uint_min(uint a, uint b);
 uint uint_max(uint a, uint b);

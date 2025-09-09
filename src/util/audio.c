@@ -34,6 +34,8 @@ typedef struct audiobuffer {
     uint rotatessinceupdate;
     uint lastwritesize;
 
+    ulong age;
+
     float max;
 
     cplx data[BUFFER_SIZE];
@@ -87,6 +89,8 @@ static void data_callback(ma_device *, void *restrict,
 
     gbuffer->rotatessinceupdate = 0;
 
+    gbuffer->age += 1;
+
     buffer_normalize();
     ma_mutex_unlock(&locker);
 }
@@ -116,8 +120,14 @@ static void buffer_normalize() {
     }
 }
 
+ulong BUFFER_AGE() { return gbuffer->age; }
+
+uint BUFFER_INPUTSIZE() { return gbuffer->lastwritesize; }
+
+// Gets the ith sample into the past
 cplx BUFFER_GET(uint index) {
-    return gbuffer->data[(index + gbuffer->readend) & BUFFER_MASK];
+    const uint i = gbuffer->readend - index;
+    return gbuffer->data[i & BUFFER_MASK];
 }
 
 uint BUFFER_READ(cplx *cplx_array, uint amount) {

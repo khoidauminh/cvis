@@ -23,6 +23,7 @@ static const Visualizer FUNC_ARRAY[] = {
     {.name = "spectrum", .func = visualizer_spectrum},
     {.name = "vectorscope", .func = visualizer_vectorscope},
     {.name = "oscilloscope", .func = visualizer_oscilloscope},
+    {.name = "slice", .func = visualizer_slice},
     {}};
 
 void vm_select_by_name(VisManager *v, const char *name);

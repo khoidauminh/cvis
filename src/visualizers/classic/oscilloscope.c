@@ -1,4 +1,5 @@
 #include "audio.h"
+#include "common.h"
 #include "program.h"
 #include "render.h"
 #include <math.h>
@@ -67,12 +68,12 @@ void visualizer_oscilloscope(Program *prog) {
     RNDR_CLEAR();
     RNDR_BLEND(SDL_BLENDMODE_ADD);
 
-    Size size = RNDR_SIZE();
+    Uint2D size = RNDR_SIZE();
 
-    float center = (float)size.h * 0.5f;
+    float center = (float)size.y * 0.5f;
     float scale = center * 0.7f;
 
-    const uint w = uint_max(size.w, 1);
+    const uint w = uint_max(size.x, 1);
 
     const float buffer_size_smaller = (float)BUFFERSIZE * 0.8f;
     const float index_scale = buffer_size_smaller / (float)w;
@@ -80,7 +81,7 @@ void visualizer_oscilloscope(Program *prog) {
 
     const uint samplesperpixel = (BUFFERSIZE + w) / w;
 
-    for (uint x = 0; x < size.w; x++) {
+    for (uint x = 0; x < size.x; x++) {
         const uint istart = (uint)((float)x * index_scale) + indexstart + base;
         const uint iend = istart + samplesperpixel;
 

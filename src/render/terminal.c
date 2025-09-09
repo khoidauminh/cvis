@@ -2,6 +2,7 @@
 #include "render.h"
 #include "renderer-private.h" // IWYU pragma: keep.
 
+#include <SDL3/SDL_stdinc.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,6 +92,48 @@ static void terminal_fill(Renderer *r) {
                        (float)(r->cfg->height));
 }
 
+static void terminal_line(Renderer *r, float x1f, float y1f, float x2f,
+                          float y2f) {
+    int x0 = (int)x1f;
+    int y0 = (int)y1f;
+
+    const int x1 = (int)x2f;
+    const int y1 = (int)y2f;
+
+    const int dx = x1 > x0 ? x1 - x0 : x0 - x1;
+    const int sx = x0 < x1 ? 1 : -1;
+    const int dy = y1 < y0 ? y1 - y0 : y0 - y1;
+    const int sy = y0 < y1 ? 1 : -1;
+
+    int error = dx + dy;
+
+    TRenderer *tr = r->renderer;
+
+    while (true) {
+        mvwaddch(tr->win, dy, dx, (chtype)tr->ch);
+
+        const int e2 = 2 * error;
+
+        if (e2 >= dy) {
+            if (x0 == x1)
+                break;
+
+            error += dy;
+            x0 += sx;
+        }
+
+        if (e2 <= dx) {
+            if (y0 == y1)
+                break;
+
+            error += dx;
+            y0 += sy;
+        }
+    }
+}
+
+static void terminal_fade(Renderer *, Uint8 a) {}
+
 static void terminal_flush(Renderer *) { refresh(); }
 
 static void terminal_autoresize(Renderer *r) {
@@ -108,6 +151,8 @@ static const RenderVTable TERMINAL_VTABLE = {
     .clear = terminal_clear,
     .color = terminal_set_color,
     .fill = terminal_fill,
+    .line = terminal_line,
+    .fade = terminal_fade,
     .flush = terminal_flush,
     .plot = terminal_draw_plot,
     .rect = terminal_draw_rect,
