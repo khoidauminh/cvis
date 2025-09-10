@@ -26,7 +26,7 @@ RendererType renderer_get_type(Renderer *r);
 // helper functions to set a render target only once.
 void RNDR_SET_TARGET(Renderer *r);
 Uint2D RNDR_SIZE();
-void RNDR_COLOR(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+void RNDR_COLOR(SDL_Color c);
 void RNDR_PLOT(float x, float y);
 void RNDR_RECT(float x, float y, float w, float h);
 void RNDR_LINE(float x1, float y1, float x2, float y2);
@@ -34,7 +34,6 @@ void RNDR_FADE(Uint8 a);
 void RNDR_BLEND(SDL_BlendMode blendmode);
 void RNDR_FILL();
 void RNDR_CLEAR();
-void RNDR_FLUSH();
 void RNDR_AUTORESIZE();
 
 #endif

@@ -6,16 +6,18 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_blendmode.h>
 #include <SDL3/SDL_error.h>
-#include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_keycode.h>
 #include <SDL3/SDL_oldnames.h>
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
+
 #include <SDL3/SDL_stdinc.h>
 #include <SDL3/SDL_timer.h>
-#include <SDL3/SDL_video.h>
+
+#include <SDL3/SDL_render.h>
+
+#include <SDL3_ttf/SDL_ttf.h>
 
 #include <assert.h>
 #include <ncurses.h>
@@ -26,9 +28,9 @@ typedef struct sdl_renderer {
     SDL_Renderer *renderer;
 } SDLRenederer;
 
-static void sdl_set_color(Renderer *rndr, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+static void sdl_set_color(Renderer *rndr, Color c) {
     SDLRenederer *sdlr = rndr->renderer;
-    SDL_SetRenderDrawColor(sdlr->renderer, r, g, b, a);
+    SDL_SetRenderDrawColor(sdlr->renderer, c.r, c.g, c.b, c.a);
 }
 
 static void sdl_draw_plot(Renderer *r, float x, float y) {
@@ -58,9 +60,9 @@ static void sdl_fade(Renderer *r, Uint8 a) {
                       .w = (float)r->cfg->width,
                       .h = (float)r->cfg->height};
 
-    SDL_Color newc = r->cfg->background;
+    Color newc = r->cfg->background;
     newc.a = a;
-    sdl_set_color(r, newc.r, newc.g, newc.b, newc.a);
+    sdl_set_color(r, newc);
     SDL_BlendMode b = SDL_BLENDMODE_NONE;
     SDL_GetRenderDrawBlendMode(sdlr->renderer, &b);
     SDL_SetRenderDrawBlendMode(sdlr->renderer, SDL_BLENDMODE_BLEND);
@@ -70,7 +72,7 @@ static void sdl_fade(Renderer *r, Uint8 a) {
 
 static void sdl_clear(Renderer *r) {
     SDLRenederer *sdlr = r->renderer;
-    SDL_Color c = r->cfg->background;
+    Color c = r->cfg->background;
     SDL_SetRenderDrawColor(sdlr->renderer, c.r, c.g, c.b, c.a);
     SDL_RenderClear(sdlr->renderer);
 }
@@ -84,6 +86,8 @@ static void sdl_set_blendmode(Renderer *r, SDL_BlendMode blendmode) {
     SDLRenederer *sdlr = r->renderer;
     SDL_SetRenderDrawBlendMode(sdlr->renderer, blendmode);
 }
+
+static void sdl_draw_text(Renderer *r, float x, float y, const char *str) {}
 
 static void sdl_autoresize(Renderer *r) {
     SDLRenederer *sdlr = r->renderer;
@@ -106,6 +110,7 @@ static const RenderVTable SDL_VTABLE = {
     .fade = sdl_fade,
     .rect = sdl_draw_rect,
     .resize = sdl_autoresize,
+    .text = sdl_draw_text,
 };
 
 void sdl_renderer_init(Renderer *r) {
@@ -118,7 +123,7 @@ void sdl_renderer_init(Renderer *r) {
 
     bool result;
 
-    unsigned long flags = SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_OPENGL;
+    unsigned long flags = SDL_WINDOW_ALWAYS_ON_TOP;
 
     if (r->cfg->resizable) {
         flags |= SDL_WINDOW_RESIZABLE;

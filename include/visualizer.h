@@ -19,5 +19,6 @@ void visualizer_spectrum(Program *);
 void visualizer_vectorscope(Program *);
 void visualizer_oscilloscope(Program *);
 void visualizer_slice(Program *);
+void game_snake(Program *);
 
 #endif

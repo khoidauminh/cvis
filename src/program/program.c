@@ -47,6 +47,13 @@ Program *pg_new(Config config) {
 
 void pg_keymap_set(Program *p, KeyEvent k, bool b) { p->keymap[k] = b; }
 bool pg_keymap_get(Program *p, KeyEvent k) { return p->keymap[k]; }
+
+void pg_keymap_reset(Program *p) {
+    for (uint i = 0; i < keyevent_null; i++) {
+        p->keymap[i] = false;
+    }
+}
+
 void pg_keymap_print(Program *p) {
     for (uint i = 0; i < keyevent_null; i++) {
         info("%d", p->keymap[i]);

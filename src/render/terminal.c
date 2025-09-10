@@ -19,19 +19,19 @@
 
 #include <unistdio.h>
 
-constexpr char CHAR_MAP[] = " -+#@";
+constexpr uint CHAR_MAP_LEN = 5;
+constexpr chtype CHAR_MAP[CHAR_MAP_LEN] = {' ', '-', '+', '#', '@'};
 
 typedef struct terminal_renderer {
     WINDOW *win;
-    char ch;
+    chtype ch;
 } TRenderer;
 
-static void terminal_set_color(Renderer *rndr, Uint8 r, Uint8 g, Uint8 b,
-                               Uint8 a) {
+static void terminal_set_color(Renderer *rndr, Color c) {
     TRenderer *tr = rndr->renderer;
-    const uint ch_map_size = (uint)strlen(CHAR_MAP);
-    uint gray = ((uint)r + (uint)g + (uint)b * 2) * (uint)a / 256 / 4;
-    uint index = gray * ch_map_size / 256;
+
+    uint gray = ((uint)c.r + (uint)c.g + (uint)c.b * 2) * (uint)c.a / 256 / 4;
+    uint index = gray * CHAR_MAP_LEN / 256;
 
     tr->ch = CHAR_MAP[index];
 }
@@ -39,7 +39,7 @@ static void terminal_set_color(Renderer *rndr, Uint8 r, Uint8 g, Uint8 b,
 static void terminal_draw_plot(Renderer *r, float x, float y) {
     TRenderer *tr = r->renderer;
 
-    mvwaddch(tr->win, (int)y + 1, (int)x + 1, (chtype)tr->ch);
+    mvwaddch(tr->win, (int)y + 1, (int)x + 1, tr->ch);
 }
 
 static void terminal_draw_rect(Renderer *r, float xf, float yf, float wf,
@@ -83,7 +83,7 @@ static void terminal_draw_rect(Renderer *r, float xf, float yf, float wf,
     }
 }
 
-static void terminal_set_blendmode(Renderer *, SDL_BlendMode) {}
+static void terminal_set_blendmode(Renderer *, uint) {}
 
 static void terminal_clear(Renderer *) { clear(); }
 
@@ -110,7 +110,7 @@ static void terminal_line(Renderer *r, float x1f, float y1f, float x2f,
     TRenderer *tr = r->renderer;
 
     while (true) {
-        mvwaddch(tr->win, dy, dx, (chtype)tr->ch);
+        mvwaddch(tr->win, dy, dx, tr->ch);
 
         const int e2 = 2 * error;
 
@@ -132,7 +132,12 @@ static void terminal_line(Renderer *r, float x1f, float y1f, float x2f,
     }
 }
 
-static void terminal_fade(Renderer *, Uint8 a) {}
+static void terminal_text(Renderer *r, float x, float y, const char *str) {
+    TRenderer *tr = r->renderer;
+    mvwaddstr(tr->win, y, x, str);
+}
+
+static void terminal_fade(Renderer *, Uint8) {}
 
 static void terminal_flush(Renderer *) { refresh(); }
 
@@ -157,6 +162,7 @@ static const RenderVTable TERMINAL_VTABLE = {
     .plot = terminal_draw_plot,
     .rect = terminal_draw_rect,
     .resize = terminal_autoresize,
+    .text = terminal_text,
 };
 
 void terminal_renderer_init(Renderer *r) {
@@ -178,7 +184,7 @@ void terminal_renderer_init(Renderer *r) {
 
     raw();
     noecho();
-    keypad(tr->win, TRUE);
+    keypad(tr->win, true);
 
     r->vtable = &TERMINAL_VTABLE;
 }
@@ -199,7 +205,9 @@ void pg_eventloop_term(Program *p) {
     RNDR_SET_TARGET(pg_renderer(p));
 
     while (running) {
-        const char key = (char)getch();
+        pg_keymap_reset(p);
+
+        const chtype key = getch();
 
         switch (key) {
         case 'q':
@@ -208,6 +216,35 @@ void pg_eventloop_term(Program *p) {
         case ' ':
             vm_next(pg_vismanager(p));
             break;
+
+        case KEY_LEFT:
+            pg_keymap_set(p, keyevents_left, true);
+            break;
+
+        case KEY_RIGHT:
+            pg_keymap_set(p, keyevents_right, true);
+            break;
+
+        case KEY_UP:
+            pg_keymap_set(p, keyevents_up, true);
+            break;
+
+        case KEY_DOWN:
+            pg_keymap_set(p, keyevents_down, true);
+            break;
+
+        case 'c':
+            pg_keymap_set(p, keyevents_c, true);
+            break;
+
+        case 'x':
+            pg_keymap_set(p, keyevents_x, true);
+            break;
+
+        case 'z':
+            pg_keymap_set(p, keyevents_z, true);
+            break;
+
         default: {
         }
         }

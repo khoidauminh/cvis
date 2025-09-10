@@ -1,4 +1,5 @@
 #include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_render.h>
 #include <SDL3/SDL_stdinc.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -93,8 +94,8 @@ Uint2D renderer_get_size(Renderer *r) {
     return (Uint2D){.x = r->cfg->width, .y = r->cfg->height};
 }
 
-void render_set_color(Renderer *renderer, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-    (renderer->vtable->color)(renderer, r, g, b, a);
+void render_set_color(Renderer *renderer, Color c) {
+    (renderer->vtable->color)(renderer, c);
 }
 
 void render_plot(Renderer *r, float x, float y) { (r->vtable->plot)(r, x, y); }
@@ -109,7 +110,7 @@ void render_line(Renderer *r, float x1, float y1, float x2, float y2) {
 
 void render_fade(Renderer *r, Uint8 a) { (r->vtable->fade)(r, a); }
 
-void render_set_blendmode(Renderer *r, SDL_BlendMode blendmode) {
+void render_set_blendmode(Renderer *r, uint blendmode) {
     (r->vtable->blend)(r, blendmode);
 }
 
@@ -130,9 +131,7 @@ void RNDR_SET_TARGET(Renderer *r) {
 
 Uint2D RNDR_SIZE() { return renderer_get_size(RENDERER); }
 
-void RNDR_COLOR(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-    render_set_color(RENDERER, r, g, b, a);
-}
+void RNDR_COLOR(Color c) { render_set_color(RENDERER, c); }
 
 void RNDR_PLOT(float x, float y) { render_plot(RENDERER, x, y); }
 

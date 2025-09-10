@@ -68,7 +68,7 @@ void visualizer_spectrum(Program *prog) {
 
         float yf = (float)y;
 
-        RNDR_COLOR(255 - channel, green, 128 + channel / 2, 255);
+        RNDR_COLOR((Color){255 - channel, green, 128 + channel / 2, 255});
         RNDR_RECT(wf / 2.0f - sl, hf - yf, sl, 1.0f);
         RNDR_RECT(wf / 2.0f, hf - yf, sr, 1.0f);
 
@@ -76,7 +76,7 @@ void visualizer_spectrum(Program *prog) {
         Uint8 c1 = crealf(s) > 0.0 ? 255 : 0;
         Uint8 c2 = cimagf(s) > 0.0 ? 255 : 0;
 
-        RNDR_COLOR(c1, 0, c2, 255);
+        RNDR_COLOR((Color){c1, 0, c2, 255});
         RNDR_RECT(wf / 2.0f - 1, hf - yf, 2, 1);
     }
 }

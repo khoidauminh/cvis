@@ -3,14 +3,11 @@
 #include "interpolation.h"
 #include "program.h"
 #include "render.h"
-#include <SDL3/SDL_pixels.h>
-#include <SDL3/SDL_stdinc.h>
 #include <math.h>
-#include <threads.h>
 
 static thread_local float ANGLE = 0.0f;
 static thread_local float AMP = 0.0f;
-static thread_local SDL_Color COLOR = {};
+static thread_local Color COLOR = {};
 
 static void process_sweep(float *outsweep, float *outhigh) {
     const uint inputsize = BUFFER_INPUTSIZE();
@@ -66,7 +63,7 @@ void visualizer_slice(Program *prog) {
     COLOR.g += channel;
     COLOR.b += channel + 5;
 
-    RNDR_COLOR(COLOR.r, COLOR.g, COLOR.b, 255);
+    RNDR_COLOR(COLOR);
 
     float o = ANGLE;
 
@@ -81,5 +78,5 @@ void visualizer_slice(Program *prog) {
         o += d;
     }
 
-    ANGLE = fmodf(new_angle, SDL_PI_F * 2.0f);
+    ANGLE = fmodf(new_angle, TAU);
 }

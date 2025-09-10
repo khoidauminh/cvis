@@ -3,6 +3,7 @@
 #include "program.h"
 
 #include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_render.h>
 #include <stdio.h>
 
 Config config_default() {
@@ -118,7 +119,7 @@ Config config_parse_args(const int argc, const char **argv) {
             Uint8 g = (bg >> 8) & 0xFF;
             Uint8 b = (bg) & 0xFF;
 
-            cfg.background = (SDL_Color){r, g, b, 255};
+            cfg.background = (Color){r, g, b, 255};
 
             continue;
         }

@@ -2,12 +2,11 @@
 #include "common.h"
 #include "program.h"
 #include "render.h"
+
 #include <math.h>
 
 #include "interpolation.h"
 #include "visualizer.h"
-
-#include <SDL3/SDL_render.h>
 
 static constexpr uint BUFFERSIZE = 1024;
 static constexpr uint PADDING = BUFFERSIZE;
@@ -110,10 +109,10 @@ void visualizer_oscilloscope(Program *prog) {
         right_min = right_min * scale + center;
         right_max = right_max * scale + center;
 
-        RNDR_COLOR(0, 200, 55, 255);
+        RNDR_COLOR((Color){0, 55, 255, 255});
         RNDR_RECT((float)x, left_min, 1.0f, left_max - left_min);
 
-        RNDR_COLOR(0, 55, 200, 255);
+        RNDR_COLOR((Color){0, 255, 50, 255});
         RNDR_RECT((float)x, right_min, 1.0f, right_max - right_min);
     }
 }

@@ -24,6 +24,9 @@ static const Visualizer FUNC_ARRAY[] = {
     {.name = "vectorscope", .func = visualizer_vectorscope},
     {.name = "oscilloscope", .func = visualizer_oscilloscope},
     {.name = "slice", .func = visualizer_slice},
+
+    {.name = "snake", .func = game_snake},
+
     {}};
 
 void vm_select_by_name(VisManager *v, const char *name);

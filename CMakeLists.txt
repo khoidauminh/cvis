@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.10.0)
 project(cvis
     VERSION 0.2.0
     LANGUAGES C
@@ -9,18 +9,30 @@ set(CMAKE_BUILD_TYPE None)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(CURSES_NEED_NCURSES TRUE)
 set(OpenGL_GL_PREFERENCE GLVND)
+set(FETCHCONTENT_QUIET OFF)
 
 include(FetchContent)
+
 FetchContent_Declare(
-  miniaudio
-  GIT_REPOSITORY git@github.com:mackron/miniaudio.git
-  GIT_TAG "0.11.22"
-  GIT_SHALLOW TRUE
-  GIT_PROGRESS ON
-  SYSTEM
+    miniaudio
+    GIT_REPOSITORY git@github.com:mackron/miniaudio.git
+    GIT_TAG "0.11.22"
+    GIT_SHALLOW TRUE
+    GIT_PROGRESS ON
+    SYSTEM
 )
 
-FetchContent_MakeAvailable(miniaudio)
+FetchContent_Declare(
+    SDL3_ttf
+    GIT_REPOSITORY git@github.com:libsdl-org/SDL_ttf.git
+    GIT_TAG "release-3.2.2"
+    GIT_SHALLOW TRUE
+    GIT_PROGRESS ON
+    GIT_SUBMODULES "external/freetype"
+    SYSTEM
+)
+
+FetchContent_MakeAvailable(miniaudio SDL3_ttf)
 
 find_package(SDL3 REQUIRED)
 find_package(Curses REQUIRED)
@@ -40,6 +52,9 @@ set(SOURCES
     src/visualizers/classic/vectorscope.c
     src/visualizers/classic/oscilloscope.c
     src/visualizers/classic/slice.c
+    
+    src/visualizers/game/snake.c
+    
     src/visualizers/visualizer.c
 
     src/program/config.c
@@ -63,6 +78,6 @@ target_compile_options(cvis PRIVATE
 )
 
 target_include_directories(cvis PRIVATE "include")
-target_link_libraries(cvis m SDL3::SDL3 ncurses miniaudio)
+target_link_libraries(cvis PRIVATE m SDL3::SDL3 ncurses miniaudio SDL3_ttf::SDL3_ttf)
 
 install(TARGETS cvis)

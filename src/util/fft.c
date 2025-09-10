@@ -8,8 +8,8 @@
 #include <stdbit.h>
 #include <stdlib.h>
 
-#define MAX_FFT_POWER 13
-#define MAX_FFT_LENGTH (1 << MAX_FFT_POWER)
+constexpr uint MAX_FFT_POWER = 13;
+constexpr uint MAX_FFT_LENGTH = 1 << MAX_FFT_POWER;
 
 static cplx *TWIDDLE_ARRAY = nullptr;
 static uint *BUTTERFLY_ARRAY = nullptr;
@@ -26,7 +26,7 @@ static void contruct_twiddle_array() {
     uint i = 1;
 
     for (uint k = 1; k < MAX_FFT_LENGTH; k *= 2) {
-        float angle = -SDL_PI_F / (float)k;
+        float angle = -PI / (float)k;
 
         for (uint j = 0; j < k; j++) {
             cplx twiddle = cexpf((float)j * angle * I);

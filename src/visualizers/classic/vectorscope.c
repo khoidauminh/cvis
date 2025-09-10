@@ -11,7 +11,7 @@ constexpr uint BUFFERSIZE = 128;
 void draw_cross(Program *prog) {
     static thread_local bool vertical = false;
     RNDR_SET_TARGET(pg_renderer(prog));
-    RNDR_COLOR(70, 70, 70, 255);
+    RNDR_COLOR((Color){70, 70, 70, 255});
 
     Uint2D size = RNDR_SIZE();
 
@@ -53,7 +53,7 @@ void visualizer_vectorscope(Program *prog) {
         float redf = (fabsf(x) + fabsf(y)) * 7.0f;
         Uint8 red = (Uint8)uint_min((Uint8)(redf), 255);
 
-        RNDR_COLOR(red, 255, 0, 255);
+        RNDR_COLOR((Color){red, 255, 0, 255});
         RNDR_PLOT(center_x + x, center_y + y);
     }
 
