@@ -2,12 +2,9 @@
 #include "logging.h"
 
 #include <SDL3/SDL_error.h>
-#include <SDL3/SDL_iostream.h>
-#include <SDL3/SDL_oldnames.h>
-#include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_surface.h>
-#include <SDL3_image/SDL_image.h>
+
 #include <assert.h>
 #include <stdlib.h>
 #include <threads.h>
@@ -22,7 +19,7 @@ constexpr uint CHAR_WIDTH = SPRITESHEET_WIDTH / SPRITESHEET_COLUMNS;
 constexpr uint CHAR_HEIHT = SPRITESHEET_HEIGHT / SPRITESHEET_ROWS;
 
 static const uchar FONT_FILE[] = {
-#embed "../../assets/charmap-cellphone_white_0.bmp"
+#embed "../../assets/charmap-cellphone.bmp"
 };
 
 typedef struct sdl_font_map {

@@ -22,17 +22,7 @@ FetchContent_Declare(
     SYSTEM
 )
 
-FetchContent_Declare(
-    SDL3_image
-    GIT_REPOSITORY git@github.com:libsdl-org/SDL_image.git
-    GIT_TAG "release-3.2.4"
-    GIT_SHALLOW TRUE
-    GIT_PROGRESS ON
-    GIT_SUBMODULES "external/libpng"
-    SYSTEM
-)
-
-FetchContent_MakeAvailable(miniaudio SDL3_image)
+FetchContent_MakeAvailable(miniaudio)
 
 find_package(SDL3 REQUIRED)
 find_package(Curses REQUIRED)
@@ -78,7 +68,7 @@ target_compile_options(cvis PRIVATE
     -O2
 )
 
-target_include_directories(cvis PRIVATE "include" "assets")
-target_link_libraries(cvis PRIVATE m SDL3::SDL3 ncurses miniaudio SDL3_image::SDL3_image)
+target_include_directories(cvis PRIVATE "include")
+target_link_libraries(cvis PRIVATE m SDL3::SDL3 ncurses miniaudio)
 
 install(TARGETS cvis)

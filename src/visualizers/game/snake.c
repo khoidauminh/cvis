@@ -4,12 +4,14 @@
 #include "render.h"
 
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
 constexpr uint INIT_CAP = 8;
 constexpr uint APPLE_SCORE = 1;
 constexpr uint SCALE = 2;
+
 constexpr uint LOSE_SCREENTIME = 5;
 
 constexpr uint RATE1 = 8;
@@ -163,6 +165,7 @@ static void game_init(SnakeGameState *game) {
     reset_apple(game);
 
     game->score = 0;
+
     game->init = true;
     game->state = gs_running;
     game->rate = RATE1;
@@ -172,6 +175,8 @@ static void game_update(SnakeGameState *game) {
     assert(game->init);
 
     game->age += 1;
+
+    game->canvas = RNDR_SIZE();
 
     if (game->state == gs_lose) {
         if (game->age - game->state_changed >= game->lose_screenframes) {
@@ -228,6 +233,13 @@ static void game_update(SnakeGameState *game) {
 
 static void game_draw(SnakeGameState *game) {
     RNDR_CLEAR();
+
+    // prints score
+    constexpr uint scorestrlen = 20;
+    char scorestr[scorestrlen];
+    snprintf(scorestr, scorestrlen, "%u", game->score);
+
+    RNDR_TEXT(0.0f, 0.0f, scorestr, CVIS_TEXTALIGN_LEFT, CVIS_TEXTANCHOR_TOP);
 
     // Make sure snake's color is always
     // different than background color.
