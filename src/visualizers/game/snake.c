@@ -3,7 +3,9 @@
 
 #include "render.h"
 
+#include <SDL3/SDL_stdinc.h>
 #include <assert.h>
+#include <complex.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -247,6 +249,17 @@ static void game_draw(SnakeGameState *game) {
     snakecolor.r += 128;
     snakecolor.g += 128;
     snakecolor.b += 128;
+
+    float sumleft = 0.0f, sumright = 0.0f, sum = 0.0f;
+    for (uint i = 0; i < 50; i++) {
+        sumleft += crealf(BUFFER_GET(i));
+        sumright += cimagf(BUFFER_GET(i));
+    }
+    sum = sumleft + sumright;
+
+    snakecolor.r += (Uint8)(sumleft);
+    snakecolor.g += (Uint8)(sum);
+    snakecolor.b += (Uint8)(sumright);
 
     RNDR_COLOR(snakecolor);
 
