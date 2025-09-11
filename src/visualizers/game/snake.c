@@ -190,14 +190,18 @@ static void game_update(SnakeGameState *game) {
 
     const uint map[][2] = {
         {keyevents_left, dleft},
-        {keyevents_right, dright},
         {keyevents_up, dup},
+        {keyevents_right, dright},
         {keyevents_down, ddown},
     };
 
+    const enum direction oldd = game->snake.direction;
+
     for (uint i = 0; i < 4; i++) {
-        if (pg_keymap_get(game->prog, map[i][0])) {
+        if (pg_keymap_get(game->prog, map[i][0]) &&
+            map[(i + 2) % 4][0] != oldd) {
             game->snake.direction = map[i][1];
+            break;
         }
     }
 
