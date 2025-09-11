@@ -18,8 +18,6 @@ void pg_eventloop_term(Program *p);
 Renderer *renderer_new(Config *cfg);
 void renderer_end(Renderer *);
 
-RendererType renderer_get_type(Renderer *r);
-
 VisManager *vm_new(const char *);
 void vm_end(VisManager *v);
 
