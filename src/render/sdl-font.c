@@ -1,52 +1,104 @@
 #include "common.h"
 #include "logging.h"
 
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_iostream.h>
+#include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_render.h>
 #include <SDL3/SDL_surface.h>
-#include <SDL3_ttf/SDL_ttf.h>
+#include <SDL3_image/SDL_image.h>
 #include <assert.h>
-#include <iso646.h>
-#include <stdatomic.h>
 #include <stdlib.h>
+#include <threads.h>
 
-typedef struct sdl_font_manager {
-    bool init;
+constexpr uint SPRITESHEET_WIDTH = 128;
+constexpr uint SPRITESHEET_HEIGHT = 64;
 
-    TTF_Font *font;
+constexpr uint SPRITESHEET_COLUMNS = 18;
+constexpr uint SPRITESHEET_ROWS = 7;
+
+constexpr uint CHAR_WIDTH = SPRITESHEET_WIDTH / SPRITESHEET_COLUMNS;
+constexpr uint CHAR_HEIHT = SPRITESHEET_HEIGHT / SPRITESHEET_ROWS;
+
+static const uchar FONT_FILE[] = {
+#embed "../../assets/charmap-cellphone_white_0.png"
+};
+
+typedef struct sdl_font_map {
+    SDL_Renderer *renderer;
+    SDL_Surface *surface;
     SDL_Texture *texture;
-    SDL_Surface *text;
-    Color color;
+} SDLFontMap;
 
-    uchar *tiny_ttf;
-    uint tiny_ttf_len;
-} SDLFont;
+static thread_local SDLFontMap *fontmap = nullptr;
 
-static atomic_bool sdl_init = false;
-
-void sfm_init(SDLFont *sdlf) {
-    assert(!sdlf->init);
-
-    if (!atomic_load(&sdl_init)) {
-        if (!TTF_Init()) {
-            die("Failed to initialize SDL font system.\n");
-        }
-        atexit(TTF_Quit);
-        atomic_store(&sdl_init, true);
-    }
-
-    sdlf->color = (Color){255, 255, 255, 255};
-
-    sdlf->font = TTF_OpenFontIO(
-        SDL_IOFromConstMem(sdlf->tiny_ttf, sdlf->tiny_ttf_len), true, 10.0f);
-
-    assert(sdlf->font);
-
-    sdlf->init = true;
+static void deinit() {
+    SDL_DestroyRenderer(fontmap->renderer);
+    SDL_DestroySurface(fontmap->surface);
+    SDL_DestroyTexture(fontmap->texture);
 }
 
-void sfm_render(SDLFont *sdlf, const char *str) {
-    assert(sdlf && sdlf->init);
+static void init() {
+    fontmap = malloc(sizeof(*fontmap));
+    assert(fontmap);
 
-    sdlf->text = TTF_RenderText_Blended(sdlf->font, str, 0, sdlf->color);
+    fontmap->surface = SDL_CreateSurface(SPRITESHEET_WIDTH, SPRITESHEET_HEIGHT,
+                                         SDL_PIXELFORMAT_ARGB8888);
+    assert(fontmap->surface);
 
-    assert(sdlf->text);
+    fontmap->renderer = SDL_CreateSoftwareRenderer(fontmap->surface);
+    assert(fontmap->renderer);
+
+    fontmap->texture = IMG_LoadTexture_IO(
+        fontmap->renderer, SDL_IOFromConstMem(FONT_FILE, sizeof(FONT_FILE)),
+        true);
+
+    assert(fontmap->texture);
+
+    bool result = SDL_RenderTexture(fontmap->renderer, fontmap->texture,
+                                    nullptr, nullptr);
+    if (!result) {
+        die("%s\n", SDL_GetError());
+    }
+
+    atexit(deinit);
+}
+
+void sdlfont_draw_char(SDL_Renderer *renderer, const char c, float x, float y) {
+    if (c < '!' || c > '~') {
+        return;
+    }
+
+    if (!fontmap) {
+        init();
+    }
+
+    const uint index_flat = (uint)(c - ('!' - 1));
+    const uint index_x = index_flat % SPRITESHEET_COLUMNS;
+    const uint index_y = index_flat / SPRITESHEET_COLUMNS;
+
+    const uint bitmapx = SPRITESHEET_WIDTH * index_x / SPRITESHEET_COLUMNS;
+    const uint bitmapy = SPRITESHEET_HEIGHT * index_y / SPRITESHEET_ROWS;
+
+    const SDL_FRect srcrect = {
+        .x = (float)bitmapx,
+        .y = (float)bitmapy,
+        .w = (float)CHAR_WIDTH,
+        .h = (float)CHAR_HEIHT,
+    };
+
+    const SDL_FRect dstrect = {
+        .x = x,
+        .y = y,
+        .w = (float)CHAR_WIDTH,
+        .h = (float)CHAR_HEIHT,
+    };
+}
+
+void sdlfont_draw_str(SDL_Renderer *render, const char *str, float x, float y) {
+    for (const char *i = str; *i; i++) {
+        const char c = *i;
+        sdlfont_draw_char(render, c, x, y);
+        x += (float)CHAR_WIDTH;
+    }
 }

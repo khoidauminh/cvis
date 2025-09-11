@@ -122,6 +122,10 @@ void render_clear(Renderer *r) { (r->vtable->clear)(r); }
 
 void render_autoresize(Renderer *r) { (r->vtable->resize)(r); }
 
+void render_text(Renderer *r, float x, float y, const char *str) {
+    (r->vtable->text)(r, x, y, str);
+}
+
 static Renderer *RENDERER = nullptr;
 
 void RNDR_SET_TARGET(Renderer *r) {
@@ -156,6 +160,10 @@ void RNDR_FLUSH() {
 
 void RNDR_BLEND(SDL_BlendMode blendmode) {
     render_set_blendmode(RENDERER, blendmode);
+}
+
+void RNDR_TEXT(float x, float y, const char *str) {
+    render_text(RENDERER, x, y, str);
 }
 
 void RNDR_AUTORESIZE() { render_autoresize(RENDERER); }

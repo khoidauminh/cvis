@@ -22,17 +22,17 @@ FetchContent_Declare(
     SYSTEM
 )
 
-# FetchContent_Declare(
-#     SDL3_ttf
-#     GIT_REPOSITORY git@github.com:libsdl-org/SDL_ttf.git
-#     GIT_TAG "release-3.2.2"
-#     GIT_SHALLOW TRUE
-#     GIT_PROGRESS ON
-#     GIT_SUBMODULES "external/freetype"
-#     SYSTEM
-# )
+FetchContent_Declare(
+    SDL3_image
+    GIT_REPOSITORY git@github.com:libsdl-org/SDL_image.git
+    GIT_TAG "release-3.2.4"
+    GIT_SHALLOW TRUE
+    GIT_PROGRESS ON
+    GIT_SUBMODULES "external/libpng"
+    SYSTEM
+)
 
-FetchContent_MakeAvailable(miniaudio)
+FetchContent_MakeAvailable(miniaudio SDL3_image)
 
 find_package(SDL3 REQUIRED)
 find_package(Curses REQUIRED)
@@ -47,6 +47,7 @@ set(SOURCES
     src/render/render.c
     src/render/terminal.c
     src/render/sdl.c
+    src/render/sdl-font.c
 
     src/visualizers/classic/spectrum.c
     src/visualizers/classic/vectorscope.c
@@ -77,7 +78,7 @@ target_compile_options(cvis PRIVATE
     -O2
 )
 
-target_include_directories(cvis PRIVATE "include")
-target_link_libraries(cvis PRIVATE m SDL3::SDL3 ncurses miniaudio)
+target_include_directories(cvis PRIVATE "include" "assets")
+target_link_libraries(cvis PRIVATE m SDL3::SDL3 ncurses miniaudio SDL3_image::SDL3_image)
 
 install(TARGETS cvis)

@@ -26,6 +26,8 @@ typedef struct sdl_renderer {
     SDL_Renderer *renderer;
 } SDLRenederer;
 
+void sdlfont_draw_str(SDL_Renderer *render, const char *str, float x, float y);
+
 static void sdl_set_color(Renderer *rndr, Color c) {
     SDLRenederer *sdlr = rndr->renderer;
     SDL_SetRenderDrawColor(sdlr->renderer, c.r, c.g, c.b, c.a);
@@ -53,18 +55,13 @@ static void sdl_fill(Renderer *r) {
 
 static void sdl_fade(Renderer *r, Uint8 a) {
     SDLRenederer *sdlr = r->renderer;
-    SDL_FRect rect = {.x = 0.0f,
-                      .y = 0.0f,
-                      .w = (float)r->cfg->width,
-                      .h = (float)r->cfg->height};
-
     Color newc = r->cfg->background;
     newc.a = a;
     sdl_set_color(r, newc);
     SDL_BlendMode b = SDL_BLENDMODE_NONE;
     SDL_GetRenderDrawBlendMode(sdlr->renderer, &b);
     SDL_SetRenderDrawBlendMode(sdlr->renderer, SDL_BLENDMODE_BLEND);
-    SDL_RenderFillRect(sdlr->renderer, &rect);
+    SDL_RenderFillRect(sdlr->renderer, nullptr);
     SDL_SetRenderDrawBlendMode(sdlr->renderer, b);
 }
 
@@ -85,7 +82,10 @@ static void sdl_set_blendmode(Renderer *r, SDL_BlendMode blendmode) {
     SDL_SetRenderDrawBlendMode(sdlr->renderer, blendmode);
 }
 
-static void sdl_draw_text(Renderer *r, float x, float y, const char *str) {}
+static void sdl_draw_text(Renderer *r, float x, float y, const char *str) {
+    SDLRenederer *sdlr = r->renderer;
+    sdlfont_draw_str(sdlr->renderer, str, x, y);
+}
 
 static void sdl_autoresize(Renderer *r) {
     SDLRenederer *sdlr = r->renderer;

@@ -24,7 +24,7 @@ void RNDR_FADE(Uint8 a);
 void RNDR_BLEND(SDL_BlendMode blendmode);
 void RNDR_FILL();
 void RNDR_CLEAR();
-
+void RNDR_TEXT(float x, float y, const char *str);
 Uint2D RNDR_SIZE();
 
 #endif
