@@ -17,6 +17,10 @@ constexpr uint RATE2 = 6;
 constexpr uint RATE3 = 4;
 constexpr uint RATE4 = 3;
 
+constexpr uint SL2 = 10;
+constexpr uint SL3 = 20;
+constexpr uint SL4 = 30;
+
 enum direction {
     dleft,
     dright,
@@ -124,7 +128,7 @@ typedef struct snake_game_state {
     Uint2D canvas;
     Snake snake;
     Uint2D apple;
-    ulong score;
+    uint score;
     enum game_state state;
 
     ulong state_changed;
@@ -158,6 +162,7 @@ static void game_init(SnakeGameState *game) {
 
     reset_apple(game);
 
+    game->score = 0;
     game->init = true;
     game->state = gs_running;
     game->rate = RATE1;
@@ -177,10 +182,10 @@ static void game_update(SnakeGameState *game) {
     }
 
     const uint map[][2] = {
-        {keyevents_down, ddown},
-        {keyevents_up, dup},
         {keyevents_left, dleft},
         {keyevents_right, dright},
+        {keyevents_up, dup},
+        {keyevents_down, ddown},
     };
 
     for (uint i = 0; i < 4; i++) {
@@ -197,23 +202,20 @@ static void game_update(SnakeGameState *game) {
     if (snake_at_apple(&game->snake, game->apple)) {
         game->score += APPLE_SCORE;
 
-        const ulong s = game->score; // short name
-
-        constexpr ulong SL2 = 10;
-        constexpr ulong SL3 = 20;
-        constexpr ulong SL4 = 30;
+        const uint s = game->score; // short name
 
         if (s < SL2) {
             snake_grow(&game->snake);
-        } else if (s >= SL2 && (s - SL2) % 2 == 0) {
+            game->rate = RATE1;
+        } else if (s < SL3) {
             snake_grow(&game->snake);
             game->rate = RATE2;
-        } else if (s >= SL3 && (s - SL3) % 3 == 0) {
+        } else if (s < SL4) {
             snake_grow(&game->snake);
             game->rate = RATE3;
-        } else if (s >= SL4 && (s - SL4) % 4 == 0) {
+        } else if (s >= SL4) {
             snake_grow(&game->snake);
-            game->rate = RATE4;
+            game->rate = uint_max(RATE4 * s / SL4, 1);
         }
 
         reset_apple(game);
