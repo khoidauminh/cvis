@@ -44,22 +44,25 @@ static void init(SDL_Renderer *renderer) {
     fontmap->surface =
         SDL_LoadBMP_IO(SDL_IOFromConstMem(FONT_FILE, sizeof(FONT_FILE)), true);
 
-    if (!fontmap->surface) {
-        die("%s\n", SDL_GetError());
-    }
+    if (!fontmap->surface)
+        goto ERROR;
 
     fontmap->texture = SDL_CreateTextureFromSurface(renderer, fontmap->surface);
-    if (!fontmap->texture) {
-        die("%s\n", SDL_GetError());
-    }
+
+    if (!fontmap->texture)
+        goto ERROR;
 
     bool result =
         SDL_SetTextureScaleMode(fontmap->texture, SDL_SCALEMODE_NEAREST);
-    if (!result) {
-        die("%s\n", SDL_GetError());
-    }
+
+    if (!result)
+        goto ERROR;
 
     atexit(deinit);
+    return;
+
+ERROR:
+    die("%s\n", SDL_GetError());
 }
 
 void sdlfont_draw_char(SDL_Renderer *renderer, const char c, float x, float y) {

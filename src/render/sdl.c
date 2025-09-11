@@ -6,6 +6,7 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_blendmode.h>
+#include <SDL3/SDL_error.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_keycode.h>
 #include <SDL3/SDL_pixels.h>
@@ -118,9 +119,8 @@ void sdl_renderer_init(Renderer *r) {
     SDLRenederer *sdlr = malloc(sizeof(SDLRenederer));
     assert(sdlr);
 
-    if (!SDL_Init(SDL_INIT_VIDEO)) {
-        die("Failed to initialize SDL Video.");
-    }
+    if (!SDL_Init(SDL_INIT_VIDEO))
+        goto ERROR;
 
     bool result;
 
@@ -135,9 +135,9 @@ void sdl_renderer_init(Renderer *r) {
                                          (int)(r->cfg->height * r->cfg->scale),
                                          flags, &sdlr->window, &sdlr->renderer);
 
-    if (!result) {
-        die("Failed to create SDL window and renderer.");
-    }
+    // kinda ugly tbh but it does the work.
+    if (!result)
+        goto ERROR;
 
     result = SDL_SetWindowMinimumSize(sdlr->window, MIN_PHYSICAL_SIZE,
                                       MIN_PHYSICAL_SIZE);
@@ -148,24 +148,27 @@ void sdl_renderer_init(Renderer *r) {
     result = SDL_SetRenderLogicalPresentation(
         sdlr->renderer, (int)r->cfg->width, (int)r->cfg->height, SCALE_MODE);
 
-    if (!result) {
-        die("Failed to set renderer resolution.");
-    }
+    if (!result)
+        goto ERROR;
 
     if (r->cfg->refreshmode == CVIS_REFRESHMODE_SYNC)
         result = SDL_SetRenderVSync(sdlr->renderer, 1);
     else
         result = SDL_SetRenderVSync(sdlr->renderer, 0);
 
-    if (!result) {
-        die("Failed to set configure Vsync.");
-    }
+    if (!result)
+        goto ERROR;
 
     SDL_SetRenderDrawBlendMode(sdlr->renderer, SDL_BLENDMODE_NONE);
 
     r->renderer = sdlr;
 
     r->vtable = &SDL_VTABLE;
+
+    return;
+
+ERROR:
+    die("%s\n", SDL_GetError());
 }
 
 void sdl_renderer_end(Renderer *r) {

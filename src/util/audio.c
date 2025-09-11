@@ -42,8 +42,8 @@ typedef struct audiobuffer {
 } AudioBuffer;
 
 static AudioBuffer *gbuffer = nullptr;
-static ma_device gdevice;
-static ma_mutex locker;
+static ma_device gdevice = {};
+static ma_mutex locker = {};
 
 static void buffer_normalize();
 
@@ -268,13 +268,14 @@ typedef struct moving_average {
 } MovingAverage;
 
 MovingAverage moving_average_new(float *buffer, uint size) {
-    MovingAverage ma;
-    ma.size = size;
-    ma.index = 0;
-    ma.sum = (float)size * 0.0f;
-    ma.average = 0.0f;
-    ma.denom = 1.0f / (float)size;
-    ma.data = buffer;
+    MovingAverage ma = {
+        .size = size,
+        .index = 0,
+        .sum = (float)size * 0.0f,
+        .average = 0.0f,
+        .denom = 1.0f / (float)size,
+        .data = buffer,
+    };
 
     memset(buffer, 0, size * sizeof(float));
 
@@ -378,7 +379,6 @@ float moving_maximum_update(MovingMaximum *mm, float new) {
     moving_maximum_push(mm, (Numpair){.index = mm->index, .val = new});
 
     uint max_age = moving_maximum_peek(mm)->index + mm->size - 1;
-    // printf("%lu %lu\n", max_age, mm->index);
 
     if (max_age <= mm->index) {
         moving_maximum_pop(mm, 0);
