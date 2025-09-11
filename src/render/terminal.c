@@ -207,7 +207,7 @@ void pg_eventloop_term(Program *p) {
     while (running) {
         pg_keymap_reset(p);
 
-        const chtype key = getch();
+        const int key = getch();
 
         switch (key) {
         case 'q':
