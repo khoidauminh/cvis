@@ -15,9 +15,6 @@ cplx BUFFER_GET(uint index);
 uint BUFFER_INPUTSIZE();
 ulong BUFFER_AGE();
 
-void init_audio();
-void free_audio();
-
 void normalize_average(cplx *, uint);
 void normalize_max(cplx *, uint, float);
 void slow_regain(cplx *samples, uint len, float gain, float t);

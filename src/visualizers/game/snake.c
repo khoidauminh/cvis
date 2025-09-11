@@ -1,16 +1,21 @@
 #include "common.h"
-#include "logging.h"
 #include "program.h"
 
 #include "render.h"
+
 #include <assert.h>
 #include <stdlib.h>
 #include <time.h>
 
 constexpr uint INIT_CAP = 8;
 constexpr uint APPLE_SCORE = 1;
-constexpr uint SCALE = 3;
-constexpr uint RATE = 6;
+constexpr uint SCALE = 2;
+constexpr uint LOSE_SCREENTIME = 5;
+
+constexpr uint RATE1 = 8;
+constexpr uint RATE2 = 6;
+constexpr uint RATE3 = 4;
+constexpr uint RATE4 = 3;
 
 enum direction {
     dleft,
@@ -31,6 +36,8 @@ typedef struct snake {
     enum direction direction;
 } Snake;
 
+static void snake_free(Snake *sn) { free(sn->positions); }
+
 static void snake_init(Snake *sn) {
     if (sn->positions) {
         sn->len = 1;
@@ -41,8 +48,6 @@ static void snake_init(Snake *sn) {
     sn->len = 1;
     sn->cap = INIT_CAP;
 }
-
-static void snake_free(Snake *sn) { free(sn->positions); }
 
 static void snake_grow(Snake *sn) {
     if (sn->len == sn->cap) {
@@ -127,7 +132,11 @@ typedef struct snake_game_state {
     ulong lose_screenframes;
 
     ulong age;
+
+    ulong rate;
 } SnakeGameState;
+
+static thread_local SnakeGameState GAME = {};
 
 static void reset_apple(SnakeGameState *game) {
     game->apple = (Uint2D){
@@ -136,13 +145,12 @@ static void reset_apple(SnakeGameState *game) {
     };
 }
 
-static void game_init(SnakeGameState *game, Program *prog) {
+static void game_init(SnakeGameState *game) {
     srand((uint)time(0));
 
-    if (prog)
-        game->prog = prog;
+    game->prog = PG_GET();
 
-    game->lose_screenframes = pg_config(game->prog)->refreshrate * 3;
+    game->lose_screenframes = PG_CONFIG()->refreshrate * LOSE_SCREENTIME;
 
     game->canvas = RNDR_SIZE();
 
@@ -152,6 +160,7 @@ static void game_init(SnakeGameState *game, Program *prog) {
 
     game->init = true;
     game->state = gs_running;
+    game->rate = RATE1;
 }
 
 static void game_update(SnakeGameState *game) {
@@ -161,7 +170,7 @@ static void game_update(SnakeGameState *game) {
 
     if (game->state == gs_lose) {
         if (game->age - game->state_changed >= game->lose_screenframes) {
-            game_init(game, nullptr);
+            game_init(game);
         } else {
             return;
         }
@@ -198,27 +207,29 @@ static void game_update(SnakeGameState *game) {
             snake_grow(&game->snake);
         } else if (s >= SL2 && (s - SL2) % 2 == 0) {
             snake_grow(&game->snake);
+            game->rate = RATE2;
         } else if (s >= SL3 && (s - SL3) % 3 == 0) {
             snake_grow(&game->snake);
+            game->rate = RATE3;
         } else if (s >= SL4 && (s - SL4) % 4 == 0) {
             snake_grow(&game->snake);
+            game->rate = RATE4;
         }
 
         reset_apple(game);
     }
 
-    if (game->age % RATE == 0) {
+    if (game->age % game->rate == 0) {
         snake_move(&game->snake, game->canvas);
     }
 }
 
 static void game_draw(SnakeGameState *game) {
-    RNDR_SET_TARGET(pg_renderer(game->prog));
     RNDR_CLEAR();
 
     // Make sure snake's color is always
     // different than background color.
-    Color snakecolor = pg_config(game->prog)->background;
+    Color snakecolor = PG_CONFIG()->background;
     snakecolor.r += 128;
     snakecolor.g += 128;
     snakecolor.b += 128;
@@ -239,11 +250,15 @@ static void game_draw(SnakeGameState *game) {
     }
 }
 
-static thread_local SnakeGameState GAME = {};
+static void deinit() {
+    snake_free(&GAME.snake);
+    GAME.init = false;
+}
 
-void game_snake(Program *prog) {
+void game_snake() {
     if (!GAME.init) {
-        game_init(&GAME, prog);
+        game_init(&GAME);
+        atexit(deinit);
     }
 
     game_update(&GAME);

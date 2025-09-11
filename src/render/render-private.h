@@ -1,5 +1,5 @@
-#ifndef CVIS_RENDERER_PRIVATE_H
-#define CVIS_RENDERER_PRIVATE_H
+#ifndef CVIS_RENDER_PRIVATE_H
+#define CVIS_RENDER_PRIVATE_H
 
 #include "common.h"
 #include "render.h"
@@ -19,6 +19,8 @@ typedef struct render_vtable {
     void (*text)(Renderer *, float x, float y, const char *str);
 } RenderVTable;
 
+#include "config.h"
+
 struct renderer {
     RendererType type;
     void *renderer;
@@ -30,7 +32,17 @@ struct renderer {
     const RenderVTable *vtable;
 };
 
+#include "program.h"
+
+// PRIVATE HEADERS:
+void RNDR_SET_TARGET(Renderer *r);
+void PG_SET_TARGET(Program *p);
 void RNDR_FLUSH();
+void RNDR_AUTORESIZE();
+void vm_perform(Program *);
+void vm_next(VisManager *);
+
+RendererType renderer_get_type(Renderer *r);
 
 void sdl_renderer_init(Renderer *r);
 void sdl_renderer_end(Renderer *r);

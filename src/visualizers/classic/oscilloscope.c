@@ -1,12 +1,10 @@
 #include "audio.h"
 #include "common.h"
-#include "program.h"
 #include "render.h"
 
 #include <math.h>
 
 #include "interpolation.h"
-#include "visualizer.h"
 
 static constexpr uint BUFFERSIZE = 1024;
 static constexpr uint PADDING = BUFFERSIZE;
@@ -60,10 +58,9 @@ static void prepare() {
     BUFFER_AUTOSLIDE();
 }
 
-void visualizer_oscilloscope(Program *prog) {
+void visualizer_oscilloscope() {
     prepare();
 
-    RNDR_SET_TARGET(pg_renderer(prog));
     RNDR_CLEAR();
     RNDR_BLEND(SDL_BLENDMODE_ADD);
 

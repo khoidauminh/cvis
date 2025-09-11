@@ -9,7 +9,7 @@
 #include "logging.h"
 #include "render.h"
 
-#include "renderer-private.h" // IWYU pragma: keep.
+#include "render-private.h" // IWYU pragma: keep.
 
 static void check_vtable_print_error(bool *is_error) {
     if (!*is_error) {

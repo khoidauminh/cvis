@@ -1,16 +1,13 @@
 #include "audio.h"
 #include "common.h"
-#include "program.h"
 #include "render.h"
 #include <math.h>
 
-#include "visualizer.h"
-
 constexpr uint BUFFERSIZE = 128;
 
-void draw_cross(Program *prog) {
+void draw_cross() {
     static thread_local bool vertical = false;
-    RNDR_SET_TARGET(pg_renderer(prog));
+
     RNDR_COLOR((Color){70, 70, 70, 255});
 
     Uint2D size = RNDR_SIZE();
@@ -25,12 +22,10 @@ void draw_cross(Program *prog) {
     }
 }
 
-void visualizer_vectorscope(Program *prog) {
+void visualizer_vectorscope() {
     cplx BUFFER[BUFFERSIZE];
     BUFFER_READ(BUFFER, BUFFERSIZE);
     BUFFER_AUTOSLIDE();
-
-    RNDR_SET_TARGET(pg_renderer(prog));
 
     RNDR_CLEAR();
 
@@ -57,5 +52,5 @@ void visualizer_vectorscope(Program *prog) {
         RNDR_PLOT(center_x + x, center_y + y);
     }
 
-    draw_cross(prog);
+    draw_cross();
 }

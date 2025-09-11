@@ -1,6 +1,7 @@
 #include "visualizer.h"
 
 #include "logging.h"
+#include "program.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <time.h>
@@ -9,7 +10,7 @@ constexpr double AUTOSWITCH_ITERVAL = 8.0;
 
 typedef struct visualizer {
     const char *const name;
-    VisFunc *func;
+    VisFunc *const func;
 } Visualizer;
 
 struct visualizer_manager {
@@ -18,6 +19,12 @@ struct visualizer_manager {
     time_t instant;
     bool autoswitch;
 };
+
+void visualizer_spectrum();
+void visualizer_vectorscope();
+void visualizer_oscilloscope();
+void visualizer_slice();
+void game_snake();
 
 static const Visualizer FUNC_ARRAY[] = {
     {.name = "spectrum", .func = visualizer_spectrum},
@@ -63,6 +70,12 @@ void vm_select_by_name(VisManager *v, const char *name) {
     }
 }
 
+void vm_next(VisManager *v) {
+    v->ptr++;
+    if (!v->ptr->func)
+        v->ptr = v->list;
+}
+
 void vm_selfupdate(VisManager *v) {
     if (v->autoswitch) {
         time_t newinstant = time(nullptr);
@@ -77,16 +90,12 @@ void vm_selfupdate(VisManager *v) {
 void vm_perform(Program *p) {
     VisManager *vm = pg_vismanager(p);
     vm_selfupdate(vm);
-    VisFunc *vis = vm_current(vm);
-    vis(p);
+
+    const Visualizer *vis = vm->ptr;
+
+    (vis->func)();
 }
 
-void vm_next(VisManager *v) {
-    v->ptr++;
-    if (!v->ptr->func)
-        v->ptr = v->list;
-}
-
-VisFunc *vm_current(VisManager *v) { return *v->ptr->func; }
+VisFunc *vm_current_func(VisManager *v) { return *v->ptr->func; }
 
 void vm_end(VisManager *v) { free(v); }

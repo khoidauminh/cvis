@@ -1,14 +1,12 @@
 #include "config.h"
 #include "logging.h"
+#include "render-private.h" // IWYU pragma: keep.
 #include "render.h"
-#include "renderer-private.h" // IWYU pragma: keep.
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_blendmode.h>
-#include <SDL3/SDL_error.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_keycode.h>
-#include <SDL3/SDL_oldnames.h>
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_rect.h>
 
@@ -210,6 +208,7 @@ void pg_eventloop_sdl(Program *p) {
 
     bool running = true;
 
+    PG_SET_TARGET(p);
     RNDR_SET_TARGET(pg_renderer(p));
 
     while (running) {

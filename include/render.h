@@ -16,16 +16,6 @@ typedef union api_paremeter APIParameter;
 
 typedef void(DrawFunc)(Renderer *, APIParameter *);
 
-#include "config.h"
-
-Renderer *renderer_new(Config *cfg);
-void renderer_end(Renderer *);
-
-RendererType renderer_get_type(Renderer *r);
-
-// helper functions to set a render target only once.
-void RNDR_SET_TARGET(Renderer *r);
-Uint2D RNDR_SIZE();
 void RNDR_COLOR(SDL_Color c);
 void RNDR_PLOT(float x, float y);
 void RNDR_RECT(float x, float y, float w, float h);
@@ -34,6 +24,7 @@ void RNDR_FADE(Uint8 a);
 void RNDR_BLEND(SDL_BlendMode blendmode);
 void RNDR_FILL();
 void RNDR_CLEAR();
-void RNDR_AUTORESIZE();
+
+Uint2D RNDR_SIZE();
 
 #endif

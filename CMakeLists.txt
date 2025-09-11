@@ -22,17 +22,17 @@ FetchContent_Declare(
     SYSTEM
 )
 
-FetchContent_Declare(
-    SDL3_ttf
-    GIT_REPOSITORY git@github.com:libsdl-org/SDL_ttf.git
-    GIT_TAG "release-3.2.2"
-    GIT_SHALLOW TRUE
-    GIT_PROGRESS ON
-    GIT_SUBMODULES "external/freetype"
-    SYSTEM
-)
+# FetchContent_Declare(
+#     SDL3_ttf
+#     GIT_REPOSITORY git@github.com:libsdl-org/SDL_ttf.git
+#     GIT_TAG "release-3.2.2"
+#     GIT_SHALLOW TRUE
+#     GIT_PROGRESS ON
+#     GIT_SUBMODULES "external/freetype"
+#     SYSTEM
+# )
 
-FetchContent_MakeAvailable(miniaudio SDL3_ttf)
+FetchContent_MakeAvailable(miniaudio)
 
 find_package(SDL3 REQUIRED)
 find_package(Curses REQUIRED)
@@ -78,6 +78,6 @@ target_compile_options(cvis PRIVATE
 )
 
 target_include_directories(cvis PRIVATE "include")
-target_link_libraries(cvis PRIVATE m SDL3::SDL3 ncurses miniaudio SDL3_ttf::SDL3_ttf)
+target_link_libraries(cvis PRIVATE m SDL3::SDL3 ncurses miniaudio)
 
 install(TARGETS cvis)

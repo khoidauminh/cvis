@@ -1,7 +1,6 @@
 #include "audio.h"
 #include "common.h"
 #include "interpolation.h"
-#include "program.h"
 #include "render.h"
 #include <math.h>
 
@@ -36,8 +35,7 @@ static void process_sweep(float *outsweep, float *outhigh) {
     *outhigh = l1norm(high);
 }
 
-void visualizer_slice(Program *prog) {
-    RNDR_SET_TARGET(pg_renderer(prog));
+void visualizer_slice() {
     RNDR_FADE(10);
 
     Uint2D size = RNDR_SIZE();

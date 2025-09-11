@@ -1,10 +1,12 @@
-#include "audio.h"
 #include "config.h"
 
 #include "program.h"
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
+
+void init_audio();
+void free_audio();
 
 int main(int argc, const char *argv[]) {
     init_audio();

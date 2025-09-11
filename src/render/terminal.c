@@ -1,11 +1,10 @@
 #include "common.h"
+#include "render-private.h" // IWYU pragma: keep.
 #include "render.h"
-#include "renderer-private.h" // IWYU pragma: keep.
 
 #include <SDL3/SDL_stdinc.h>
 #include <assert.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include <locale.h>
 #include <ncurses.h>
@@ -203,6 +202,7 @@ void pg_eventloop_term(Program *p) {
 
     bool running = true;
     RNDR_SET_TARGET(pg_renderer(p));
+    PG_SET_TARGET(p);
 
     while (running) {
         pg_keymap_reset(p);

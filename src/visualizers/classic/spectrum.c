@@ -2,13 +2,10 @@
 #include "common.h"
 #include "fft.h"
 #include "interpolation.h"
-#include "program.h"
 #include "render.h"
 
 #include <complex.h>
 #include <math.h>
-
-#include "visualizer.h"
 
 constexpr uint BUFFERSIZE = 1 << 10;
 constexpr uint READ_SIZE = BUFFERSIZE / 2;
@@ -35,10 +32,8 @@ static void prepare() {
     }
 }
 
-void visualizer_spectrum(Program *prog) {
+void visualizer_spectrum() {
     prepare();
-
-    RNDR_SET_TARGET(pg_renderer(prog));
 
     RNDR_CLEAR();
 

@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <ncurses.h>
 #include <stdlib.h>
+#include <threads.h>
 
 #include "config.h"
 #include "logging.h"
@@ -13,6 +14,14 @@ void pg_eventloop_sdl(Program *p);
 void pg_eventloop_term(Program *p);
 
 #include "visualizer.h"
+
+Renderer *renderer_new(Config *cfg);
+void renderer_end(Renderer *);
+
+RendererType renderer_get_type(Renderer *r);
+
+VisManager *vm_new(const char *);
+void vm_end(VisManager *v);
 
 struct program {
     Renderer *renderer;
@@ -74,3 +83,19 @@ void pg_end(Program *p) {
     vm_end(p->vismanager);
     free(p);
 }
+
+static thread_local Program *PROGRAM = nullptr;
+
+void PG_SET_TARGET(Program *p) {
+    assert(p);
+    PROGRAM = p;
+}
+
+Program *PG_GET() {
+    assert(PROGRAM);
+    return PROGRAM;
+}
+
+const Config *PG_CONFIG() { return &PG_GET()->cfg; }
+
+const VisManager *PG_VISMANAGER() { return PG_GET()->vismanager; }

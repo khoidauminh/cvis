@@ -44,4 +44,8 @@ void pg_end(Program *p);
 
 VisManager *pg_vismanager(Program *p);
 
+const Config *PG_CONFIG();
+const VisManager *PG_VISMANAGER();
+Program *PG_GET();
+
 #endif
