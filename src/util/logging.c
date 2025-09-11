@@ -45,7 +45,7 @@ void error(const char *msg, ...) {
     fprintf(stderr, "\x1B[0m");
 }
 
-void die(const char *msg, ...) {
+[[noreturn]] void die(const char *msg, ...) {
     fprintf(stderr, "\x1B[31;1m");
     fprintf(stderr, "!!! ERROR: ");
 
