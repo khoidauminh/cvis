@@ -104,13 +104,13 @@ void sdlfont_draw_char(SDL_Renderer *renderer, const char c, float x, float y) {
     }
 }
 
-void sdlfont_draw_str(SDL_Renderer *render, const char *str, float x, float y,
-                      TextAlignment align, TextAnchor anchor) {
+void sdlfont_draw_line(SDL_Renderer *render, const char *strstart,
+                       const char *strend, float x, float y,
+                       TextAlignment align) {
 
-    const ulong length = strlen(str);
+    const ulong length = (ulong)(strend - strstart);
 
     const float drawwidth = (float)(length * CHAR_WIDTH);
-    const float drawheight = (float)CHAR_HEIHT;
 
     switch (align) {
     case CVIS_TEXTALIGN_MIDDLE:
@@ -122,19 +122,51 @@ void sdlfont_draw_str(SDL_Renderer *render, const char *str, float x, float y,
     }
     }
 
-    switch (anchor) {
-    case CVIS_TEXTANCHOR_BOTTOM:
-        y -= drawheight;
-        break;
-    case CVIS_TEXTANCHOR_MIDDLE:
-        y -= drawheight * 0.5f;
-    default: {
-    }
-    }
-
-    for (const char *i = str; *i; i++) {
+    for (const char *i = strstart; i < strend; i++) {
         const char c = *i;
         sdlfont_draw_char(render, c, x, y);
         x += (float)CHAR_WIDTH;
+    }
+}
+
+void sdlfont_draw_str(SDL_Renderer *renderer, const char *str, float x, float y,
+                      TextAlignment align, TextAnchor anchor) {
+
+    // Only count for lines when not anchoring top.
+    if (anchor != CVIS_TEXTANCHOR_TOP) {
+        // Counts the number of lines;
+        uint stringheight = CHAR_WIDTH;
+        for (const char *c = str; *c; c++) {
+            if (*c == '\n')
+                stringheight += CHAR_WIDTH;
+        }
+
+        switch (anchor) {
+        case CVIS_TEXTANCHOR_BOTTOM:
+            y -= (float)stringheight;
+            break;
+        case CVIS_TEXTANCHOR_MIDDLE:
+            y -= (float)stringheight * 0.5f;
+        default: {
+        }
+        }
+    }
+
+    const char *oldnewline = str;
+    const char *newline = str;
+
+    while (true) {
+        while (*newline && *newline != '\n')
+            newline++;
+
+        sdlfont_draw_line(renderer, oldnewline, newline, x, y, align);
+
+        if (!*newline)
+            return;
+
+        newline++;
+        oldnewline = newline;
+
+        y += (float)CHAR_HEIHT;
     }
 }

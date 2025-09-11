@@ -1,3 +1,4 @@
+#include "audio.h"
 #include "common.h"
 #include "program.h"
 
@@ -24,6 +25,11 @@ constexpr uint RATE4 = 3;
 constexpr uint SL2 = 10;
 constexpr uint SL3 = 20;
 constexpr uint SL4 = 30;
+
+constexpr char LOSE_STR1[] = "YOU LOST!";
+constexpr char LOSE_STR2[] = "PRETTY NICE!";
+constexpr char LOSE_STR3[] = "WHAT\nTHE HECK?!";
+constexpr char LOSE_STR4[] = "WHAT\nTHE FUCK?!!";
 
 enum direction {
     dleft,
@@ -254,21 +260,29 @@ static void game_draw(SnakeGameState *game) {
     snakecolor.g += 128;
     snakecolor.b += 128;
 
-    float sumleft = 0.0f, sumright = 0.0f, sum = 0.0f;
-    for (uint i = 0; i < 50; i++) {
-        sumleft += crealf(BUFFER_GET(i));
-        sumright += cimagf(BUFFER_GET(i));
-    }
-    sum = sumleft + sumright;
-
-    snakecolor.r += (Uint8)(sumleft);
-    snakecolor.g += (Uint8)(sum);
-    snakecolor.b += (Uint8)(sumright);
-
-    RNDR_COLOR(snakecolor);
+    const uint inputsize = BUFFER_INPUTSIZE();
 
     for (ulong i = 0; i < game->snake.len; i++) {
         Uint2D pos = game->snake.positions[i];
+
+        float sumleft = 0.0f, sumright = 0.0f, sum = 0.0f;
+
+        const uint readsize = inputsize / game->snake.len;
+        const uint start = (uint)i * readsize;
+
+        for (uint i = 0; i < readsize; i++) {
+            sumleft += crealf(BUFFER_GET(i + start));
+            sumright += cimagf(BUFFER_GET(i + start));
+        }
+
+        sum = sumleft + sumright;
+
+        snakecolor.r += (Uint8)(sumleft);
+        snakecolor.g += (Uint8)(sum);
+        snakecolor.b += (Uint8)(sumright);
+
+        RNDR_COLOR(snakecolor);
+
         RNDR_RECT((float)pos.x, (float)pos.y, (float)SCALE, (float)SCALE);
     }
 
@@ -278,8 +292,23 @@ static void game_draw(SnakeGameState *game) {
 
     if (game->state == gs_lose) {
         RNDR_FADE(128);
-        RNDR_TEXT((float)(game->canvas.x) / 2, (float)game->canvas.y / 2,
-                  "YOU LOST!", CVIS_TEXTALIGN_MIDDLE, CVIS_TEXTANCHOR_MIDDLE);
+
+        // Select lose screen text.
+        const char *text = "";
+        if (game->score < 30) {
+            text = LOSE_STR1;
+        } else if (game->score < 60) {
+            text = LOSE_STR2;
+        } else {
+            if (game->age - game->state_changed < 40) {
+                text = LOSE_STR4;
+            } else {
+                text = LOSE_STR3;
+            }
+        }
+
+        RNDR_TEXT((float)(game->canvas.x) / 2, (float)game->canvas.y / 2, text,
+                  CVIS_TEXTALIGN_MIDDLE, CVIS_TEXTANCHOR_MIDDLE);
     }
 }
 
