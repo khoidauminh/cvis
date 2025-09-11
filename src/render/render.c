@@ -1,3 +1,4 @@
+#include <SDL3/SDL_blendmode.h>
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_stdinc.h>
@@ -86,47 +87,6 @@ void renderer_end(Renderer *r) {
 
 RendererType renderer_get_type(Renderer *r) { return r->type; }
 
-uint renderer_get_width(Renderer *r) { return r->cfg->width; }
-
-uint renderer_get_height(Renderer *r) { return r->cfg->height; }
-
-Uint2D renderer_get_size(Renderer *r) {
-    return (Uint2D){.x = r->cfg->width, .y = r->cfg->height};
-}
-
-void render_set_color(Renderer *renderer, Color c) {
-    (renderer->vtable->color)(renderer, c);
-}
-
-void render_plot(Renderer *r, float x, float y) { (r->vtable->plot)(r, x, y); }
-
-void render_rect(Renderer *r, float x, float y, float w, float h) {
-    (r->vtable->rect)(r, x, y, w, h);
-}
-
-void render_line(Renderer *r, float x1, float y1, float x2, float y2) {
-    (r->vtable->line)(r, x1, y1, x2, y2);
-}
-
-void render_fade(Renderer *r, Uint8 a) { (r->vtable->fade)(r, a); }
-
-void render_set_blendmode(Renderer *r, uint blendmode) {
-    (r->vtable->blend)(r, blendmode);
-}
-
-void render_flush(Renderer *r) { (r->vtable->flush)(r); }
-
-void render_fill(Renderer *r) { (r->vtable->clear)(r); }
-
-void render_clear(Renderer *r) { (r->vtable->clear)(r); }
-
-void render_autoresize(Renderer *r) { (r->vtable->resize)(r); }
-
-void render_text(Renderer *r, float x, float y, const char *str,
-                 TextAlignment align, TextAnchor anchor) {
-    (r->vtable->text)(r, x, y, str, align, anchor);
-}
-
 static Renderer *RENDERER = nullptr;
 
 void RNDR_SET_TARGET(Renderer *r) {
@@ -134,38 +94,40 @@ void RNDR_SET_TARGET(Renderer *r) {
     RENDERER = r;
 }
 
-Uint2D RNDR_SIZE() { return renderer_get_size(RENDERER); }
+Uint2D RNDR_SIZE() {
+    return (Uint2D){.x = RENDERER->cfg->width, .y = RENDERER->cfg->height};
+}
 
-void RNDR_COLOR(Color c) { render_set_color(RENDERER, c); }
+void RNDR_COLOR(Color c) { (RENDERER->vtable->color)(RENDERER, c); }
 
-void RNDR_PLOT(float x, float y) { render_plot(RENDERER, x, y); }
+void RNDR_PLOT(float x, float y) { (RENDERER->vtable->plot)(RENDERER, x, y); }
 
 void RNDR_RECT(float x, float y, float w, float h) {
-    render_rect(RENDERER, x, y, w, h);
+    (RENDERER->vtable->rect)(RENDERER, x, y, w, h);
 }
 
 void RNDR_LINE(float x1, float y1, float x2, float y2) {
-    render_line(RENDERER, x1, y1, x2, y2);
+    (RENDERER->vtable->line)(RENDERER, x1, y1, x2, y2);
 }
 
-void RNDR_FADE(Uint8 a) { render_fade(RENDERER, a); }
+void RNDR_FADE(Uint8 a) { (RENDERER->vtable->fade)(RENDERER, a); }
 
-void RNDR_FILL() { render_fill(RENDERER); }
+void RNDR_FILL() { (RENDERER->vtable->fill)(RENDERER); }
 
-void RNDR_CLEAR() { render_clear(RENDERER); }
-
-void RNDR_FLUSH() {
-    render_flush(RENDERER);
-    render_set_blendmode(RENDERER, SDL_BLENDMODE_NONE);
-}
+void RNDR_CLEAR() { (RENDERER->vtable->clear)(RENDERER); }
 
 void RNDR_BLEND(SDL_BlendMode blendmode) {
-    render_set_blendmode(RENDERER, blendmode);
+    (RENDERER->vtable->blend)(RENDERER, blendmode);
+}
+
+void RNDR_FLUSH() {
+    (RENDERER->vtable->flush)(RENDERER);
+    RNDR_BLEND(SDL_BLENDMODE_NONE);
 }
 
 void RNDR_TEXT(float x, float y, const char *str, TextAlignment align,
                TextAnchor anchor) {
-    render_text(RENDERER, x, y, str, align, anchor);
+    (RENDERER->vtable->text)(RENDERER, x, y, str, align, anchor);
 }
 
-void RNDR_AUTORESIZE() { render_autoresize(RENDERER); }
+void RNDR_AUTORESIZE() { (RENDERER->vtable->resize)(RENDERER); }
