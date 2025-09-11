@@ -1,3 +1,4 @@
+#include "common.h"
 #include "config.h"
 #include "logging.h"
 #include "render-private.h" // IWYU pragma: keep.
@@ -26,7 +27,8 @@ typedef struct sdl_renderer {
     SDL_Renderer *renderer;
 } SDLRenederer;
 
-void sdlfont_draw_str(SDL_Renderer *render, const char *str, float x, float y);
+void sdlfont_draw_str(SDL_Renderer *render, const char *str, float x, float y,
+                      TextAlignment align, TextAnchor anchor);
 
 static void sdl_set_color(Renderer *rndr, Color c) {
     SDLRenederer *sdlr = rndr->renderer;
@@ -82,9 +84,10 @@ static void sdl_set_blendmode(Renderer *r, SDL_BlendMode blendmode) {
     SDL_SetRenderDrawBlendMode(sdlr->renderer, blendmode);
 }
 
-static void sdl_draw_text(Renderer *r, float x, float y, const char *str) {
+static void sdl_draw_text(Renderer *r, float x, float y, const char *str,
+                          TextAlignment align, TextAnchor anchor) {
     SDLRenederer *sdlr = r->renderer;
-    sdlfont_draw_str(sdlr->renderer, str, x, y);
+    sdlfont_draw_str(sdlr->renderer, str, x, y, align, anchor);
 }
 
 static void sdl_autoresize(Renderer *r) {

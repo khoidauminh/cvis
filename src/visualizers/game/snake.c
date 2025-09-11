@@ -249,7 +249,8 @@ static void game_draw(SnakeGameState *game) {
 
     if (game->state == gs_lose) {
         RNDR_FADE(128);
-        // RNDR_TEXT(0.0f, 0.0f, "LOSE");
+        RNDR_TEXT((float)(game->canvas.x) / 2, (float)game->canvas.y / 2,
+                  "YOU LOST!", CVIS_TEXTALIGN_MIDDLE, CVIS_TEXTANCHOR_MIDDLE);
     }
 }
 
@@ -263,8 +264,6 @@ void game_snake() {
         game_init(&GAME);
         atexit(deinit);
     }
-
-    RNDR_TEXT(0.0f, 0.0f, "HELLO WORLD");
 
     game_update(&GAME);
     game_draw(&GAME);

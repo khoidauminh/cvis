@@ -131,8 +131,22 @@ static void terminal_line(Renderer *r, float x1f, float y1f, float x2f,
     }
 }
 
-static void terminal_text(Renderer *r, float x, float y, const char *str) {
+static void terminal_text(Renderer *r, float x, float y, const char *str,
+                          TextAlignment align, TextAnchor) {
     TRenderer *tr = r->renderer;
+
+    const float length = (float)strlen(str);
+
+    switch (align) {
+    case CVIS_TEXTALIGN_MIDDLE:
+        x -= length * 0.5f;
+        break;
+    case CVIS_TEXTALIGN_RIGHT:
+        x -= length;
+    default: {
+    }
+    }
+
     mvwaddstr(tr->win, y, x, str);
 }
 

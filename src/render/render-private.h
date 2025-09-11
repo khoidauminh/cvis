@@ -16,7 +16,8 @@ typedef struct render_vtable {
     void (*clear)(Renderer *);
     void (*fade)(Renderer *, Uint8 a);
     void (*flush)(Renderer *);
-    void (*text)(Renderer *, float x, float y, const char *str);
+    void (*text)(Renderer *, float x, float y, const char *str,
+                 TextAlignment align, TextAnchor anchor);
 } RenderVTable;
 
 #include "config.h"

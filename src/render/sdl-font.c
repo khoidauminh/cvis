@@ -3,6 +3,7 @@
 
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_iostream.h>
+#include <SDL3/SDL_oldnames.h>
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_surface.h>
@@ -21,7 +22,7 @@ constexpr uint CHAR_WIDTH = SPRITESHEET_WIDTH / SPRITESHEET_COLUMNS;
 constexpr uint CHAR_HEIHT = SPRITESHEET_HEIGHT / SPRITESHEET_ROWS;
 
 static const uchar FONT_FILE[] = {
-#embed "../../assets/charmap-cellphone_white_0.png"
+#embed "../../assets/charmap-cellphone_white_0.bmp"
 };
 
 typedef struct sdl_font_map {
@@ -33,30 +34,30 @@ typedef struct sdl_font_map {
 static thread_local SDLFontMap *fontmap = nullptr;
 
 static void deinit() {
-    SDL_DestroyRenderer(fontmap->renderer);
     SDL_DestroySurface(fontmap->surface);
     SDL_DestroyTexture(fontmap->texture);
 }
 
-static void init() {
+static void init(SDL_Renderer *renderer) {
     fontmap = malloc(sizeof(*fontmap));
     assert(fontmap);
 
-    fontmap->surface = SDL_CreateSurface(SPRITESHEET_WIDTH, SPRITESHEET_HEIGHT,
-                                         SDL_PIXELFORMAT_ARGB8888);
-    assert(fontmap->surface);
+    fontmap->renderer = renderer;
 
-    fontmap->renderer = SDL_CreateSoftwareRenderer(fontmap->surface);
-    assert(fontmap->renderer);
+    fontmap->surface =
+        SDL_LoadBMP_IO(SDL_IOFromConstMem(FONT_FILE, sizeof(FONT_FILE)), true);
 
-    fontmap->texture = IMG_LoadTexture_IO(
-        fontmap->renderer, SDL_IOFromConstMem(FONT_FILE, sizeof(FONT_FILE)),
-        true);
+    if (!fontmap->surface) {
+        die("%s\n", SDL_GetError());
+    }
 
-    assert(fontmap->texture);
+    fontmap->texture = SDL_CreateTextureFromSurface(renderer, fontmap->surface);
+    if (!fontmap->texture) {
+        die("%s\n", SDL_GetError());
+    }
 
-    bool result = SDL_RenderTexture(fontmap->renderer, fontmap->texture,
-                                    nullptr, nullptr);
+    bool result =
+        SDL_SetTextureScaleMode(fontmap->texture, SDL_SCALEMODE_NEAREST);
     if (!result) {
         die("%s\n", SDL_GetError());
     }
@@ -70,7 +71,11 @@ void sdlfont_draw_char(SDL_Renderer *renderer, const char c, float x, float y) {
     }
 
     if (!fontmap) {
-        init();
+        init(renderer);
+    }
+
+    if (fontmap->renderer != renderer) {
+        die("Different renderers!\n");
     }
 
     const uint index_flat = (uint)(c - ('!' - 1));
@@ -93,9 +98,43 @@ void sdlfont_draw_char(SDL_Renderer *renderer, const char c, float x, float y) {
         .w = (float)CHAR_WIDTH,
         .h = (float)CHAR_HEIHT,
     };
+
+    bool result =
+        SDL_RenderTexture(renderer, fontmap->texture, &srcrect, &dstrect);
+
+    if (!result) {
+        die("%s\n", SDL_GetError());
+    }
 }
 
-void sdlfont_draw_str(SDL_Renderer *render, const char *str, float x, float y) {
+void sdlfont_draw_str(SDL_Renderer *render, const char *str, float x, float y,
+                      TextAlignment align, TextAnchor anchor) {
+
+    const ulong length = strlen(str);
+
+    const float drawwidth = (float)(length * CHAR_WIDTH);
+    const float drawheight = (float)CHAR_HEIHT;
+
+    switch (align) {
+    case CVIS_TEXTALIGN_MIDDLE:
+        x -= drawwidth * 0.5f;
+        break;
+    case CVIS_TEXTALIGN_RIGHT:
+        x -= drawwidth;
+    default: {
+    }
+    }
+
+    switch (anchor) {
+    case CVIS_TEXTANCHOR_BOTTOM:
+        y -= drawheight;
+        break;
+    case CVIS_TEXTANCHOR_MIDDLE:
+        y -= drawheight * 0.5f;
+    default: {
+    }
+    }
+
     for (const char *i = str; *i; i++) {
         const char c = *i;
         sdlfont_draw_char(render, c, x, y);

@@ -24,6 +24,18 @@ typedef struct uint2d {
     uint y;
 } Uint2D;
 
+typedef enum text_alignment {
+    CVIS_TEXTALIGN_LEFT,
+    CVIS_TEXTALIGN_MIDDLE,
+    CVIS_TEXTALIGN_RIGHT,
+} TextAlignment;
+
+typedef enum text_anchor {
+    CVIS_TEXTANCHOR_BOTTOM,
+    CVIS_TEXTANCHOR_MIDDLE,
+    CVIS_TEXTANCHOR_TOP,
+} TextAnchor;
+
 constexpr float PI = 3.14159265359f;
 constexpr float TAU = PI * 2.0f;
 
