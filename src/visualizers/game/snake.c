@@ -19,8 +19,8 @@ constexpr uint LOSE_SCREENTIME = 5;
 
 constexpr uint RATE1 = 8;
 constexpr uint RATE2 = 6;
-constexpr uint RATE3 = 4;
-constexpr uint RATE4 = 3;
+constexpr uint RATE3 = 5;
+constexpr uint RATE4 = 4;
 
 constexpr uint SL2 = 10;
 constexpr uint SL3 = 20;
