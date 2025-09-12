@@ -71,7 +71,7 @@ static void construct_butterfly_array() {
     atexit(free_butterfly_array);
 }
 
-static void butterfly_inplace(cplx *arr, uint len) {
+static void butterfly_inplace(cplx arr[const], uint len) {
     if (BUTTERFLY_ARRAY == nullptr) {
         construct_butterfly_array();
     }
@@ -92,7 +92,7 @@ static void butterfly_inplace(cplx *arr, uint len) {
 
 uint ulog2(uint x) { return stdc_bit_width(x >> 1); }
 
-static void compute_fft_inplace(cplx *const arr, const uint len) {
+static void compute_fft_inplace(cplx arr[const], const uint len) {
     if (TWIDDLE_ARRAY == nullptr) {
         contruct_twiddle_array();
     }
@@ -114,12 +114,12 @@ static void compute_fft_inplace(cplx *const arr, const uint len) {
     }
 }
 
-void fft_inplace(cplx *arr, uint len) {
+void fft_inplace(cplx arr[const], uint len) {
     butterfly_inplace(arr, len);
     compute_fft_inplace(arr, len);
 }
 
-void fft_inplace_stereo(cplx *arr, uint len, uint upto) {
+void fft_inplace_stereo(cplx arr[const], uint len, uint upto) {
     fft_inplace(arr, len);
 
     uint bound = uint_min(len / 2, upto);
@@ -131,7 +131,7 @@ void fft_inplace_stereo(cplx *arr, uint len, uint upto) {
     }
 }
 
-void fft_prettify(cplx *arr, const uint originallen, const uint upto) {
+void fft_prettify(cplx arr[const], const uint originallen, const uint upto) {
     const uint bound = uint_min(originallen / 2, upto);
     const float normalize = 2.f / (float)(originallen);
 

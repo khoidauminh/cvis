@@ -130,7 +130,7 @@ cplx BUFFER_GET(uint index) {
     return gbuffer->data[i & BUFFER_MASK];
 }
 
-uint BUFFER_READ(cplx *cplx_array, uint amount) {
+uint BUFFER_READ(cplx cplx_array[], uint amount) {
     amount = uint_min(BUFFER_SIZE, amount);
     uint return_amount = amount;
 
@@ -208,7 +208,7 @@ void free_audio() {
     gbuffer = nullptr;
 }
 
-void normalize_average(cplx *samples, uint len) {
+void normalize_average(cplx samples[], uint len) {
     float sum_of_squares = 0.0;
     for (uint i = 0; i < len; i++) {
         float sl = crealf(samples[i]);
@@ -267,7 +267,7 @@ typedef struct moving_average {
     float average;
 } MovingAverage;
 
-MovingAverage moving_average_new(float *buffer, uint size) {
+MovingAverage moving_average_new(float buffer[const], uint size) {
     MovingAverage ma = {
         .size = size,
         .index = 0,
@@ -315,7 +315,7 @@ typedef struct moving_maximum {
     uint size;
 } MovingMaximum;
 
-MovingMaximum moving_maximum_new(Numpair *buffer, uint size) {
+MovingMaximum moving_maximum_new(Numpair buffer[const], uint size) {
     return (MovingMaximum){
         .data = buffer,
         .len = 0,
@@ -393,7 +393,7 @@ constexpr uint MMAX_WINDOW_SIZE = 15;
 constexpr uint MAVE_WINDOW_SIZE = MMAX_WINDOW_SIZE * 3 / 4;
 constexpr uint MMAX_CAPACITY = 256;
 
-void compress(cplx *samples, uint len, float lo, float hi) {
+void compress(cplx samples[const], uint len, float lo, float hi) {
     float mave_buffer[MAVE_WINDOW_SIZE];
     Numpair mmax_buffer[MMAX_CAPACITY];
     assert(len + MMAX_WINDOW_SIZE <= MMAX_CAPACITY);
