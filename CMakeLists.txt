@@ -61,7 +61,7 @@ set_property(TARGET cvis PROPERTY C_STANDARD_REQUIRED TRUE)
 set_property(TARGET cvis PROPERTY C_EXTENSIONS FALSE)
 
 target_compile_options(cvis PRIVATE
-    -Wall -Wextra -Wpedantic -Wconversion
+    -Wall -Wextra -Wpedantic -Wconversion -Werror
     -ffast-math -msse2 -mavx512f
     -march=native
     -fwrapv
