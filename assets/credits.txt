@@ -1,2 +1,0 @@
-charmap-cellphone.bmp:
-    https://opengameart.org/content/ascii-bitmap-font-cellphone

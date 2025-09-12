@@ -9,18 +9,28 @@
 #include <stdlib.h>
 #include <threads.h>
 
-constexpr uint SPRITESHEET_WIDTH = 128;
-constexpr uint SPRITESHEET_HEIGHT = 64;
+constexpr uint SPRITESHEET_WIDTH = 192;
+constexpr uint SPRITESHEET_HEIGHT = 96;
 
-constexpr uint SPRITESHEET_COLUMNS = 18;
-constexpr uint SPRITESHEET_ROWS = 7;
+constexpr uint SPRITESHEET_COLUMNS = 16;
+constexpr uint SPRITESHEET_ROWS = 6;
 
 constexpr uint CHAR_WIDTH = SPRITESHEET_WIDTH / SPRITESHEET_COLUMNS;
 constexpr uint CHAR_HEIHT = SPRITESHEET_HEIGHT / SPRITESHEET_ROWS;
 
+constexpr uint DRAW_WIDTH = CHAR_WIDTH / 2;
+constexpr uint DRAW_HEIGHT = CHAR_HEIHT / 2;
+
 static const uchar FONT_FILE[] = {
-#embed "../../assets/charmap-cellphone.bmp"
+#embed "../../assets/CruzR_pixfont_bold.bmp"
 };
+
+static const char CREDITS[] =
+    ""
+    "----- CREDITS -----\n"
+    "This build of cvis uses 16x12 Terminal Bitmap Font by CruzR.\n"
+    "Link to font page: "
+    "https://opengameart.org/content/16x12-terminal-bitmap-font.\n";
 
 typedef struct sdl_font_map {
     SDL_Renderer *renderer;
@@ -39,6 +49,10 @@ static void init(SDL_Renderer *renderer) {
     fontmap = malloc(sizeof(*fontmap));
     assert(fontmap);
 
+    info(CREDITS);
+
+    bool result;
+
     fontmap->renderer = renderer;
 
     fontmap->surface =
@@ -47,13 +61,24 @@ static void init(SDL_Renderer *renderer) {
     if (!fontmap->surface)
         goto ERROR;
 
+    result = SDL_SetSurfaceColorKey(fontmap->surface, true, 0);
+
+    if (!result) {
+        warn("Failed to set color key: %s", SDL_GetError());
+    }
+
+    result = SDL_SetSurfaceRLE(fontmap->surface, true);
+
+    if (!result) {
+        warn("Failed to set RLE: %s", SDL_GetError());
+    }
+
     fontmap->texture = SDL_CreateTextureFromSurface(renderer, fontmap->surface);
 
     if (!fontmap->texture)
         goto ERROR;
 
-    bool result =
-        SDL_SetTextureScaleMode(fontmap->texture, SDL_SCALEMODE_NEAREST);
+    result = SDL_SetTextureScaleMode(fontmap->texture, SDL_SCALEMODE_NEAREST);
 
     if (!result)
         goto ERROR;
@@ -95,8 +120,8 @@ void sdlfont_draw_char(SDL_Renderer *renderer, const char c, float x, float y) {
     const SDL_FRect dstrect = {
         .x = x,
         .y = y,
-        .w = (float)CHAR_WIDTH,
-        .h = (float)CHAR_HEIHT,
+        .w = (float)DRAW_WIDTH,
+        .h = (float)DRAW_HEIGHT,
     };
 
     bool result =
@@ -113,7 +138,7 @@ void sdlfont_draw_line(SDL_Renderer *render, const char *strstart,
 
     const ulong length = (ulong)(strend - strstart);
 
-    const float drawwidth = (float)(length * CHAR_WIDTH);
+    const float drawwidth = (float)(length * DRAW_WIDTH);
 
     switch (align) {
     case CVIS_TEXTALIGN_MIDDLE:
@@ -128,7 +153,7 @@ void sdlfont_draw_line(SDL_Renderer *render, const char *strstart,
     for (const char *i = strstart; i < strend; i++) {
         const char c = *i;
         sdlfont_draw_char(render, c, x, y);
-        x += (float)CHAR_WIDTH;
+        x += (float)DRAW_WIDTH;
     }
 }
 
@@ -138,10 +163,10 @@ void sdlfont_draw_str(SDL_Renderer *renderer, const char *str, float x, float y,
     // Only count for lines when not anchoring top.
     if (anchor != CVIS_TEXTANCHOR_TOP) {
         // Counts the number of lines;
-        uint stringheight = CHAR_WIDTH;
+        uint stringheight = DRAW_HEIGHT;
         for (const char *c = str; *c; c++) {
             if (*c == '\n')
-                stringheight += CHAR_WIDTH;
+                stringheight += DRAW_HEIGHT;
         }
 
         switch (anchor) {
@@ -170,6 +195,6 @@ void sdlfont_draw_str(SDL_Renderer *renderer, const char *str, float x, float y,
         newline++;
         oldnewline = newline;
 
-        y += (float)CHAR_HEIHT;
+        y += (float)DRAW_HEIGHT;
     }
 }
