@@ -162,7 +162,6 @@ void sdlfont_draw_str(SDL_Renderer *renderer, const char *str, float x, float y,
 
     // Only count for lines when not anchoring top.
     if (anchor != CVIS_TEXTANCHOR_TOP) {
-        // Counts the number of lines;
         uint stringheight = DRAW_HEIGHT;
         for (const char *c = str; *c; c++) {
             if (*c == '\n')

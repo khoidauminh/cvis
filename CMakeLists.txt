@@ -7,25 +7,27 @@ project(cvis
 
 set(CMAKE_BUILD_TYPE None)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
-set(CURSES_NEED_NCURSES TRUE)
 set(OpenGL_GL_PREFERENCE GLVND)
 set(FETCHCONTENT_QUIET OFF)
 
 include(FetchContent)
 
-FetchContent_Declare(
-    miniaudio
-    GIT_REPOSITORY git@github.com:mackron/miniaudio.git
-    GIT_TAG "0.11.22"
-    GIT_SHALLOW TRUE
-    GIT_PROGRESS ON
-    SYSTEM
-)
+find_package(miniaudio)
 
-FetchContent_MakeAvailable(miniaudio)
+if (NOT miniaudio_FOUND)
+    FetchContent_Declare(
+        miniaudio
+        GIT_REPOSITORY git@github.com:mackron/miniaudio.git
+        GIT_TAG "0.11.22"
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS ON
+        SYSTEM
+    )
+
+    FetchContent_MakeAvailable(miniaudio)
+endif()
 
 find_package(SDL3 REQUIRED)
-find_package(Curses REQUIRED)
 
 set(SOURCES
     src/util/common.c
@@ -35,9 +37,7 @@ set(SOURCES
     src/util/interpolation.c
 
     src/render/render.c
-    src/render/terminal.c
-    src/render/sdl.c
-    src/render/sdl-font.c
+    src/render/font.c
 
     src/visualizers/classic/spectrum.c
     src/visualizers/classic/vectorscope.c
@@ -69,6 +69,6 @@ target_compile_options(cvis PRIVATE
 )
 
 target_include_directories(cvis PRIVATE "include")
-target_link_libraries(cvis PRIVATE m SDL3::SDL3 ncurses miniaudio)
+target_link_libraries(cvis PRIVATE m SDL3::SDL3 miniaudio)
 
 install(TARGETS cvis)

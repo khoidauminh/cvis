@@ -31,13 +31,6 @@ constexpr char LOSE_STR2[] = "PRETTY NICE!";
 constexpr char LOSE_STR3[] = "WHAT\nTHE HECK?!";
 constexpr char LOSE_STR4[] = "WHAT\nTHE FUCK?!!";
 
-enum direction {
-    dleft,
-    dright,
-    dup,
-    ddown,
-};
-
 enum game_state {
     gs_running,
     gs_lose,
@@ -47,7 +40,7 @@ typedef struct snake {
     Uint2D *positions;
     uint len;
     uint cap;
-    enum direction direction;
+    KeyEvent direction;
 } Snake;
 
 static void snake_free(Snake *sn) { free(sn->positions); }
@@ -110,16 +103,16 @@ static void snake_move(Snake *sn, Uint2D bound) {
     newpos.y += bound.y;
 
     switch (sn->direction) {
-    case dup:
+    case KUP:
         newpos.y -= SCALE;
         break;
-    case dleft:
+    case KLEFT:
         newpos.x -= SCALE;
         break;
-    case ddown:
+    case KDOWN:
         newpos.y += SCALE;
         break;
-    case dright:
+    case KRIGHT:
         newpos.x += SCALE;
         break;
     default: {
@@ -194,19 +187,18 @@ static void game_update(SnakeGameState *game) {
         }
     }
 
-    const uint map[][2] = {
-        {keyevents_left, dleft},
-        {keyevents_up, dup},
-        {keyevents_right, dright},
-        {keyevents_down, ddown},
+    const uint map[] = {
+        KLEFT,
+        KUP,
+        KRIGHT,
+        KDOWN,
     };
 
-    const enum direction oldd = game->snake.direction;
+    const KeyEvent oldd = game->snake.direction;
 
     for (uint i = 0; i < 4; i++) {
-        if (pg_keymap_get(game->prog, map[i][0]) &&
-            map[(i + 2) % 4][0] != oldd) {
-            game->snake.direction = map[i][1];
+        if (pg_keymap_get(game->prog, map[i]) && map[(i + 2) % 4] != oldd) {
+            game->snake.direction = map[i];
             break;
         }
     }
@@ -285,6 +277,8 @@ static void game_draw(SnakeGameState *game) {
 
         RNDR_RECT((float)pos.x, (float)pos.y, (float)SCALE, (float)SCALE);
     }
+
+    BUFFER_AUTOSLIDE();
 
     RNDR_COLOR((Color){255, 0, 0, 255});
     RNDR_RECT((float)game->apple.x, (float)game->apple.y, (float)SCALE,

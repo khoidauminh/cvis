@@ -11,17 +11,17 @@ void set_logging_disabled(bool b) { SDL_SetAtomicInt(&quiet, (int)b); }
 
 bool is_logging_disabled() { return SDL_GetAtomicInt(&quiet) == 1; }
 
-#define PERFORM_PRINT                                                          \
+#define PERFORM_PRINT(io)                                                      \
     va_list argptr;                                                            \
     va_start(argptr, msg);                                                     \
-    vfprintf(stderr, msg, argptr);                                             \
+    vfprintf(io, msg, argptr);                                                 \
     va_end(argptr);
 
 void info(const char *msg, ...) {
     if (is_logging_disabled())
         return;
 
-    PERFORM_PRINT
+    PERFORM_PRINT(stdout)
 }
 
 void warn(const char *msg, ...) {
@@ -31,7 +31,7 @@ void warn(const char *msg, ...) {
     fprintf(stderr, "\x1B[95;1m");
     fprintf(stderr, "!!! WARNING: ");
 
-    PERFORM_PRINT;
+    PERFORM_PRINT(stderr);
 
     fprintf(stderr, "\x1B[0m");
 }
@@ -40,7 +40,7 @@ void error(const char *msg, ...) {
     fprintf(stderr, "\x1B[31;1m");
     fprintf(stderr, "!!! ERROR: ");
 
-    PERFORM_PRINT;
+    PERFORM_PRINT(stderr);
 
     fprintf(stderr, "\x1B[0m");
 }
@@ -49,7 +49,7 @@ void die(const char *msg, ...) {
     fprintf(stderr, "\x1B[31;1m");
     fprintf(stderr, "!!! ERROR: ");
 
-    PERFORM_PRINT;
+    PERFORM_PRINT(stderr);
 
     fprintf(stderr, "\x1B[0m");
 

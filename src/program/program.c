@@ -1,3 +1,4 @@
+#include <SDL3/SDL_render.h>
 #include <SDL3/SDL_timer.h>
 #include <assert.h>
 #include <ncurses.h>
@@ -15,16 +16,19 @@ void pg_eventloop_term(Program *p);
 
 #include "visualizer.h"
 
-Renderer *renderer_new(Config *cfg);
-void renderer_end(Renderer *);
-
 VisManager *vm_new(const char *);
 void vm_end(VisManager *v);
 
+SDLRenderer *sdl_renderer_new(Program *prog);
+void sdl_renderer_end(SDLRenderer *sdlr);
+
 struct program {
-    Renderer *renderer;
+    void *renderer;
     VisManager *vismanager;
+
+    // Events:
     KeyEvent keymap[keyevent_null];
+
     Config cfg;
     void (*eventloop_func)(Program *);
 };
@@ -34,20 +38,11 @@ Program *pg_new(Config config) {
     assert(p);
 
     p->cfg = config;
-    p->renderer = renderer_new(&p->cfg);
+    p->renderer = sdl_renderer_new(p);
     p->vismanager = vm_new(config.visname);
-    memset(&p->keymap, 0, sizeof(p->keymap));
+    p->eventloop_func = &pg_eventloop_sdl;
 
-    switch (p->cfg.displaymode) {
-    case CVIS_DISPLAYMODE_GRAPHICAL:
-        p->eventloop_func = &pg_eventloop_sdl;
-        break;
-    case CVIS_DISPLAYMODE_TERMINAL:
-        p->eventloop_func = &pg_eventloop_term;
-        break;
-    default:
-        die("Invalid displaymode value! It might be corrupt.");
-    }
+    memset(&p->keymap, 0, sizeof(p->keymap));
 
     return p;
 }
@@ -68,31 +63,36 @@ void pg_keymap_print(Program *p) {
     info("\n");
 }
 
+SDLRenderer *pg_renderer(Program *p) { return p->renderer; }
+
 Config *pg_config(Program *p) { return &p->cfg; }
 
 void pg_eventloop(Program *p) { (p->eventloop_func)(p); }
 
-Renderer *pg_renderer(Program *p) { return p->renderer; }
 VisManager *pg_vismanager(Program *p) { return p->vismanager; }
-void pg_attach_renderer(Program *p, Renderer *r) { p->renderer = r; }
 
 void pg_end(Program *p) {
-    renderer_end(p->renderer);
+    sdl_renderer_end(p->renderer);
     vm_end(p->vismanager);
     free(p);
 }
 
-static thread_local Program *PROGRAM = nullptr;
+static Program *STATIC_PG(Program *p) {
+    static Program *PROGRAM = nullptr;
 
-void PG_SET_TARGET(Program *p) {
-    assert(p);
-    PROGRAM = p;
-}
+    if (PROGRAM == nullptr) {
+        assert(p != nullptr);
+        PROGRAM = p;
+    }
 
-Program *PG_GET() {
-    assert(PROGRAM);
     return PROGRAM;
 }
+
+void PG_SET_TARGET(Program *p) { STATIC_PG(p); }
+
+Program *PG_GET() { return STATIC_PG(nullptr); }
+
+SDLRenderer *PG_RENDERER() { return PG_GET()->renderer; }
 
 const Config *PG_CONFIG() { return &PG_GET()->cfg; }
 

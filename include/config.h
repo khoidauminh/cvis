@@ -11,13 +11,7 @@ typedef enum refreshmode {
     CVIS_REFRESHMODE_SET,
 } RefreshMode;
 
-typedef enum displaymode {
-    CVIS_DISPLAYMODE_GRAPHICAL,
-    CVIS_DISPLAYMODE_TERMINAL,
-} DisplayMode;
-
 typedef struct config {
-    DisplayMode displaymode;
     RefreshMode refreshmode;
 
     uint refreshrate;
@@ -37,12 +31,8 @@ constexpr uint MAX_LOGICAL_SIZE = 256;
 constexpr SDL_RendererLogicalPresentation SCALE_MODE =
     SDL_LOGICAL_PRESENTATION_OVERSCAN;
 
-#include "render.h"
-
 Config config_default();
 Config config_parse_args(const int argc, const char **argv);
 void config_print(const Config *);
-
-RendererType displaymode_get_renderer(DisplayMode d);
 
 #endif

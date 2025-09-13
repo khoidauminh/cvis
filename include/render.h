@@ -6,15 +6,7 @@
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_render.h>
 
-typedef enum renderertype {
-    renderertype_sdl,
-    renderertype_terminal,
-} RendererType;
-
-typedef struct renderer Renderer;
-typedef union api_paremeter APIParameter;
-
-typedef void(DrawFunc)(Renderer *, APIParameter *);
+typedef struct sdl_renderer SDLRenderer;
 
 void RNDR_COLOR(SDL_Color c);
 void RNDR_PLOT(float x, float y);

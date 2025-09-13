@@ -9,7 +9,6 @@
 Config config_default() {
     return (Config){
         .background = {40, 40, 40, 255},
-        .displaymode = CVIS_DISPLAYMODE_GRAPHICAL,
         .refreshmode = CVIS_REFRESHMODE_SYNC,
         .width = 84,
         .height = 84,
@@ -20,36 +19,9 @@ Config config_default() {
     };
 }
 
-RendererType displaymode_get_renderer(DisplayMode d) {
-    switch (d) {
-    case CVIS_DISPLAYMODE_GRAPHICAL:
-        return renderertype_sdl;
-
-    case CVIS_DISPLAYMODE_TERMINAL:
-        return renderertype_terminal;
-
-    default:
-        die("Invalid display mode.");
-    }
-
-    return 0;
-}
-
 void config_print(const Config *cfg) {
 
     info("--- Config details ---\n");
-
-    info("Display mode: ");
-    switch (cfg->displaymode) {
-    case CVIS_DISPLAYMODE_GRAPHICAL:
-        info("graphical\n");
-        break;
-    case CVIS_DISPLAYMODE_TERMINAL:
-        info("terminal\n");
-        break;
-    default: {
-    }
-    }
 
     info("Size: %ux%u\n", cfg->width, cfg->height);
 
@@ -147,11 +119,6 @@ Config config_parse_args(const int argc, const char **argv) {
 
         if (!strcmp(*argv, "--vis")) {
             cfg.visname = argv_next(&argv, argvend);
-            continue;
-        }
-
-        if (!strcmp(*argv, "--terminal")) {
-            cfg.displaymode = CVIS_DISPLAYMODE_TERMINAL;
             continue;
         }
 
