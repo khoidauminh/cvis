@@ -5,6 +5,7 @@
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_render.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 Config config_default() {
     return (Config){
@@ -52,6 +53,13 @@ Config config_parse_args(const int argc, const char **argv) {
     const char **argvend = (argv++) + argc;
 
     for (; *argv; ++argv) {
+
+        if (!strcmp(*argv, "--version")) {
+            info("%s version %s by %s.\nVisit the repo at %s\n", CVIS_NAME,
+                 CVIS_VERSION, CVIS_AUTHOR, CVIS_LINK);
+            exit(EXIT_SUCCESS);
+        }
+
         if (!strcmp(*argv, "--size")) {
             const char *strwidth = argv_next(&argv, argvend);
 

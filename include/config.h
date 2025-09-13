@@ -35,4 +35,9 @@ Config config_default();
 Config config_parse_args(const int argc, const char **argv);
 void config_print(const Config *);
 
+constexpr char CVIS_NAME[] = "cvis";
+constexpr char CVIS_VERSION[] = "0.3.0";
+constexpr char CVIS_AUTHOR[] = "khoidauminh";
+constexpr char CVIS_LINK[] = "https://github.com/khoidauminh/cvis";
+
 #endif

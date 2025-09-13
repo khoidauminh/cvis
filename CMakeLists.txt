@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10.0)
 project(cvis
-    VERSION 0.2.0
+    VERSION 0.3.0
     LANGUAGES C
     DESCRIPTION "Personal Music Visualizer - C-based sibling of Coffeevis"
 )

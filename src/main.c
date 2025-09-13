@@ -4,6 +4,7 @@
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
+#include <stdlib.h>
 
 void init_audio();
 void free_audio();
@@ -25,4 +26,6 @@ int main(int argc, const char *argv[]) {
 
     free_audio();
     SDL_Quit();
+
+    return EXIT_SUCCESS;
 }
