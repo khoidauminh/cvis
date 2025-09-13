@@ -6,12 +6,6 @@
 #include <SDL3/SDL_init.h>
 #include <stdlib.h>
 
-void init_audio();
-void free_audio();
-
-void pg_eventloop(Program *);
-Program *pg_new(Config);
-
 int main(int argc, const char *argv[]) {
     init_audio();
 

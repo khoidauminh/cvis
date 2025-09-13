@@ -313,6 +313,8 @@ typedef struct moving_maximum {
     uint len;
     uint index;
     uint size;
+
+    uint max_len;
 } MovingMaximum;
 
 MovingMaximum moving_maximum_new(Numpair buffer[const], uint size) {
@@ -321,6 +323,7 @@ MovingMaximum moving_maximum_new(Numpair buffer[const], uint size) {
         .len = 0,
         .index = 0,
         .size = size,
+        .max_len = 0,
     };
 }
 
@@ -328,6 +331,7 @@ void moving_maximum_push(MovingMaximum *mm, Numpair new) {
     uint i = mm->len;
 
     mm->len += 1;
+    mm->max_len = uint_max(mm->len, mm->max_len);
 
     while (i > 0) {
         uint p = (i - 1) / 2;
@@ -378,7 +382,7 @@ Numpair moving_maximum_pop(MovingMaximum *mm, uint p) {
 float moving_maximum_update(MovingMaximum *mm, float new) {
     moving_maximum_push(mm, (Numpair){.index = mm->index, .val = new});
 
-    uint max_age = moving_maximum_peek(mm)->index + mm->size - 1;
+    uint max_age = moving_maximum_peek(mm)->index + mm->size;
 
     if (max_age <= mm->index) {
         moving_maximum_pop(mm, 0);
@@ -389,20 +393,24 @@ float moving_maximum_update(MovingMaximum *mm, float new) {
     return moving_maximum_peek(mm)->val;
 }
 
-constexpr uint MMAX_WINDOW_SIZE = 15;
-constexpr uint MAVE_WINDOW_SIZE = MMAX_WINDOW_SIZE * 3 / 4;
-constexpr uint MMAX_CAPACITY = 256;
+constexpr uint MAVE_WINDOW_SIZE = 10;
+constexpr uint MMAX_WINDOW_SIZE = 12;
+constexpr uint MMAX_STACK_CAPACITY = 256;
 
 void compress(cplx samples[const], uint len, float lo, float hi) {
+    const uint bound = len + MAVE_WINDOW_SIZE;
     float mave_buffer[MAVE_WINDOW_SIZE];
-    Numpair mmax_buffer[MMAX_CAPACITY];
-    assert(len + MMAX_WINDOW_SIZE <= MMAX_CAPACITY);
-    assert(lo <= hi);
+
+    // Allocate on heap if needed.
+    Numpair __mmax_buffer[MMAX_STACK_CAPACITY];
+    Numpair *mmax_buffer = __mmax_buffer;
+    if (bound > MMAX_STACK_CAPACITY) {
+        mmax_buffer = malloc(sizeof(Numpair) * len);
+        assert(mmax_buffer != nullptr);
+    }
 
     MovingAverage mave = moving_average_new(mave_buffer, MAVE_WINDOW_SIZE);
     MovingMaximum mmax = moving_maximum_new(mmax_buffer, MMAX_WINDOW_SIZE);
-
-    const uint bound = len + MAVE_WINDOW_SIZE;
 
     for (uint i = 0; i < bound; i++) {
         float smp1 = (i < len) ? cmaxf(samples[i]) : ZEROF;
@@ -419,5 +427,9 @@ void compress(cplx samples[const], uint len, float lo, float hi) {
         if (j < bound) {
             samples[j] *= scale;
         }
+    }
+
+    if (mmax_buffer != __mmax_buffer) {
+        free(mmax_buffer);
     }
 }

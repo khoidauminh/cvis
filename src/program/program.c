@@ -10,20 +10,10 @@
 #include "program.h"
 #include "render.h"
 
-void pg_eventloop_sdl(Program *p);
-
-void pg_eventloop_term(Program *p);
-
 #include "visualizer.h"
 
-VisManager *vm_new(const char *);
-void vm_end(VisManager *v);
-
-SDLRenderer *sdl_renderer_new(Program *prog);
-void sdl_renderer_end(SDLRenderer *sdlr);
-
 struct program {
-    void *renderer;
+    SDLRenderer *renderer;
     VisManager *vismanager;
 
     // Events:
@@ -94,6 +84,6 @@ Program *PG_GET() { return STATIC_PG(nullptr); }
 
 SDLRenderer *PG_RENDERER() { return PG_GET()->renderer; }
 
-const Config *PG_CONFIG() { return &PG_GET()->cfg; }
+Config *PG_CONFIG() { return &PG_GET()->cfg; }
 
 const VisManager *PG_VISMANAGER() { return PG_GET()->vismanager; }

@@ -2,7 +2,8 @@
 #include "common.h"
 #include "config.h"
 #include "logging.h"
-#include "render-private.h" // IWYU pragma: keep.
+
+#include "render-private.h"
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_blendmode.h>
@@ -106,7 +107,6 @@ ERROR:
 void sdl_renderer_end(SDLRenderer *sdlr) {
     SDL_DestroyWindow(sdlr->window);
     SDL_DestroyRenderer(sdlr->renderer);
-    free(sdlr);
 }
 
 #include "program.h"

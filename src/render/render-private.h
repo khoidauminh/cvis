@@ -13,10 +13,6 @@ void PG_SET_TARGET(Program *p);
 void RNDR_FLUSH();
 void RNDR_AUTORESIZE();
 
-Config *pg_config(Program *p);
 SDLRenderer *PG_RENDERER();
-
-void vm_perform(Program *);
-void vm_next(VisManager *);
 
 #endif

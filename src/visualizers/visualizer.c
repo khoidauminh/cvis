@@ -1,7 +1,7 @@
 #include "visualizer.h"
-
 #include "logging.h"
 #include "program.h"
+
 #include <assert.h>
 #include <stdlib.h>
 #include <time.h>

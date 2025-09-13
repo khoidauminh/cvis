@@ -8,6 +8,12 @@
 
 typedef struct sdl_renderer SDLRenderer;
 
+#include "program.h"
+
+SDLRenderer *sdl_renderer_new(Program *prog);
+void pg_eventloop_sdl(Program *p);
+void sdl_renderer_end(SDLRenderer *sdlr);
+
 void RNDR_COLOR(SDL_Color c);
 void RNDR_PLOT(float x, float y);
 void RNDR_RECT(float x, float y, float w, float h);

@@ -26,6 +26,9 @@ typedef struct program Program;
 
 #include "config.h"
 
+Program *pg_new(Config);
+
+void pg_eventloop(Program *);
 void pg_keymap_set(Program *, KeyEvent, bool);
 bool pg_keymap_get(Program *, KeyEvent);
 void pg_keymap_print(Program *p);
@@ -35,7 +38,8 @@ void pg_end(Program *p);
 
 #include "visualizer.h"
 
-const Config *PG_CONFIG();
+Config *pg_config(Program *p);
+Config *PG_CONFIG();
 
 Program *PG_GET();
 VisManager *pg_vismanager(Program *p);
