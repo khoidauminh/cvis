@@ -15,7 +15,7 @@ constexpr uint INIT_CAP = 8;
 constexpr uint APPLE_SCORE = 1;
 constexpr uint SCALE = 2;
 
-constexpr uint LOSE_SCREENTIME = 5;
+constexpr uint LOSE_SCREENTIME = 3;
 
 constexpr uint RATE1 = 8;
 constexpr uint RATE2 = 6;
@@ -127,6 +127,9 @@ static void snake_move(Snake *sn, Uint2D bound) {
 
 typedef struct snake_game_state {
     bool init;
+
+    bool awaitinput;
+
     Program *prog;
     Uint2D canvas;
     Snake snake;
@@ -167,6 +170,7 @@ static void game_init(SnakeGameState *game) {
 
     game->score = 0;
 
+    game->awaitinput = true;
     game->init = true;
     game->state = gs_running;
     game->rate = RATE1;
@@ -187,20 +191,24 @@ static void game_update(SnakeGameState *game) {
         }
     }
 
-    const uint map[] = {
-        KLEFT,
-        KUP,
-        KRIGHT,
-        KDOWN,
-    };
+    if (game->awaitinput) {
+        const uint map[] = {
+            KLEFT,
+            KUP,
+            KRIGHT,
+            KDOWN,
+        };
 
-    const KeyEvent oldd = game->snake.direction;
+        const KeyEvent oldd = game->snake.direction;
 
-    for (uint i = 0; i < 4; i++) {
-        if (pg_keymap_get(game->prog, map[i]) && map[(i + 2) % 4] != oldd) {
-            game->snake.direction = map[i];
-            break;
+        for (uint i = 0; i < 4; i++) {
+            if (pg_keymap_get(game->prog, map[i]) && map[(i + 2) % 4] != oldd) {
+                game->snake.direction = map[i];
+                break;
+            }
         }
+
+        game->awaitinput = false;
     }
 
     if (snake_collision(&game->snake)) {
@@ -224,7 +232,7 @@ static void game_update(SnakeGameState *game) {
             game->rate = RATE3;
         } else if (s >= SL4) {
             snake_grow(&game->snake);
-            game->rate = uint_max(RATE4 * s / SL4, 1);
+            game->rate = uint_max(RATE4 * SL4 / s, 1);
         }
 
         reset_apple(game);
@@ -232,6 +240,7 @@ static void game_update(SnakeGameState *game) {
 
     if (game->age % game->rate == 0) {
         snake_move(&game->snake, game->canvas);
+        game->awaitinput = true;
     }
 }
 
