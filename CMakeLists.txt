@@ -17,7 +17,7 @@ find_package(miniaudio)
 if (NOT miniaudio_FOUND)
     FetchContent_Declare(
         miniaudio
-        GIT_REPOSITORY git@github.com:mackron/miniaudio.git
+        GIT_REPOSITORY https://github.com/mackron/miniaudio
         GIT_TAG "0.11.22"
         GIT_SHALLOW TRUE
         GIT_PROGRESS ON
@@ -27,7 +27,20 @@ if (NOT miniaudio_FOUND)
     FetchContent_MakeAvailable(miniaudio)
 endif()
 
-find_package(SDL3 REQUIRED)
+find_package(SDL3)
+
+if (NOT SDL3_FOUND)
+ FetchContent_Declare(
+        SDL3
+        GIT_REPOSITORY https://github.com/libsdl-org/SDL
+        GIT_TAG "release-3.2.22"
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS ON
+        SYSTEM
+    )
+
+    FetchContent_MakeAvailable(SDL3)
+endif()
 
 set(SOURCES
     src/util/common.c
