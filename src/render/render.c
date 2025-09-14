@@ -1,10 +1,3 @@
-#include "render.h"
-#include "common.h"
-#include "config.h"
-#include "logging.h"
-
-#include "render-private.h"
-
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_blendmode.h>
 #include <SDL3/SDL_error.h>
@@ -21,11 +14,16 @@
 #include <SDL3/SDL_render.h>
 
 #include <SDL3/SDL_video.h>
-#include <SDL3_ttf/SDL_ttf.h>
 
 #include <assert.h>
 #include <stdlib.h>
 #include <time.h>
+
+#include "common.h"
+#include "internal/config.h"
+#include "internal/program.h"
+#include "internal/render.h"
+#include "logging.h"
 
 constexpr time_t CURSORHIDE = 1;
 
@@ -222,7 +220,7 @@ void RNDR_LINE(float x1, float y1, float x2, float y2) {
     SDL_RenderLine(PG_RENDERER()->renderer, x1, y1, x2, y2);
 }
 
-void RNDR_FADE(Uint8 a) {
+void RNDR_FADE(ubyte a) {
     SDLRenderer *sdlr = PG_RENDERER();
     Color newc = sdlr->cfg->background;
     newc.a = a;

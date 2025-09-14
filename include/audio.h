@@ -5,9 +5,6 @@
 
 constexpr uint SAMPLERATE = 44100;
 
-void init_audio();
-void free_audio();
-
 void cplxcpy(cplx *restrict dst, const cplx *restrict src, uint amount);
 void cplxzero(cplx *restrict buf, uint amount);
 

@@ -58,8 +58,8 @@ void visualizer_spectrum() {
         sl = powf(sl, 1.3f) * (float)(size.x) * 0.5f;
         sr = powf(sr, 1.3f) * (float)(size.x) * 0.5f;
 
-        Uint8 channel = (Uint8)(y * 255 / size.y);
-        Uint8 green = (Uint8)SDL_min(16 + (int)(3.0f * (sl + sr)), 255);
+        ubyte channel = (ubyte)(y * 255 / size.y);
+        ubyte green = (ubyte)SDL_min(16 + (int)(3.0f * (sl + sr)), 255);
 
         float yf = (float)y;
 
@@ -68,8 +68,8 @@ void visualizer_spectrum() {
         RNDR_RECT(wf / 2.0f, hf - yf, sr, 1.0f);
 
         cplx s = BUFFER_GET(size.y - y);
-        Uint8 c1 = crealf(s) > 0.0 ? 255 : 0;
-        Uint8 c2 = cimagf(s) > 0.0 ? 255 : 0;
+        ubyte c1 = crealf(s) > 0.0 ? 255 : 0;
+        ubyte c2 = cimagf(s) > 0.0 ? 255 : 0;
 
         RNDR_COLOR((Color){c1, 0, c2, 255});
         RNDR_RECT(wf / 2.0f - 1, hf - yf, 2, 1);

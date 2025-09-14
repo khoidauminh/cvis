@@ -46,7 +46,7 @@ void visualizer_vectorscope() {
         float y = cimagf(BUFFER[ir]) * scale;
 
         float redf = (fabsf(x) + fabsf(y)) * 7.0f;
-        Uint8 red = (Uint8)uint_min((Uint8)(redf), 255);
+        ubyte red = (ubyte)uint_min((ubyte)(redf), 255);
 
         RNDR_COLOR((Color){red, 255, 0, 255});
         RNDR_PLOT(center_x + x, center_y + y);

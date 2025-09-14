@@ -1,6 +1,5 @@
-#include "visualizer.h"
+#include "internal/visualizer.h"
 #include "logging.h"
-#include "program.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -19,6 +18,8 @@ struct visualizer_manager {
     time_t instant;
     bool autoswitch;
 };
+
+#include "internal/program.h"
 
 void visualizer_spectrum();
 void visualizer_vectorscope();

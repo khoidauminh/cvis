@@ -55,7 +55,7 @@ void visualizer_slice() {
 
     const float d = 1.0f / (bigradiusf * SDL_PI_F + 1.0f);
 
-    const Uint8 channel = (Uint8)uint_min((uint)high * 4, 255);
+    const ubyte channel = (ubyte)uint_min((uint)high * 4, 255);
 
     COLOR.r += channel + 2;
     COLOR.g += channel;

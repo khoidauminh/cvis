@@ -4,7 +4,7 @@ pkgrel=1
 pkgdesc='Tiny Music Vissualizer - C port'
 arch=('x86_64')
 source=('https://github.com/mackron/miniaudio/archive/refs/tags/0.11.22.tar.gz')
-depends=('sdl3' 'ncurses')
+depends=('sdl3')
 makedepends=('cmake')
 b2sums=('SKIP')
 

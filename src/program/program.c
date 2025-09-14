@@ -1,16 +1,15 @@
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_timer.h>
 #include <assert.h>
-#include <ncurses.h>
 #include <stdlib.h>
 #include <threads.h>
 
 #include "config.h"
 #include "logging.h"
-#include "program.h"
-#include "render.h"
 
-#include "visualizer.h"
+#include "internal/program.h"
+#include "internal/render.h"
+#include "internal/visualizer.h"
 
 struct program {
     SDLRenderer *renderer;
@@ -85,5 +84,7 @@ Program *PG_GET() { return STATIC_PG(nullptr); }
 SDLRenderer *PG_RENDERER() { return PG_GET()->renderer; }
 
 Config *PG_CONFIG() { return &PG_GET()->cfg; }
+
+bool PG_KEYPRESSED(KeyEvent k) { return pg_keymap_get(PG_GET(), k); }
 
 const VisManager *PG_VISMANAGER() { return PG_GET()->vismanager; }

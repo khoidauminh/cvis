@@ -1,4 +1,4 @@
-#include "config.h"
+#include "internal/config.h"
 #include "logging.h"
 #include "program.h"
 

@@ -1,5 +1,5 @@
-#ifndef CVIS_VISUALIZER_H
-#define CVIS_VISUALIZER_H
+#ifndef CVIS_INTERNAL_VISUALIZER_H
+#define CVIS_INTERNAL_VISUALIZER_H
 
 typedef struct visualizer_manager VisManager;
 

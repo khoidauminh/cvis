@@ -9,6 +9,8 @@
 #include <string.h>
 
 #include "audio.h"
+#include "internal/audio.h"
+
 #include "common.h"
 #include "interpolation.h"
 #include "logging.h"

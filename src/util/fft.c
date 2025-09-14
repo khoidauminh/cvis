@@ -90,8 +90,6 @@ static void butterfly_inplace(cplx arr[const], uint len) {
     }
 }
 
-uint ulog2(uint x) { return stdc_bit_width(x >> 1); }
-
 static void compute_fft_inplace(cplx arr[const], const uint len) {
     if (TWIDDLE_ARRAY == nullptr) {
         contruct_twiddle_array();

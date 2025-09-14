@@ -4,7 +4,6 @@
 
 #include "render.h"
 
-#include <SDL3/SDL_stdinc.h>
 #include <assert.h>
 #include <complex.h>
 #include <stdio.h>
@@ -130,7 +129,6 @@ typedef struct snake_game_state {
 
     bool awaitinput;
 
-    Program *prog;
     Uint2D canvas;
     Snake snake;
     Uint2D apple;
@@ -157,8 +155,6 @@ static void reset_apple(SnakeGameState *game) {
 
 static void game_init(SnakeGameState *game) {
     srand((uint)time(0));
-
-    game->prog = PG_GET();
 
     game->lose_screenframes = PG_CONFIG()->refreshrate * LOSE_SCREENTIME;
 
@@ -202,7 +198,7 @@ static void game_update(SnakeGameState *game) {
         const KeyEvent oldd = game->snake.direction;
 
         for (uint i = 0; i < 4; i++) {
-            if (pg_keymap_get(game->prog, map[i]) && map[(i + 2) % 4] != oldd) {
+            if (PG_KEYPRESSED(map[i]) && map[(i + 2) % 4] != oldd) {
                 game->snake.direction = map[i];
                 break;
             }
@@ -278,9 +274,9 @@ static void game_draw(SnakeGameState *game) {
 
         sum = sumleft + sumright;
 
-        snakecolor.r += (Uint8)(sumleft);
-        snakecolor.g += (Uint8)(sum);
-        snakecolor.b += (Uint8)(sumright);
+        snakecolor.r += (ubyte)(sumleft);
+        snakecolor.g += (ubyte)(sum);
+        snakecolor.b += (ubyte)(sumright);
 
         RNDR_COLOR(snakecolor);
 
