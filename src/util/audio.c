@@ -268,7 +268,7 @@ typedef struct moving_average {
     float average;
 } MovingAverage;
 
-MovingAverage moving_average_new(float buffer[const], uint size) {
+static MovingAverage moving_average_new(float buffer[const], uint size) {
     MovingAverage ma = {
         .size = size,
         .index = 0,
@@ -283,7 +283,7 @@ MovingAverage moving_average_new(float buffer[const], uint size) {
     return ma;
 }
 
-float moving_average_pop(MovingAverage *ma, float val) {
+static float moving_average_pop(MovingAverage *ma, float val) {
     float out = ma->data[ma->index];
 
     ma->data[ma->index] = val;
@@ -294,7 +294,7 @@ float moving_average_pop(MovingAverage *ma, float val) {
     return out;
 }
 
-float moving_average_update(MovingAverage *ma, float val) {
+static float moving_average_update(MovingAverage *ma, float val) {
     float old = moving_average_pop(ma, val);
 
     ma->sum = ma->sum - old + val;
@@ -323,7 +323,7 @@ typedef struct moving_maximum {
 
 } MovingMaximum;
 
-MovingMaximum moving_maximum_new(Numpair buffer[const], uint wsize) {
+static MovingMaximum moving_maximum_new(Numpair buffer[const], uint wsize) {
     return (MovingMaximum){
         .data = buffer,
         .wsize = wsize,
