@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <complex.h>
 #include <math.h>
+#include <stdarg.h>
 #include <stdbit.h>
 #include <stdlib.h>
 #include <string.h>
@@ -310,104 +311,81 @@ typedef struct numpair {
 
 typedef struct moving_maximum {
     Numpair *data;
-    uint len;
-    uint index;
-    uint size;
 
-    uint max_len;
+    uint head;
+    uint tail;
+    uint len;
+
+    float max;
+
+    uint index;
+    uint wsize;
+
 } MovingMaximum;
 
-MovingMaximum moving_maximum_new(Numpair buffer[const], uint size) {
+MovingMaximum moving_maximum_new(Numpair buffer[const], uint wsize) {
     return (MovingMaximum){
         .data = buffer,
+        .wsize = wsize,
+
+        .head = 0,
+        .tail = wsize - 1,
         .len = 0,
+
         .index = 0,
-        .size = size,
-        .max_len = 0,
+
+        .max = 0.0f,
+
     };
 }
 
-void moving_maximum_push(MovingMaximum *mm, Numpair new) {
-    uint i = mm->len;
-
+static void moving_maximum_queue(MovingMaximum *mm, float new) {
     mm->len += 1;
-    mm->max_len = uint_max(mm->len, mm->max_len);
-
-    while (i > 0) {
-        uint p = (i - 1) / 2;
-
-        if (mm->data[p].val >= new.val) {
-            break;
-        }
-
-        mm->data[i] = mm->data[p];
-
-        i = p;
-    }
-
-    mm->data[i] = new;
+    mm->tail += 1;
+    mm->tail %= mm->wsize;
+    mm->data[mm->tail] = (Numpair){mm->index, new};
 }
 
-Numpair *moving_maximum_peek(MovingMaximum *mm) { return mm->data; }
-
-Numpair moving_maximum_pop(MovingMaximum *mm, uint p) {
+static void moving_maximum_dequeue_head(MovingMaximum *mm) {
     mm->len -= 1;
-    Numpair out = mm->data[0];
-
-    mm->data[0] = mm->data[mm->len];
-
-    const uint bound = mm->len - 2;
-    uint i = 2 * p + 1;
-
-    while (i < bound) {
-        i += (mm->data[i].val <= mm->data[i + 1].val);
-
-        if (mm->data[p].val >= mm->data[i].val) {
-            return out;
-        }
-
-        mm->data[p] = mm->data[i];
-
-        p = i;
-        i = i * 2 + 1;
-    }
-
-    if (i == mm->len - 1 && mm->data[p].val < mm->data[i].val) {
-        mm->data[p] = mm->data[i];
-    }
-
-    return out;
+    mm->head += 1;
+    mm->head %= mm->wsize;
 }
 
-float moving_maximum_update(MovingMaximum *mm, float new) {
-    moving_maximum_push(mm, (Numpair){.index = mm->index, .val = new});
+static void moving_maximum_dequeue_tail(MovingMaximum *mm) {
+    mm->len -= 1;
+    mm->tail += mm->wsize - 1;
+    mm->tail %= mm->wsize;
+}
 
-    uint max_age = moving_maximum_peek(mm)->index + mm->size;
-
-    if (max_age <= mm->index) {
-        moving_maximum_pop(mm, 0);
+static float moving_maximum_update(MovingMaximum *mm, float new) {
+    if (mm->len && mm->data[mm->head].index + mm->wsize <= mm->index) {
+        moving_maximum_dequeue_head(mm);
     }
+
+    while (mm->len && mm->data[mm->tail].val < new) {
+        moving_maximum_dequeue_tail(mm);
+    }
+
+    assert(mm->len < mm->wsize);
+
+    moving_maximum_queue(mm, new);
+
+    mm->max = mm->data[mm->head].val;
 
     mm->index += 1;
 
-    return moving_maximum_peek(mm)->val;
+    return mm->max;
 }
 
 constexpr uint MAVE_WINDOW_SIZE = 10;
 constexpr uint MMAX_WINDOW_SIZE = 12;
-constexpr uint MMAX_STACK_CAPACITY = 256;
 
 void compress(cplx samples[const], uint len, float lo, float hi) {
     const uint bound = len + MAVE_WINDOW_SIZE;
-    float mave_buffer[MAVE_WINDOW_SIZE];
 
-    // Allocate on heap if needed.
-    Numpair __mmax_buffer[MMAX_STACK_CAPACITY];
-    Numpair *mmax_buffer = __mmax_buffer;
-    if (bound > MMAX_STACK_CAPACITY) {
-        mmax_buffer = malloc(sizeof(Numpair) * len);
-        assert(mmax_buffer != nullptr);
-    }
+    float mave_buffer[MAVE_WINDOW_SIZE];
+    Numpair mmax_buffer[MMAX_WINDOW_SIZE];
 
     MovingAverage mave = moving_average_new(mave_buffer, MAVE_WINDOW_SIZE);
     MovingMaximum mmax = moving_maximum_new(mmax_buffer, MMAX_WINDOW_SIZE);
@@ -427,9 +405,5 @@ void compress(cplx samples[const], uint len, float lo, float hi) {
         if (j < bound) {
             samples[j] *= scale;
         }
-    }
-
-    if (mmax_buffer != __mmax_buffer) {
-        free(mmax_buffer);
     }
 }
