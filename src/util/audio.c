@@ -343,21 +343,29 @@ static MovingMaximum moving_maximum_new(Numpair buffer[const], uint wsize) {
 
 static void moving_maximum_queue(MovingMaximum *mm, float new) {
     mm->len += 1;
+
     mm->tail += 1;
-    mm->tail %= mm->wsize;
+    if (mm->tail == mm->wsize)
+        mm->tail = 0;
+
     mm->data[mm->tail] = (Numpair){mm->index, new};
 }
 
 static void moving_maximum_dequeue_head(MovingMaximum *mm) {
     mm->len -= 1;
+
     mm->head += 1;
-    mm->head %= mm->wsize;
+    if (mm->head == mm->wsize)
+        mm->head = 0;
 }
 
 static void moving_maximum_dequeue_tail(MovingMaximum *mm) {
     mm->len -= 1;
-    mm->tail += mm->wsize - 1;
-    mm->tail %= mm->wsize;
+
+    if (mm->tail == 0)
+        mm->tail = mm->wsize;
+
+    mm->tail -= 1;
 }
 
 static float moving_maximum_update(MovingMaximum *mm, float new) {
