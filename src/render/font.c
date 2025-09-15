@@ -21,7 +21,7 @@ constexpr uint CHAR_HEIHT = SPRITESHEET_HEIGHT / SPRITESHEET_ROWS;
 constexpr uint DRAW_WIDTH = CHAR_WIDTH / 2;
 constexpr uint DRAW_HEIGHT = CHAR_HEIHT / 2;
 
-static const uchar FONT_FILE[] = {
+static const ubyte FONT_FILE[] = {
 #embed "../../assets/CruzR_pixfont_bold.bmp"
 };
 

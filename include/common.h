@@ -5,13 +5,10 @@
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_stdinc.h>
 #include <complex.h>
-#include <uchar.h>
-
-typedef char8_t uchar;
 
 typedef float complex cplx;
 
-typedef Uint8 ubyte;
+typedef unsigned char ubyte;
 typedef unsigned long ulong;
 typedef unsigned int uint;
 
