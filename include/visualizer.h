@@ -5,7 +5,7 @@ typedef struct visualizer_manager VisManager;
 
 typedef void(VisFunc)();
 
-#include "program.h"
+#include "public/program.h"
 
 VisManager *vm_new(const char *);
 void vm_end(VisManager *v);

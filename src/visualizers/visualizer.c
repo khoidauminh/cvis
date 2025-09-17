@@ -1,5 +1,5 @@
-#include "internal/visualizer.h"
-#include "logging.h"
+#include "visualizer.h"
+#include "public/logging.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -19,7 +19,7 @@ struct visualizer_manager {
     bool autoswitch;
 };
 
-#include "internal/program.h"
+#include "program.h"
 
 void visualizer_spectrum();
 void visualizer_vectorscope();

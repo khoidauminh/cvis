@@ -4,12 +4,12 @@
 #include <stdlib.h>
 #include <threads.h>
 
-#include "config.h"
-#include "logging.h"
+#include "public/config.h"
+#include "public/logging.h"
 
-#include "internal/program.h"
-#include "internal/render.h"
-#include "internal/visualizer.h"
+#include "program.h"
+#include "render.h"
+#include "visualizer.h"
 
 struct program {
     SDLRenderer *renderer;

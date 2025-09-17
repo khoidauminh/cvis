@@ -17,15 +17,14 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include <time.h>
 
-#include "common.h"
-#include "internal/config.h"
-#include "internal/program.h"
-#include "internal/render.h"
-#include "logging.h"
+#include "config.h"
+#include "program.h"
+#include "public/common.h"
+#include "public/logging.h"
+#include "render.h"
 
-constexpr time_t CURSORHIDE = 1;
+constexpr instant_t CURSORHIDE = INSTANT_SECOND;
 
 struct sdl_renderer {
     SDL_Window *window;
@@ -142,10 +141,10 @@ void pg_eventloop_sdl(Program *p) {
 
     PG_SET_TARGET(p);
 
-    time_t cursorhide = 0;
+    instant_t cursorhide = instant();
 
     while (running) {
-        time_t now = time(0);
+        instant_t now = instant();
 
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -196,7 +195,7 @@ void pg_eventloop_sdl(Program *p) {
         RNDR_FLUSH();
 
         if (pg_config(p)->refreshmode == CVIS_REFRESHMODE_SET)
-            SDL_DelayPrecise(1'000'000'000 / pg_config(p)->refreshrate);
+            SDL_DelayPrecise(ONEBILLION / pg_config(p)->refreshrate);
     }
 }
 

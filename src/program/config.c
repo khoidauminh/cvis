@@ -1,6 +1,6 @@
-#include "internal/config.h"
-#include "logging.h"
+#include "config.h"
 #include "program.h"
+#include "public/logging.h"
 
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_render.h>

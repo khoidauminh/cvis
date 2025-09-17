@@ -8,6 +8,7 @@
 
 typedef float complex cplx;
 
+typedef unsigned long long instant_t;
 typedef unsigned char ubyte;
 typedef unsigned long ulong;
 typedef unsigned int uint;
@@ -39,6 +40,8 @@ typedef enum text_anchor {
 
 constexpr float PI = 3.14159265359f;
 constexpr float TAU = PI * 2.0f;
+constexpr instant_t INSTANT_SECOND = 1000;
+constexpr ulong ONEBILLION = 1'000'000'000;
 
 uint uint_min(uint a, uint b);
 uint uint_max(uint a, uint b);
@@ -50,5 +53,7 @@ cplx quad1(cplx x);
 float l1norm(cplx x);
 float clampf(float, float, float);
 float cmaxf(cplx x);
+
+instant_t instant();
 
 #endif

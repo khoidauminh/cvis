@@ -42,7 +42,7 @@ if (NOT SDL3_FOUND)
     FetchContent_MakeAvailable(SDL3)
 endif()
 
-set(SOURCES
+set(SOURCES_CVIS
     src/util/common.c
     src/util/audio.c
     src/util/fft.c
@@ -52,28 +52,36 @@ set(SOURCES
     src/render/render.c
     src/render/font.c
 
+    src/visualizers/visualizer.c
+
+    src/program/config.c
+    src/program/program.c
+)
+
+set(SOURCES_CVIS_VISUALIZERS
     src/visualizers/classic/spectrum.c
     src/visualizers/classic/vectorscope.c
     src/visualizers/classic/oscilloscope.c
     src/visualizers/classic/slice.c
     
-    src/visualizers/game/snake.c
-    
-    src/visualizers/visualizer.c
-
-    src/program/config.c
-    src/program/program.c
-    src/main.c
+    src/visualizers/game/snake/snake.c
 )
 
-add_executable(cvis)
-target_sources(cvis PRIVATE ${SOURCES})
+add_library(cvisinternals STATIC ${SOURCES_CVIS})
+target_include_directories(cvisinternals PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(cvisinternals PRIVATE miniaudio SDL3::SDL3)
 
-set_property(TARGET cvis PROPERTY C_STANDARD 23)
-set_property(TARGET cvis PROPERTY C_STANDARD_REQUIRED TRUE)
-set_property(TARGET cvis PROPERTY C_EXTENSIONS FALSE)
+add_library(cvisvisualizers STATIC ${SOURCES_CVIS_VISUALIZERS})
+target_include_directories(cvisvisualizers PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/public)
+target_link_libraries(cvisvisualizers PRIVATE cvisinternals)
 
-target_compile_options(cvis PRIVATE
+add_executable(cvis src/main.c)
+
+set_property(TARGET cvis cvisinternals cvisvisualizers PROPERTY C_STANDARD 23)
+set_property(TARGET cvis cvisinternals cvisvisualizers PROPERTY C_STANDARD_REQUIRED TRUE)
+set_property(TARGET cvis cvisinternals cvisvisualizers PROPERTY C_EXTENSIONS FALSE)
+
+set(COMPILE_FLAGS
     -Wall -Wextra -Wpedantic -Wconversion
     -ffast-math -msse2 -mavx512f
     -march=native
@@ -81,7 +89,10 @@ target_compile_options(cvis PRIVATE
     -O2
 )
 
+target_compile_options(cvisinternals PRIVATE ${COMPILE_FLAGS})
+target_compile_options(cvisvisualizers PRIVATE ${COMPILE_FLAGS})
+
 target_include_directories(cvis PRIVATE "include")
-target_link_libraries(cvis PRIVATE m SDL3::SDL3 miniaudio)
+target_link_libraries(cvis PRIVATE cvisinternals cvisvisualizers m)
 
 install(TARGETS cvis)

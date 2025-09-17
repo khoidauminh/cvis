@@ -9,11 +9,9 @@
 #include <string.h>
 
 #include "audio.h"
-#include "internal/audio.h"
-
-#include "common.h"
-#include "interpolation.h"
-#include "logging.h"
+#include "public/common.h"
+#include "public/interpolation.h"
+#include "public/logging.h"
 
 constexpr uint CHUNK_SIZE = SAMPLERATE * 30 / 1000;
 constexpr uint CHANNELS = 2;

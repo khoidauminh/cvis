@@ -1,5 +1,5 @@
-#include "interpolation.h"
-#include "common.h"
+#include "public/interpolation.h"
+#include "public/common.h"
 
 #include <math.h>
 

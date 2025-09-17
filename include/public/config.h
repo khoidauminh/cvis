@@ -1,0 +1,29 @@
+#ifndef CVIS_CONFIG_H
+#define CVIS_CONFIG_H
+
+#include "common.h"
+
+#include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_render.h>
+
+typedef enum refreshmode {
+    CVIS_REFRESHMODE_SYNC,
+    CVIS_REFRESHMODE_SET,
+} RefreshMode;
+
+typedef struct config {
+    RefreshMode refreshmode;
+
+    uint refreshrate;
+    uint width;
+    uint height;
+    uint scale;
+
+    bool resizable;
+
+    const char *visname;
+
+    SDL_Color background;
+} Config;
+
+#endif

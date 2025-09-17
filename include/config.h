@@ -1,29 +1,20 @@
-#ifndef CVIS_CONFIG_H
-#define CVIS_CONFIG_H
+#ifndef CVIS_INTERNAL_CONFIG_H
+#define CVIS_INTERNAL_CONFIG_H
 
-#include "common.h"
+#include "public/config.h"
 
-#include <SDL3/SDL_pixels.h>
-#include <SDL3/SDL_render.h>
+constexpr uint MIN_PHYSICAL_SIZE = 64;
+constexpr uint MAX_LOGICAL_SIZE = 256;
+constexpr SDL_RendererLogicalPresentation SCALE_MODE =
+    SDL_LOGICAL_PRESENTATION_OVERSCAN;
 
-typedef enum refreshmode {
-    CVIS_REFRESHMODE_SYNC,
-    CVIS_REFRESHMODE_SET,
-} RefreshMode;
+Config config_default();
+Config config_parse_args(const int argc, const char **argv);
+void config_print(const Config *);
 
-typedef struct config {
-    RefreshMode refreshmode;
-
-    uint refreshrate;
-    uint width;
-    uint height;
-    uint scale;
-
-    bool resizable;
-
-    const char *visname;
-
-    SDL_Color background;
-} Config;
+constexpr char CVIS_NAME[] = "cvis";
+constexpr char CVIS_VERSION[] = "0.3.0";
+constexpr char CVIS_AUTHOR[] = "khoidauminh";
+constexpr char CVIS_LINK[] = "https://github.com/khoidauminh/cvis";
 
 #endif

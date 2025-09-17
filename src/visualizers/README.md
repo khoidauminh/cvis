@@ -16,6 +16,4 @@ game_snake
 
 - Helper functions should be declared static.
 
-- Static variables should be declared       with `thread_local`.
-
-- Visualizers should only use the available header files in the `include/` directory and NOT in the `internal/` subdirectory, as the latter are used only in the backend of cvis.
+- Static variables should be declared with `thread_local`.

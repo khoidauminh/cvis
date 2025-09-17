@@ -1,5 +1,5 @@
-#include "common.h"
-#include "logging.h"
+#include "public/common.h"
+#include "public/logging.h"
 
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_render.h>

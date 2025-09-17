@@ -1,6 +1,5 @@
-#include "common.h"
-
-#include "fft.h"
+#include "public/fft.h"
+#include "public/common.h"
 
 #include <assert.h>
 #include <complex.h>

@@ -1,6 +1,6 @@
-#include "internal/audio.h"
-#include "internal/config.h"
-#include "internal/program.h"
+#include "audio.h"
+#include "config.h"
+#include "program.h"
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>

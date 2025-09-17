@@ -1,32 +1,24 @@
-#ifndef CVIS_PROGRAM_H
-#define CVIS_PROGRAM_H
+#ifndef CVIS_INTERNAL_PROGRAM_H
+#define CVIS_INTERNAL_PROGRAM_H
 
-#include "audio.h"
-#include "common.h"
+#include "public/program.h" // IWYU pragma: shared
 
-constexpr uint REFRESHRATE_MAX = 192;
-constexpr uint REFRESHRATE_DEFAULT = 60;
-constexpr uint ROTATESIZE_DEFAULT = SAMPLERATE * 50 / 1000;
+#include "public/config.h"
 
-typedef enum keyevent : unsigned {
-    KLEFT = 0,
-    KRIGHT,
-    KUP,
-    KDOWN,
+Program *pg_new(Config);
 
-    KZ,
-    KX,
-    KC,
+void pg_eventloop(Program *);
+void pg_keymap_set(Program *, KeyEvent, bool);
+bool pg_keymap_get(Program *, KeyEvent);
+void pg_keymap_print(Program *p);
+void pg_keymap_reset(Program *p);
 
-    keyevent_null,
-} KeyEvent;
+void pg_end(Program *p);
 
-typedef struct program Program;
+#include "visualizer.h"
 
-#include "config.h"
+Config *pg_config(Program *p);
 
-Program *PG_GET();
-Config *PG_CONFIG();
-bool PG_KEYPRESSED(KeyEvent);
+VisManager *pg_vismanager(Program *p);
 
 #endif
