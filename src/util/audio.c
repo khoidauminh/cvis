@@ -283,21 +283,14 @@ static MovingAverage moving_average_new(float buffer[const], uint size) {
     return ma;
 }
 
-static float moving_average_pop(MovingAverage *ma, float val) {
-    float out = ma->data[ma->index];
+static float moving_average_update(MovingAverage *ma, float val) {
+    ma->sum -= ma->data[ma->index];
+    ma->sum += val;
 
     ma->data[ma->index] = val;
 
     ma->index += 1;
     ma->index %= ma->size;
-
-    return out;
-}
-
-static float moving_average_update(MovingAverage *ma, float val) {
-    float old = moving_average_pop(ma, val);
-
-    ma->sum = ma->sum - old + val;
 
     ma->average = ma->denom * ma->sum;
 
@@ -386,17 +379,16 @@ static float moving_maximum_update(MovingMaximum *mm, float new) {
     return mm->max;
 }
 
-constexpr uint MAVE_WINDOW_SIZE = 10;
-constexpr uint MMAX_WINDOW_SIZE = 12;
-
 void compress(cplx samples[const], uint len, float lo, float hi) {
-    const uint bound = len + MAVE_WINDOW_SIZE;
+    constexpr uint WINDOW_SIZE = 10;
+    float mave_buffer[WINDOW_SIZE];
+    Numpair mmax_buffer[WINDOW_SIZE];
 
-    float mave_buffer[MAVE_WINDOW_SIZE];
-    Numpair mmax_buffer[MMAX_WINDOW_SIZE];
+    const uint bound = len + WINDOW_SIZE;
+    const uint delay = WINDOW_SIZE - 1;
 
-    MovingAverage mave = moving_average_new(mave_buffer, MAVE_WINDOW_SIZE);
-    MovingMaximum mmax = moving_maximum_new(mmax_buffer, MMAX_WINDOW_SIZE);
+    MovingAverage mave = moving_average_new(mave_buffer, WINDOW_SIZE);
+    MovingMaximum mmax = moving_maximum_new(mmax_buffer, WINDOW_SIZE);
 
     for (uint i = 0; i < bound; i++) {
         float smp1 = (i < len) ? cmaxf(samples[i]) : ZEROF;
@@ -408,7 +400,7 @@ void compress(cplx samples[const], uint len, float lo, float hi) {
                       : (smp2 < lo) ? lo / fmaxf(smp2, NORMALIZE_MIN_THRESHOLD)
                                     : ONEF;
 
-        uint j = i - MAVE_WINDOW_SIZE;
+        uint j = i - delay;
 
         if (j < bound) {
             samples[j] *= scale;
