@@ -290,7 +290,8 @@ static float moving_average_update(MovingAverage *ma, float val) {
     ma->data[ma->index] = val;
 
     ma->index += 1;
-    ma->index %= ma->size;
+    if (ma->index == ma->size)
+        ma->index = 0;
 
     ma->average = ma->denom * ma->sum;
 
