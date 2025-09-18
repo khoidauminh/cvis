@@ -265,7 +265,6 @@ typedef struct moving_average {
     float *data;
     float sum;
     float denom;
-    float average;
 } MovingAverage;
 
 static MovingAverage moving_average_new(float buffer[const], uint size) {
@@ -273,7 +272,6 @@ static MovingAverage moving_average_new(float buffer[const], uint size) {
         .size = size,
         .index = 0,
         .sum = (float)size * 0.0f,
-        .average = 0.0f,
         .denom = 1.0f / (float)size,
         .data = buffer,
     };
@@ -293,9 +291,7 @@ static float moving_average_update(MovingAverage *ma, float val) {
     if (ma->index == ma->size)
         ma->index = 0;
 
-    ma->average = ma->denom * ma->sum;
-
-    return ma->average;
+    return ma->denom * ma->sum;
 }
 
 typedef struct numpair {
@@ -310,11 +306,8 @@ typedef struct moving_maximum {
     uint tail;
     uint len;
 
-    float max;
-
     uint index;
     uint wsize;
-
 } MovingMaximum;
 
 static MovingMaximum moving_maximum_new(Numpair buffer[const], uint wsize) {
@@ -327,9 +320,6 @@ static MovingMaximum moving_maximum_new(Numpair buffer[const], uint wsize) {
         .len = 0,
 
         .index = 0,
-
-        .max = 0.0f,
-
     };
 }
 
@@ -373,11 +363,9 @@ static float moving_maximum_update(MovingMaximum *mm, float new) {
 
     moving_maximum_queue(mm, new);
 
-    mm->max = mm->data[mm->head].val;
-
     mm->index += 1;
 
-    return mm->max;
+    return mm->data[mm->head].val;
 }
 
 void compress(cplx samples[const], uint len, float lo, float hi) {
