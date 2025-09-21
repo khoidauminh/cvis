@@ -14,6 +14,8 @@ void BUFFER_AUTOSLIDE();
 cplx BUFFER_GET(uint index);
 uint BUFFER_INPUTSIZE();
 ulong BUFFER_AGE();
+float BUFFER_CURRENT_PEAK();
+bool BUFFER_QUIET();
 
 void normalize_average(cplx *, uint);
 void normalize_max(cplx *, uint, float);

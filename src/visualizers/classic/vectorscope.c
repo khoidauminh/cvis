@@ -23,6 +23,10 @@ void draw_cross() {
 }
 
 void visualizer_vectorscope() {
+    if (BUFFER_QUIET()) {
+        return;
+    }
+
     cplx BUFFER[BUFFERSIZE];
     BUFFER_READ(BUFFER, BUFFERSIZE);
     BUFFER_AUTOSLIDE();

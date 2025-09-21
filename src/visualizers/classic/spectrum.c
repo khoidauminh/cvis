@@ -33,6 +33,10 @@ static void prepare() {
 }
 
 void visualizer_spectrum() {
+    if (BUFFER_QUIET()) {
+        return;
+    }
+
     prepare();
 
     RNDR_CLEAR();

@@ -131,6 +131,9 @@ cplx BUFFER_GET(uint index) {
     return gbuffer->data[i & BUFFER_MASK];
 }
 
+float BUFFER_CURRENT_PEAK() { return gbuffer->max; }
+bool BUFFER_QUIET() { return gbuffer->max < NORMALIZE_MIN_THRESHOLD; }
+
 uint BUFFER_READ(cplx cplx_array[], uint amount) {
     amount = uint_min(BUFFER_SIZE, amount);
     uint return_amount = amount;
