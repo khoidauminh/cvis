@@ -15,10 +15,16 @@ void pg_keymap_reset(Program *p);
 
 void pg_end(Program *p);
 
+void PG_SET_TARGET(Program *p);
+
 #include "visualizer.h"
 
 Config *pg_config(Program *p);
 
 VisManager *pg_vismanager(Program *p);
+
+#include "public/render.h"
+
+SDLRenderer *PG_RENDERER();
 
 #endif

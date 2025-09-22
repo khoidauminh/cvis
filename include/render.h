@@ -10,10 +10,7 @@ void sdl_renderer_end(SDLRenderer *sdlr);
 
 void RNDR_SET_TARGET(SDLRenderer *r);
 
-void PG_SET_TARGET(Program *p);
 void RNDR_FLUSH();
 void RNDR_AUTORESIZE();
-
-SDLRenderer *PG_RENDERER();
 
 #endif
