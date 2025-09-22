@@ -288,7 +288,7 @@ static MovingAverage moving_average_new(float buffer[const], uint size) {
         .data = buffer,
     };
 
-    memset(buffer, 0, size * sizeof(float));
+    ma.data[0] = 0.0f;
 
     return ma;
 }
