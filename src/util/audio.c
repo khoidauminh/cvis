@@ -1,3 +1,4 @@
+#include <SDL3/SDL_gamepad.h>
 #include <miniaudio.h>
 
 #include <assert.h>
@@ -18,8 +19,12 @@ constexpr uint CHANNELS = 2;
 constexpr uint BUFFER_SIZE = 1 << 18;
 constexpr uint BUFFER_MASK = BUFFER_SIZE - 1;
 constexpr uint DEFAULT_ROTATE_SIZE = CHUNK_SIZE / 4;
+
 constexpr float NORMALIZE_SPEED_FACTOR = 0.99f;
-constexpr float NORMALIZE_MIN_THRESHOLD = 0.001f;
+constexpr float NORMALIZE_MIN_THRESHOLD = 0.05f;
+constexpr float NORMALIZE_STOP_THRESHOLD = 0.01f;
+
+constexpr ulong DECLARE_SILENT = 100;
 
 constexpr float ZEROF = 0.0f;
 constexpr float ONEF = 1.0;
@@ -36,6 +41,7 @@ typedef struct audiobuffer {
     uint lastwritesize;
 
     ulong age;
+    ulong silentwrites;
 
     float max;
 
@@ -109,9 +115,12 @@ static void buffer_normalize() {
     gbuffer->max = decay(gbuffer->max, max, NORMALIZE_SPEED_FACTOR);
 
     // Buffer is empty so skip normalization.
-    if (max < NORMALIZE_MIN_THRESHOLD) {
+    if (max < NORMALIZE_STOP_THRESHOLD) {
+        gbuffer->silentwrites += 1;
         return;
     }
+
+    gbuffer->silentwrites = 0;
 
     float scale = 1.0f / gbuffer->max;
 
@@ -132,7 +141,7 @@ cplx BUFFER_GET(uint index) {
 }
 
 float BUFFER_CURRENT_PEAK() { return gbuffer->max; }
-bool BUFFER_QUIET() { return gbuffer->max < NORMALIZE_MIN_THRESHOLD; }
+bool BUFFER_QUIET() { return gbuffer->silentwrites >= DECLARE_SILENT; }
 
 uint BUFFER_READ(cplx cplx_array[], uint amount) {
     amount = uint_min(BUFFER_SIZE, amount);
