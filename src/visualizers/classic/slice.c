@@ -6,10 +6,10 @@
 
 static thread_local float ANGLE = 0.0f;
 static thread_local float AMP = 0.0f;
-static thread_local Color COLOR = {};
+static thread_local sColor color = {};
 
 static void process_sweep(float *outsweep, float *outhigh) {
-    const uint inputsize = BUFFER_INPUTSIZE();
+    const tUint inputsize = BUFFER_INPUTSIZE();
     const float inputsizef = (float)inputsize;
     const float basslow = 1.0f / inputsizef * 0.5f;
     const float basehigh = 1.0f / inputsizef * 2.0f;
@@ -17,15 +17,15 @@ static void process_sweep(float *outsweep, float *outhigh) {
     const float treblelow = 1.0f / inputsizef * 50.f;
     const float treblehigh = 1.0f / inputsizef * 100.f;
 
-    cplx high = 0.0f;
-    cplx bin = 0.0f;
+    tCplx high = 0.0f;
+    tCplx bin = 0.0f;
 
-    for (uint i = 0; i < inputsize; i++) {
+    for (tUint i = 0; i < inputsize; i++) {
         const float fi = (float)i;
         const float t = fi / inputsizef;
 
-        const cplx j = cexpf(fi * linearf(basslow, basehigh, t) * I);
-        const cplx jhigh = cexpf(fi * linearf(treblelow, treblehigh, t) * I);
+        const tCplx j = cexpf(fi * linearf(basslow, basehigh, t) * I);
+        const tCplx jhigh = cexpf(fi * linearf(treblelow, treblehigh, t) * I);
 
         bin += BUFFER_GET(i) * j;
         high += BUFFER_GET(i) * jhigh;
@@ -38,10 +38,10 @@ static void process_sweep(float *outsweep, float *outhigh) {
 void visualizer_slice() {
     RNDR_FADE(10);
 
-    Uint2D size = RNDR_SIZE();
+    sUint2d size = RNDR_SIZE();
 
-    const uint radius = uint_min(size.x, size.y);
-    const uint bigradius = radius / 5;
+    const tUint radius = uint_min(size.x, size.y);
+    const tUint bigradius = radius / 5;
     const float bigradiusf = (float)bigradius;
 
     const float wf = (float)size.x / 2.0f;
@@ -55,13 +55,13 @@ void visualizer_slice() {
 
     const float d = 1.0f / (bigradiusf * SDL_PI_F + 1.0f);
 
-    const ubyte channel = (ubyte)uint_min((uint)high * 4, 255);
+    const tUbyte channel = (tUbyte)uint_min((tUint)high * 4, 255);
 
-    COLOR.r += channel + 2;
-    COLOR.g += channel;
-    COLOR.b += channel + 5;
+    color.r += channel + 2;
+    color.g += channel;
+    color.b += channel + 5;
 
-    RNDR_COLOR(COLOR);
+    RNDR_COLOR(color);
 
     float o = ANGLE;
 

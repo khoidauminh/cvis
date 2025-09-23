@@ -5,26 +5,26 @@
 
 #include "public/config.h"
 
-Program *pg_new(Config);
+sProgram *pg_new(sConfig);
 
-void pg_eventloop(Program *);
-void pg_keymap_set(Program *, KeyEvent, bool);
-bool pg_keymap_get(Program *, KeyEvent);
-void pg_keymap_print(Program *p);
-void pg_keymap_reset(Program *p);
+void pg_eventloop(sProgram *);
+void pg_keymap_set(sProgram *, eKeyEvent, bool);
+bool pg_keymap_get(sProgram *, eKeyEvent);
+void pg_keymap_print(sProgram *p);
+void pg_keymap_reset(sProgram *p);
 
-void pg_end(Program *p);
+void pg_end(sProgram *p);
 
-void PG_SET_TARGET(Program *p);
+void PG_SET_TARGET(sProgram *p);
 
 #include "visualizer.h"
 
-Config *pg_config(Program *p);
+sConfig *pg_config(sProgram *p);
 
-VisManager *pg_vismanager(Program *p);
+sVisManager *pg_vismanager(sProgram *p);
 
 #include "public/render.h"
 
-SDLRenderer *PG_RENDERER();
+sRenderer *PG_RENDERER();
 
 #endif

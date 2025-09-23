@@ -10,20 +10,20 @@
 #include <stdlib.h>
 #include <time.h>
 
-constexpr uint INIT_CAP = 8;
-constexpr uint APPLE_SCORE = 1;
-constexpr uint SCALE = 2;
+constexpr tUint INIT_CAP = 8;
+constexpr tUint APPLE_SCORE = 1;
+constexpr tUint SCALE = 2;
 
-constexpr uint LOSE_SCREENTIME = 3;
+constexpr tUint LOSE_SCREENTIME = 3;
 
-constexpr uint RATE1 = 8;
-constexpr uint RATE2 = 6;
-constexpr uint RATE3 = 5;
-constexpr uint RATE4 = 4;
+constexpr tUint RATE1 = 8;
+constexpr tUint RATE2 = 6;
+constexpr tUint RATE3 = 5;
+constexpr tUint RATE4 = 4;
 
-constexpr uint SL2 = 10;
-constexpr uint SL3 = 20;
-constexpr uint SL4 = 30;
+constexpr tUint SL2 = 10;
+constexpr tUint SL3 = 20;
+constexpr tUint SL4 = 30;
 
 constexpr char LOSE_STR1[] = "YOU LOST!";
 constexpr char LOSE_STR2[] = "PRETTY NICE!";
@@ -36,10 +36,10 @@ enum game_state {
 };
 
 typedef struct snake {
-    Uint2D *positions;
-    uint len;
-    uint cap;
-    KeyEvent direction;
+    sUint2d *positions;
+    tUint len;
+    tUint cap;
+    eKeyEvent direction;
 } Snake;
 
 static void snake_free(Snake *sn) { free(sn->positions); }
@@ -49,7 +49,7 @@ static void snake_init(Snake *sn) {
         sn->len = 1;
         return;
     }
-    sn->positions = calloc(INIT_CAP, sizeof(Uint2D));
+    sn->positions = calloc(INIT_CAP, sizeof(sUint2d));
     assert(sn->positions != nullptr);
     sn->len = 1;
     sn->cap = INIT_CAP;
@@ -57,8 +57,9 @@ static void snake_init(Snake *sn) {
 
 static void snake_grow(Snake *sn) {
     if (sn->len == sn->cap) {
-        uint newcap = sn->cap * 2;
-        Uint2D *newpositions = realloc(sn->positions, newcap * sizeof(Uint2D));
+        tUint newcap = sn->cap * 2;
+        sUint2d *newpositions =
+            realloc(sn->positions, newcap * sizeof(sUint2d));
         assert(newpositions != nullptr);
 
         sn->positions = newpositions;
@@ -68,8 +69,8 @@ static void snake_grow(Snake *sn) {
     sn->len += 1;
 }
 
-static void snake_update(Snake *sn, Uint2D pos) {
-    for (uint i = sn->len; i > 0; --i) {
+static void snake_update(Snake *sn, sUint2d pos) {
+    for (tUint i = sn->len; i > 0; --i) {
         sn->positions[i] = sn->positions[i - 1];
     }
 
@@ -78,10 +79,10 @@ static void snake_update(Snake *sn, Uint2D pos) {
 
 static bool snake_collision(Snake *sn) {
 
-    const Uint2D head = sn->positions[0];
+    const sUint2d head = sn->positions[0];
 
-    for (uint i = 1; i < sn->len; i++) {
-        const Uint2D body = sn->positions[i];
+    for (tUint i = 1; i < sn->len; i++) {
+        const sUint2d body = sn->positions[i];
 
         if (body.x == head.x && body.y == head.y) {
             return true;
@@ -91,27 +92,27 @@ static bool snake_collision(Snake *sn) {
     return false;
 }
 
-static bool snake_at_apple(Snake *sn, Uint2D apple) {
+static bool snake_at_apple(Snake *sn, sUint2d apple) {
     return sn->positions[0].x == apple.x && sn->positions[1].y == apple.y;
 }
 
-static void snake_move(Snake *sn, Uint2D bound) {
-    Uint2D newpos = sn->positions[0];
+static void snake_move(Snake *sn, sUint2d bound) {
+    sUint2d newpos = sn->positions[0];
 
     newpos.x += bound.x;
     newpos.y += bound.y;
 
     switch (sn->direction) {
-    case KUP:
+    case KEYEVENT_UP:
         newpos.y -= SCALE;
         break;
-    case KLEFT:
+    case KEYEVENT_LEFT:
         newpos.x -= SCALE;
         break;
-    case KDOWN:
+    case KEYEVENT_DOWN:
         newpos.y += SCALE;
         break;
-    case KRIGHT:
+    case KEYEVENT_RIGHT:
         newpos.x += SCALE;
         break;
     default: {
@@ -129,32 +130,32 @@ typedef struct snake_game_state {
 
     bool awaitinput;
 
-    Uint2D canvas;
+    sUint2d canvas;
     Snake snake;
-    Uint2D apple;
-    uint score;
+    sUint2d apple;
+    tUint score;
     enum game_state state;
 
-    ulong state_changed;
+    tUlong state_changed;
 
-    ulong lose_screenframes;
+    tUlong lose_screenframes;
 
-    ulong age;
+    tUlong age;
 
-    ulong rate;
+    tUlong rate;
 } SnakeGameState;
 
 static thread_local SnakeGameState GAME = {};
 
 static void reset_apple(SnakeGameState *game) {
-    game->apple = (Uint2D){
-        (((uint)rand() % game->canvas.x) / SCALE) * SCALE,
-        ((uint)rand() % game->canvas.y / SCALE) * SCALE,
+    game->apple = (sUint2d){
+        (((tUint)rand() % game->canvas.x) / SCALE) * SCALE,
+        ((tUint)rand() % game->canvas.y / SCALE) * SCALE,
     };
 }
 
 static void game_init(SnakeGameState *game) {
-    srand((uint)time(0));
+    srand((tUint)time(0));
 
     game->lose_screenframes = PG_CONFIG()->refreshrate * LOSE_SCREENTIME;
 
@@ -188,16 +189,16 @@ static void game_update(SnakeGameState *game) {
     }
 
     if (game->awaitinput) {
-        const uint map[] = {
-            KLEFT,
-            KUP,
-            KRIGHT,
-            KDOWN,
+        const tUint map[] = {
+            KEYEVENT_LEFT,
+            KEYEVENT_UP,
+            KEYEVENT_RIGHT,
+            KEYEVENT_DOWN,
         };
 
-        const KeyEvent oldd = game->snake.direction;
+        const eKeyEvent oldd = game->snake.direction;
 
-        for (uint i = 0; i < 4; i++) {
+        for (tUint i = 0; i < 4; i++) {
             if (PG_KEYPRESSED(map[i]) && map[(i + 2) % 4] != oldd) {
                 game->snake.direction = map[i];
                 break;
@@ -215,7 +216,7 @@ static void game_update(SnakeGameState *game) {
     if (snake_at_apple(&game->snake, game->apple)) {
         game->score += APPLE_SCORE;
 
-        const uint s = game->score; // short name
+        const tUint s = game->score; // short name
 
         if (s < SL2) {
             snake_grow(&game->snake);
@@ -244,39 +245,39 @@ static void game_draw(SnakeGameState *game) {
     RNDR_CLEAR();
 
     // prints score
-    constexpr uint scorestrlen = 20;
+    constexpr tUint scorestrlen = 20;
     char scorestr[scorestrlen];
     snprintf(scorestr, scorestrlen, "%u", game->score);
 
     RNDR_TEXT(0.0f, 0.0f, scorestr, CVIS_TEXTALIGN_LEFT, CVIS_TEXTANCHOR_TOP);
 
-    // Make sure snake's color is always
-    // different than background color.
-    Color snakecolor = PG_CONFIG()->background;
+    // Make sure snake's sColor is always
+    // different than background sColor.
+    sColor snakecolor = PG_CONFIG()->background;
     snakecolor.r += 128;
     snakecolor.g += 128;
     snakecolor.b += 128;
 
-    const uint inputsize = BUFFER_INPUTSIZE();
+    const tUint inputsize = BUFFER_INPUTSIZE();
 
-    for (ulong i = 0; i < game->snake.len; i++) {
-        Uint2D pos = game->snake.positions[i];
+    for (tUlong i = 0; i < game->snake.len; i++) {
+        sUint2d pos = game->snake.positions[i];
 
         float sumleft = 0.0f, sumright = 0.0f, sum = 0.0f;
 
-        const uint readsize = inputsize / game->snake.len;
-        const uint start = (uint)i * readsize;
+        const tUint readsize = inputsize / game->snake.len;
+        const tUint start = (tUint)i * readsize;
 
-        for (uint i = 0; i < readsize; i++) {
+        for (tUint i = 0; i < readsize; i++) {
             sumleft += crealf(BUFFER_GET(i + start));
             sumright += cimagf(BUFFER_GET(i + start));
         }
 
         sum = sumleft + sumright;
 
-        snakecolor.r += (ubyte)(sumleft);
-        snakecolor.g += (ubyte)(sum);
-        snakecolor.b += (ubyte)(sumright);
+        snakecolor.r += (tUbyte)(sumleft);
+        snakecolor.g += (tUbyte)(sum);
+        snakecolor.b += (tUbyte)(sumright);
 
         RNDR_COLOR(snakecolor);
 
@@ -285,7 +286,7 @@ static void game_draw(SnakeGameState *game) {
 
     BUFFER_AUTOSLIDE();
 
-    RNDR_COLOR((Color){255, 0, 0, 255});
+    RNDR_COLOR((sColor){255, 0, 0, 255});
     RNDR_RECT((float)game->apple.x, (float)game->apple.y, (float)SCALE,
               (float)SCALE);
 

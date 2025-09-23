@@ -9,7 +9,7 @@ constexpr double AUTOSWITCH_ITERVAL = 8.0;
 
 typedef struct visualizer {
     const char *const name;
-    VisFunc *const func;
+    fVisFunc *const func;
 } Visualizer;
 
 struct visualizer_manager {
@@ -37,10 +37,10 @@ static const Visualizer FUNC_ARRAY[] = {
 
     {}};
 
-void vm_select_by_name(VisManager *v, const char *name);
+void vm_select_by_name(sVisManager *v, const char *name);
 
-VisManager *vm_new(const char *name) {
-    VisManager *v = malloc(sizeof(VisManager));
+sVisManager *vm_new(const char *name) {
+    sVisManager *v = malloc(sizeof(sVisManager));
     assert(v);
 
     v->list = FUNC_ARRAY;
@@ -55,7 +55,7 @@ VisManager *vm_new(const char *name) {
     return v;
 }
 
-void vm_select_by_name(VisManager *v, const char *name) {
+void vm_select_by_name(sVisManager *v, const char *name) {
     for (const Visualizer *i = v->list; i->func; i++) {
         if (!strcmp(i->name, name)) {
             v->ptr = i;
@@ -71,13 +71,13 @@ void vm_select_by_name(VisManager *v, const char *name) {
     }
 }
 
-void vm_next(VisManager *v) {
+void vm_next(sVisManager *v) {
     v->ptr++;
     if (!v->ptr->func)
         v->ptr = v->list;
 }
 
-void vm_selfupdate(VisManager *v) {
+void vm_selfupdate(sVisManager *v) {
     if (v->autoswitch) {
         time_t newinstant = time(nullptr);
 
@@ -88,8 +88,8 @@ void vm_selfupdate(VisManager *v) {
     }
 }
 
-void vm_perform(Program *p) {
-    VisManager *vm = pg_vismanager(p);
+void vm_perform(sProgram *p) {
+    sVisManager *vm = pg_vismanager(p);
     vm_selfupdate(vm);
 
     const Visualizer *vis = vm->ptr;
@@ -97,6 +97,6 @@ void vm_perform(Program *p) {
     (vis->func)();
 }
 
-VisFunc *vm_current_func(VisManager *v) { return *v->ptr->func; }
+fVisFunc *vm_current_func(sVisManager *v) { return *v->ptr->func; }
 
-void vm_end(VisManager *v) { free(v); }
+void vm_end(sVisManager *v) { free(v); }

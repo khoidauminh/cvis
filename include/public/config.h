@@ -9,21 +9,21 @@
 typedef enum refreshmode {
     CVIS_REFRESHMODE_SYNC,
     CVIS_REFRESHMODE_SET,
-} RefreshMode;
+} eRefreshMode;
 
 typedef struct config {
-    RefreshMode refreshmode;
+    eRefreshMode refreshmode;
 
-    uint refreshrate;
-    uint width;
-    uint height;
-    uint scale;
+    tUint refreshrate;
+    tUint width;
+    tUint height;
+    tUint scale;
 
     bool resizable;
 
     const char *visname;
 
-    SDL_Color background;
-} Config;
+    sColor background;
+} sConfig;
 
 #endif

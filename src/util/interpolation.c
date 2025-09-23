@@ -4,7 +4,7 @@
 #include <math.h>
 
 float linearf(float a, float b, float t) { return a + (b - a) * t; }
-cplx clinearf(cplx a, cplx b, float t) { return a + (b - a) * t; }
+tCplx clinearf(tCplx a, tCplx b, float t) { return a + (b - a) * t; }
 
 float linear_decay(float prev, float now, float step) {
     return fmaxf(now, prev - step);

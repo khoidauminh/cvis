@@ -3,14 +3,14 @@
 #include "render.h"
 #include <math.h>
 
-constexpr uint BUFFERSIZE = 128;
+constexpr tUint BUFFERSIZE = 128;
 
 void draw_cross() {
     static thread_local bool vertical = false;
 
-    RNDR_COLOR((Color){70, 70, 70, 255});
+    RNDR_COLOR((sColor){70, 70, 70, 255});
 
-    Uint2D size = RNDR_SIZE();
+    sUint2d size = RNDR_SIZE();
 
     float w = (float)size.x;
     float h = (float)size.y;
@@ -27,32 +27,32 @@ void visualizer_vectorscope() {
         return;
     }
 
-    cplx BUFFER[BUFFERSIZE];
+    tCplx BUFFER[BUFFERSIZE];
     BUFFER_READ(BUFFER, BUFFERSIZE);
     BUFFER_AUTOSLIDE();
 
     RNDR_CLEAR();
 
-    Uint2D size = RNDR_SIZE();
+    sUint2d size = RNDR_SIZE();
 
     float center_x = (float)size.x / 2.0f;
     float center_y = (float)size.y / 2.0f;
 
     float scale = (float)(size.x < size.y ? size.x : size.y) * 0.4f;
 
-    constexpr uint PHASE = 92;
+    constexpr tUint PHASE = 92;
 
-    for (uint i = PHASE; i < BUFFERSIZE; i++) {
-        uint il = i;
-        uint ir = i - PHASE;
+    for (tUint i = PHASE; i < BUFFERSIZE; i++) {
+        tUint il = i;
+        tUint ir = i - PHASE;
 
         float x = crealf(BUFFER[il]) * scale;
         float y = cimagf(BUFFER[ir]) * scale;
 
         float redf = (fabsf(x) + fabsf(y)) * 7.0f;
-        ubyte red = (ubyte)uint_min((ubyte)(redf), 255);
+        tUbyte red = (tUbyte)uint_min((tUbyte)(redf), 255);
 
-        RNDR_COLOR((Color){red, 255, 0, 255});
+        RNDR_COLOR((sColor){red, 255, 0, 255});
         RNDR_PLOT(center_x + x, center_y + y);
     }
 

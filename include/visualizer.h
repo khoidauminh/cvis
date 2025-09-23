@@ -1,16 +1,16 @@
 #ifndef CVIS_INTERNAL_VISUALIZER_H
 #define CVIS_INTERNAL_VISUALIZER_H
 
-typedef struct visualizer_manager VisManager;
+typedef struct visualizer_manager sVisManager;
 
-typedef void(VisFunc)();
+typedef void(fVisFunc)();
 
 #include "public/program.h"
 
-VisManager *vm_new(const char *);
-void vm_end(VisManager *v);
+sVisManager *vm_new(const char *);
+void vm_end(sVisManager *v);
 
-void vm_perform(Program *);
-void vm_next(VisManager *);
+void vm_perform(sProgram *);
+void vm_next(sVisManager *);
 
 #endif

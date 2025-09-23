@@ -14,7 +14,7 @@ typedef struct sprite {
     SDL_Texture *texture;
 } Sprite;
 
-Sprite sprite_new(const char *sprite_path, Color key) {
+Sprite sprite_new(const char *sprite_path, sColor key) {
     SDL_Surface *s = SDL_LoadBMP(sprite_path);
     if (!s) {
         goto ERROR;
@@ -24,7 +24,7 @@ Sprite sprite_new(const char *sprite_path, Color key) {
     Uint32 k = SDL_MapRGB(format, nullptr, key.r, key.g, key.b);
 
     if (!SDL_SetSurfaceColorKey(s, true, k)) {
-        warn("Failed to set Color key: %s\n", SDL_GetError());
+        warn("Failed to set sColor key: %s\n", SDL_GetError());
     }
 
     SDL_Renderer *r = SDL_CreateSoftwareRenderer(s);

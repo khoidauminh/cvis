@@ -6,54 +6,53 @@
 #include <SDL3/SDL_stdinc.h>
 #include <complex.h>
 
-typedef float complex cplx;
+typedef float complex tCplx;
+typedef unsigned long long tInstant;
+typedef unsigned char tUbyte;
+typedef unsigned long tUlong;
+typedef unsigned int tUint;
 
-typedef unsigned long long instant_t;
-typedef unsigned char ubyte;
-typedef unsigned long ulong;
-typedef unsigned int uint;
+typedef SDL_Color sColor;
+typedef SDL_BlendMode eBlendMode;
 
-typedef SDL_Color Color;
-typedef SDL_BlendMode BlendMode;
-
-typedef struct int2d {
+typedef struct int_2d {
     int x;
     int y;
-} Int2D;
+} sInt2d;
 
-typedef struct uint2d {
-    uint x;
-    uint y;
-} Uint2D;
+typedef struct uint_2d {
+    tUint x;
+    tUint y;
+} sUint2d;
 
 typedef enum text_alignment {
     CVIS_TEXTALIGN_LEFT,
     CVIS_TEXTALIGN_MIDDLE,
     CVIS_TEXTALIGN_RIGHT,
-} TextAlignment;
+} eTextAlignment;
 
 typedef enum text_anchor {
     CVIS_TEXTANCHOR_BOTTOM,
     CVIS_TEXTANCHOR_MIDDLE,
     CVIS_TEXTANCHOR_TOP,
-} TextAnchor;
+} eTextAnchor;
 
 constexpr float PI = 3.14159265359f;
 constexpr float TAU = PI * 2.0f;
-constexpr instant_t INSTANT_SECOND = 1000;
-constexpr ulong ONEBILLION = 1'000'000'000;
+constexpr tInstant INSTANT_SECOND = 1000;
+constexpr tUlong ONEBILLION = 1'000'000'000;
 
-uint uint_min(uint a, uint b);
-uint uint_max(uint a, uint b);
+tUint uint_min(tUint a, tUint b);
+tUint uint_max(tUint a, tUint b);
 int int_max(int a, int b);
 
-uint ulog2(uint x);
+tUint ulog2(tUint x);
 
-cplx quad1(cplx x);
-float l1norm(cplx x);
+tCplx quad1(tCplx x);
+float l1norm(tCplx x);
 float clampf(float, float, float);
-float cmaxf(cplx x);
+float cmaxf(tCplx x);
 
-instant_t instant();
+tInstant instant();
 
 #endif

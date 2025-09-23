@@ -3,9 +3,9 @@
 
 #include "common.h"
 
-void fft_inplace(cplx *arr, uint len);
-void fft_inplace_stereo(cplx *arr, uint len, uint upto);
-void fft_io_stereo(cplx *in, cplx *out, uint len, uint upto);
-void fft_prettify(cplx *arr, uint originallen, uint prettifylen);
+void fft_inplace(tCplx *arr, tUint len);
+void fft_inplace_stereo(tCplx *arr, tUint len, tUint upto);
+void fft_io_stereo(tCplx *in, tCplx *out, tUint len, tUint upto);
+void fft_prettify(tCplx *arr, tUint originallen, tUint prettifylen);
 
 #endif

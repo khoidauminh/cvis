@@ -9,19 +9,19 @@
 #include <stdlib.h>
 #include <threads.h>
 
-constexpr uint SPRITESHEET_WIDTH = 192;
-constexpr uint SPRITESHEET_HEIGHT = 96;
+constexpr tUint SPRITESHEET_WIDTH = 192;
+constexpr tUint SPRITESHEET_HEIGHT = 96;
 
-constexpr uint SPRITESHEET_COLUMNS = 16;
-constexpr uint SPRITESHEET_ROWS = 6;
+constexpr tUint SPRITESHEET_COLUMNS = 16;
+constexpr tUint SPRITESHEET_ROWS = 6;
 
-constexpr uint CHAR_WIDTH = SPRITESHEET_WIDTH / SPRITESHEET_COLUMNS;
-constexpr uint CHAR_HEIHT = SPRITESHEET_HEIGHT / SPRITESHEET_ROWS;
+constexpr tUint CHAR_WIDTH = SPRITESHEET_WIDTH / SPRITESHEET_COLUMNS;
+constexpr tUint CHAR_HEIHT = SPRITESHEET_HEIGHT / SPRITESHEET_ROWS;
 
-constexpr uint DRAW_WIDTH = CHAR_WIDTH / 2;
-constexpr uint DRAW_HEIGHT = CHAR_HEIHT / 2;
+constexpr tUint DRAW_WIDTH = CHAR_WIDTH / 2;
+constexpr tUint DRAW_HEIGHT = CHAR_HEIHT / 2;
 
-static const ubyte FONT_FILE[] = {
+static const tUbyte FONT_FILE[] = {
 #embed "../../assets/CruzR_pixfont_bold.bmp"
 };
 
@@ -64,7 +64,7 @@ static void init(SDL_Renderer *renderer) {
     result = SDL_SetSurfaceColorKey(fontmap->surface, true, 0);
 
     if (!result) {
-        warn("Failed to set color key: %s", SDL_GetError());
+        warn("Failed to set sColor key: %s", SDL_GetError());
     }
 
     result = SDL_SetSurfaceRLE(fontmap->surface, true);
@@ -103,12 +103,12 @@ void sdlfont_draw_char(SDL_Renderer *renderer, const char c, float x, float y) {
         die("Different renderers!\n");
     }
 
-    const uint index_flat = (uint)(c - ('!' - 1));
-    const uint index_x = index_flat % SPRITESHEET_COLUMNS;
-    const uint index_y = index_flat / SPRITESHEET_COLUMNS;
+    const tUint index_flat = (tUint)(c - ('!' - 1));
+    const tUint index_x = index_flat % SPRITESHEET_COLUMNS;
+    const tUint index_y = index_flat / SPRITESHEET_COLUMNS;
 
-    const uint bitmapx = SPRITESHEET_WIDTH * index_x / SPRITESHEET_COLUMNS;
-    const uint bitmapy = SPRITESHEET_HEIGHT * index_y / SPRITESHEET_ROWS;
+    const tUint bitmapx = SPRITESHEET_WIDTH * index_x / SPRITESHEET_COLUMNS;
+    const tUint bitmapy = SPRITESHEET_HEIGHT * index_y / SPRITESHEET_ROWS;
 
     const SDL_FRect srcrect = {
         .x = (float)bitmapx,
@@ -134,9 +134,9 @@ void sdlfont_draw_char(SDL_Renderer *renderer, const char c, float x, float y) {
 
 void sdlfont_draw_line(SDL_Renderer *render, const char *strstart,
                        const char *strend, float x, float y,
-                       TextAlignment align) {
+                       eTextAlignment align) {
 
-    const ulong length = (ulong)(strend - strstart);
+    const tUlong length = (tUlong)(strend - strstart);
 
     const float drawwidth = (float)(length * DRAW_WIDTH);
 
@@ -158,11 +158,11 @@ void sdlfont_draw_line(SDL_Renderer *render, const char *strstart,
 }
 
 void sdlfont_draw_str(SDL_Renderer *renderer, const char *str, float x, float y,
-                      TextAlignment align, TextAnchor anchor) {
+                      eTextAlignment align, eTextAnchor anchor) {
 
     // Only count for lines when not anchoring top.
     if (anchor != CVIS_TEXTANCHOR_TOP) {
-        uint stringheight = DRAW_HEIGHT;
+        tUint stringheight = DRAW_HEIGHT;
         for (const char *c = str; *c; c++) {
             if (*c == '\n')
                 stringheight += DRAW_HEIGHT;

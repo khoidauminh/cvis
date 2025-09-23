@@ -7,8 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-Config config_default() {
-    return (Config){
+sConfig config_default() {
+    return (sConfig){
         .background = {40, 40, 40, 255},
         .refreshmode = CVIS_REFRESHMODE_SYNC,
         .width = 84,
@@ -20,9 +20,9 @@ Config config_default() {
     };
 }
 
-void config_print(const Config *cfg) {
+void config_print(const sConfig *cfg) {
 
-    info("--- Config details ---\n");
+    info("--- sConfig details ---\n");
 
     info("Size: %ux%u\n", cfg->width, cfg->height);
 
@@ -47,8 +47,8 @@ const char *argv_next(const char ***argv, const char **const end) {
     return **argv;
 }
 
-Config config_parse_args(const int argc, const char **argv) {
-    Config cfg = config_default();
+sConfig config_parse_args(const int argc, const char **argv) {
+    sConfig cfg = config_default();
 
     const char **argvend = (argv++) + argc;
 
@@ -85,21 +85,21 @@ Config config_parse_args(const int argc, const char **argv) {
         if (!strcmp(*argv, "--background")) {
             const char *strhex = argv_next(&argv, argvend);
 
-            uint bg = 0;
+            tUint bg = 0;
 
             if (!strhex) {
-                die("Invalid or missing value for background color.\n");
+                die("Invalid or missing value for background sColor.\n");
             }
 
             if (!sscanf(strhex, "%x", &bg)) {
-                die("Invalid or missing value for background color.\n");
+                die("Invalid or missing value for background sColor.\n");
             }
 
             Uint8 r = (bg >> 16) & 0xFF;
             Uint8 g = (bg >> 8) & 0xFF;
             Uint8 b = (bg) & 0xFF;
 
-            cfg.background = (Color){r, g, b, 255};
+            cfg.background = (sColor){r, g, b, 255};
 
             continue;
         }
@@ -107,7 +107,7 @@ Config config_parse_args(const int argc, const char **argv) {
         if (!strcmp(*argv, "--fps")) {
             const char *strfps = argv_next(&argv, argvend);
 
-            uint fps = 60;
+            tUint fps = 60;
 
             if (!sscanf(strfps, "%u", &fps)) {
                 die("Invalid or missing value for fps.\n");

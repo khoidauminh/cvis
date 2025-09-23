@@ -9,10 +9,10 @@
 int main(int argc, const char *argv[]) {
     init_audio();
 
-    Config cfg = config_parse_args(argc, argv);
+    sConfig cfg = config_parse_args(argc, argv);
     config_print(&cfg);
 
-    Program *program = pg_new(cfg);
+    sProgram *program = pg_new(cfg);
 
     pg_eventloop(program);
 

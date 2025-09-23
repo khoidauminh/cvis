@@ -12,18 +12,18 @@
 #include "visualizer.h"
 
 struct program {
-    SDLRenderer *renderer;
-    VisManager *vismanager;
+    sRenderer *renderer;
+    sVisManager *vismanager;
 
     // Events:
-    KeyEvent keymap[keyevent_null];
+    eKeyEvent keymap[KEYEVENT_NULL];
 
-    Config cfg;
-    void (*eventloop_func)(Program *);
+    sConfig cfg;
+    void (*eventloop_func)(sProgram *);
 };
 
-Program *pg_new(Config config) {
-    Program *p = calloc(1, sizeof(*p));
+sProgram *pg_new(sConfig config) {
+    sProgram *p = calloc(1, sizeof(*p));
     assert(p);
 
     p->cfg = config;
@@ -36,38 +36,38 @@ Program *pg_new(Config config) {
     return p;
 }
 
-void pg_keymap_set(Program *p, KeyEvent k, bool b) { p->keymap[k] = b; }
-bool pg_keymap_get(Program *p, KeyEvent k) { return p->keymap[k]; }
+void pg_keymap_set(sProgram *p, eKeyEvent k, bool b) { p->keymap[k] = b; }
+bool pg_keymap_get(sProgram *p, eKeyEvent k) { return p->keymap[k]; }
 
-void pg_keymap_reset(Program *p) {
-    for (uint i = 0; i < keyevent_null; i++) {
+void pg_keymap_reset(sProgram *p) {
+    for (tUint i = 0; i < KEYEVENT_NULL; i++) {
         p->keymap[i] = false;
     }
 }
 
-void pg_keymap_print(Program *p) {
-    for (uint i = 0; i < keyevent_null; i++) {
+void pg_keymap_print(sProgram *p) {
+    for (tUint i = 0; i < KEYEVENT_NULL; i++) {
         info("%d", p->keymap[i]);
     }
     info("\n");
 }
 
-SDLRenderer *pg_renderer(Program *p) { return p->renderer; }
+sRenderer *pg_renderer(sProgram *p) { return p->renderer; }
 
-Config *pg_config(Program *p) { return &p->cfg; }
+sConfig *pg_config(sProgram *p) { return &p->cfg; }
 
-void pg_eventloop(Program *p) { (p->eventloop_func)(p); }
+void pg_eventloop(sProgram *p) { (p->eventloop_func)(p); }
 
-VisManager *pg_vismanager(Program *p) { return p->vismanager; }
+sVisManager *pg_vismanager(sProgram *p) { return p->vismanager; }
 
-void pg_end(Program *p) {
+void pg_end(sProgram *p) {
     sdl_renderer_end(p->renderer);
     vm_end(p->vismanager);
     free(p);
 }
 
-static Program *STATIC_PG(Program *p) {
-    static Program *PROGRAM = nullptr;
+static sProgram *STATIC_PG(sProgram *p) {
+    static sProgram *PROGRAM = nullptr;
 
     if (PROGRAM == nullptr) {
         assert(p != nullptr);
@@ -77,14 +77,14 @@ static Program *STATIC_PG(Program *p) {
     return PROGRAM;
 }
 
-void PG_SET_TARGET(Program *p) { STATIC_PG(p); }
+void PG_SET_TARGET(sProgram *p) { STATIC_PG(p); }
 
-Program *PG_GET() { return STATIC_PG(nullptr); }
+sProgram *PG_GET() { return STATIC_PG(nullptr); }
 
-SDLRenderer *PG_RENDERER() { return PG_GET()->renderer; }
+sRenderer *PG_RENDERER() { return PG_GET()->renderer; }
 
-Config *PG_CONFIG() { return &PG_GET()->cfg; }
+sConfig *PG_CONFIG() { return &PG_GET()->cfg; }
 
-bool PG_KEYPRESSED(KeyEvent k) { return pg_keymap_get(PG_GET(), k); }
+bool PG_KEYPRESSED(eKeyEvent k) { return pg_keymap_get(PG_GET(), k); }
 
-const VisManager *PG_VISMANAGER() { return PG_GET()->vismanager; }
+const sVisManager *PG_VISMANAGER() { return PG_GET()->vismanager; }

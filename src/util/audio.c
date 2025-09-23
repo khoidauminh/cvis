@@ -14,38 +14,38 @@
 #include "public/interpolation.h"
 #include "public/logging.h"
 
-constexpr uint CHUNK_SIZE = SAMPLERATE * 30 / 1000;
-constexpr uint CHANNELS = 2;
-constexpr uint BUFFER_SIZE = 1 << 18;
-constexpr uint BUFFER_MASK = BUFFER_SIZE - 1;
-constexpr uint DEFAULT_ROTATE_SIZE = CHUNK_SIZE / 4;
+constexpr tUint CHUNK_SIZE = SAMPLERATE * 30 / 1000;
+constexpr tUint CHANNELS = 2;
+constexpr tUint BUFFER_SIZE = 1 << 18;
+constexpr tUint BUFFER_MASK = BUFFER_SIZE - 1;
+constexpr tUint DEFAULT_ROTATE_SIZE = CHUNK_SIZE / 4;
 
 constexpr float NORMALIZE_SPEED_FACTOR = 0.99f;
 constexpr float NORMALIZE_MIN_THRESHOLD = 0.05f;
 constexpr float NORMALIZE_STOP_THRESHOLD = 0.01f;
 
-constexpr ulong DECLARE_SILENT = 100;
+constexpr tUlong DECLARE_SILENT = 100;
 
 constexpr float ZEROF = 0.0f;
 constexpr float ONEF = 1.0;
 
 typedef struct audiobuffer {
-    uint writeend;
-    uint oldwriteend;
+    tUint writeend;
+    tUint oldwriteend;
 
-    uint readend;
+    tUint readend;
 
-    uint samplesscanned;
-    uint autorotatesize;
-    uint rotatessinceupdate;
-    uint lastwritesize;
+    tUint samplesscanned;
+    tUint autorotatesize;
+    tUint rotatessinceupdate;
+    tUint lastwritesize;
 
-    ulong age;
-    ulong silentwrites;
+    tUlong age;
+    tUlong silentwrites;
 
     float max;
 
-    cplx data[BUFFER_SIZE];
+    tCplx data[BUFFER_SIZE];
 } AudioBuffer;
 
 static AudioBuffer *gbuffer = nullptr;
@@ -54,30 +54,31 @@ static ma_mutex locker = {};
 
 static void buffer_normalize();
 
-void cplxcpy(cplx *restrict dst, const cplx *restrict src, uint amount) {
-    memcpy(dst, src, sizeof(cplx) * amount);
+void cplxcpy(tCplx *restrict dst, const tCplx *restrict src, tUint amount) {
+    memcpy(dst, src, sizeof(tCplx) * amount);
 }
 
-void cplxzero(cplx *restrict buf, uint amount) {
-    memset(buf, 0, sizeof(cplx) * amount);
+void cplxzero(tCplx *restrict buf, tUint amount) {
+    memset(buf, 0, sizeof(tCplx) * amount);
 }
 
 static void data_callback(ma_device *, void *restrict,
                           const void *restrict pInput,
                           const unsigned int input_size) {
-    const cplx *buffer =
+    const tCplx *buffer =
         pInput; // direct cast allowed since we're forcing f32 format.
 
-    uint amount_left = input_size;
+    tUint amount_left = input_size;
 
     ma_mutex_lock(&locker);
 
     gbuffer->oldwriteend = gbuffer->writeend;
 
     while (amount_left > 0) {
-        uint available = BUFFER_SIZE - gbuffer->writeend;
+        tUint available = BUFFER_SIZE - gbuffer->writeend;
 
-        uint write_amount = (amount_left < available) ? amount_left : available;
+        tUint write_amount =
+            (amount_left < available) ? amount_left : available;
 
         cplxcpy(gbuffer->data + gbuffer->writeend, buffer, write_amount);
 
@@ -103,12 +104,12 @@ static void data_callback(ma_device *, void *restrict,
 }
 
 static void buffer_normalize() {
-    const uint bound = gbuffer->lastwritesize;
+    const tUint bound = gbuffer->lastwritesize;
 
     float max = 0.0f;
 
-    for (uint i = 0; i < bound; i++) {
-        uint index = (i + gbuffer->oldwriteend) & BUFFER_MASK;
+    for (tUint i = 0; i < bound; i++) {
+        tUint index = (i + gbuffer->oldwriteend) & BUFFER_MASK;
         max = fmaxf(cmaxf(gbuffer->data[index]), max);
     }
 
@@ -124,36 +125,36 @@ static void buffer_normalize() {
 
     float scale = 1.0f / gbuffer->max;
 
-    for (uint i = 0; i < bound; i++) {
-        uint index = (i + gbuffer->oldwriteend) & BUFFER_MASK;
+    for (tUint i = 0; i < bound; i++) {
+        tUint index = (i + gbuffer->oldwriteend) & BUFFER_MASK;
         gbuffer->data[index] *= scale;
     }
 }
 
-ulong BUFFER_AGE() { return gbuffer->age; }
+tUlong BUFFER_AGE() { return gbuffer->age; }
 
-uint BUFFER_INPUTSIZE() { return gbuffer->lastwritesize; }
+tUint BUFFER_INPUTSIZE() { return gbuffer->lastwritesize; }
 
 // Gets the ith sample into the past
-cplx BUFFER_GET(uint index) {
-    const uint i = gbuffer->readend - index;
+tCplx BUFFER_GET(tUint index) {
+    const tUint i = gbuffer->readend - index;
     return gbuffer->data[i & BUFFER_MASK];
 }
 
 float BUFFER_CURRENT_PEAK() { return gbuffer->max; }
 bool BUFFER_QUIET() { return gbuffer->silentwrites >= DECLARE_SILENT; }
 
-uint BUFFER_READ(cplx cplx_array[], uint amount) {
+tUint BUFFER_READ(tCplx cplx_array[], tUint amount) {
     amount = uint_min(BUFFER_SIZE, amount);
-    uint return_amount = amount;
+    tUint return_amount = amount;
 
     ma_mutex_lock(&locker);
 
-    uint start = (gbuffer->readend + BUFFER_SIZE - amount) & BUFFER_MASK;
+    tUint start = (gbuffer->readend + BUFFER_SIZE - amount) & BUFFER_MASK;
 
     while (amount > 0) {
-        uint available = BUFFER_SIZE - start;
-        uint write_amount = (amount < available) ? amount : available;
+        tUint available = BUFFER_SIZE - start;
+        tUint write_amount = (amount < available) ? amount : available;
 
         cplxcpy(cplx_array, gbuffer->data + start, write_amount);
 
@@ -168,7 +169,7 @@ uint BUFFER_READ(cplx cplx_array[], uint amount) {
     return return_amount;
 }
 
-void BUFFER_SLIDE(const uint amount) {
+void BUFFER_SLIDE(const tUint amount) {
     ma_mutex_lock(&locker);
     gbuffer->rotatessinceupdate += 1;
     gbuffer->readend += amount;
@@ -221,9 +222,9 @@ void free_audio() {
     gbuffer = nullptr;
 }
 
-void normalize_average(cplx samples[], uint len) {
+void normalize_average(tCplx samples[], tUint len) {
     float sum_of_squares = 0.0;
-    for (uint i = 0; i < len; i++) {
+    for (tUint i = 0; i < len; i++) {
         float sl = crealf(samples[i]);
         float sr = cimagf(samples[i]);
 
@@ -234,17 +235,17 @@ void normalize_average(cplx samples[], uint len) {
 
     float scale = 1.0f / average;
 
-    for (uint i = 0; i < len; i++) {
+    for (tUint i = 0; i < len; i++) {
         samples[i] *= scale;
     }
 }
 
-void slow_regain(cplx *samples, uint len, float gain, float t) {
+void slow_regain(tCplx *samples, tUint len, float gain, float t) {
     static thread_local float max = 0.0f;
 
     float newmax = 0.0f;
 
-    for (uint i = 0; i < len; i++) {
+    for (tUint i = 0; i < len; i++) {
         newmax = fmaxf(newmax, cmaxf(samples[i]));
     }
 
@@ -252,34 +253,34 @@ void slow_regain(cplx *samples, uint len, float gain, float t) {
 
     float scale = 1.0f * gain / fmaxf(0.5f, max);
 
-    for (uint i = 0; i < len; i++) {
+    for (tUint i = 0; i < len; i++) {
         samples[i] *= scale;
     }
 }
 
-void normalize_max(cplx *samples, uint len, float gain) {
+void normalize_max(tCplx *samples, tUint len, float gain) {
     float max = 0.0f;
 
-    for (uint i = 0; i < len; i++) {
+    for (tUint i = 0; i < len; i++) {
         max = fmaxf(max, cmaxf(samples[i]));
     }
 
     float scale = 1.0f / fmaxf(0.5f, max) * gain;
 
-    for (uint i = 0; i < len; i++) {
+    for (tUint i = 0; i < len; i++) {
         samples[i] *= scale;
     }
 }
 
 typedef struct moving_average {
-    uint size;
-    uint index;
+    tUint size;
+    tUint index;
     float *data;
     float sum;
     float denom;
 } MovingAverage;
 
-static MovingAverage moving_average_new(float buffer[const], uint size) {
+static MovingAverage moving_average_new(float buffer[const], tUint size) {
     MovingAverage ma = {
         .size = size,
         .index = 0,
@@ -307,22 +308,22 @@ static float moving_average_update(MovingAverage *ma, float val) {
 }
 
 typedef struct numpair {
-    uint index;
+    tUint index;
     float val;
 } Numpair;
 
 typedef struct moving_maximum {
     Numpair *data;
 
-    uint head;
-    uint tail;
-    uint len;
+    tUint head;
+    tUint tail;
+    tUint len;
 
-    uint index;
-    uint wsize;
+    tUint index;
+    tUint wsize;
 } MovingMaximum;
 
-static MovingMaximum moving_maximum_new(Numpair buffer[const], uint wsize) {
+static MovingMaximum moving_maximum_new(Numpair buffer[const], tUint wsize) {
     return (MovingMaximum){
         .data = buffer,
         .wsize = wsize,
@@ -380,18 +381,18 @@ static float moving_maximum_update(MovingMaximum *mm, float new) {
     return mm->data[mm->head].val;
 }
 
-void compress(cplx samples[const], uint len, float lo, float hi) {
-    constexpr uint WINDOW_SIZE = 10;
+void compress(tCplx samples[const], tUint len, float lo, float hi) {
+    constexpr tUint WINDOW_SIZE = 10;
     float mave_buffer[WINDOW_SIZE];
     Numpair mmax_buffer[WINDOW_SIZE];
 
-    const uint bound = len + WINDOW_SIZE;
-    const uint delay = WINDOW_SIZE - 1;
+    const tUint bound = len + WINDOW_SIZE;
+    const tUint delay = WINDOW_SIZE - 1;
 
     MovingAverage mave = moving_average_new(mave_buffer, WINDOW_SIZE);
     MovingMaximum mmax = moving_maximum_new(mmax_buffer, WINDOW_SIZE);
 
-    for (uint i = 0; i < bound; i++) {
+    for (tUint i = 0; i < bound; i++) {
         float smp1 = (i < len) ? cmaxf(samples[i]) : ZEROF;
 
         float smp2 =
@@ -401,7 +402,7 @@ void compress(cplx samples[const], uint len, float lo, float hi) {
                       : (smp2 < lo) ? lo / fmaxf(smp2, NORMALIZE_MIN_THRESHOLD)
                                     : ONEF;
 
-        uint j = i - delay;
+        tUint j = i - delay;
 
         if (j < bound) {
             samples[j] *= scale;

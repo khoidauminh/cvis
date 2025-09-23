@@ -2,30 +2,30 @@
 #define CVIS_PROGRAM_H
 
 typedef enum keyevent : unsigned {
-    KLEFT = 0,
-    KRIGHT,
-    KUP,
-    KDOWN,
+    KEYEVENT_LEFT = 0,
+    KEYEVENT_RIGHT,
+    KEYEVENT_UP,
+    KEYEVENT_DOWN,
 
-    KZ,
-    KX,
-    KC,
+    KEYEVENT_Z,
+    KEYEVENT_X,
+    KEYEVENT_C,
 
-    keyevent_null,
-} KeyEvent;
+    KEYEVENT_NULL,
+} eKeyEvent;
 
-typedef struct program Program;
+typedef struct program sProgram;
 
 #include "config.h"
 
-Program *PG_GET();
-Config *PG_CONFIG();
-bool PG_KEYPRESSED(KeyEvent);
+sProgram *PG_GET();
+sConfig *PG_CONFIG();
+bool PG_KEYPRESSED(eKeyEvent);
 
 #include "audio.h"
 
-constexpr uint REFRESHRATE_MAX = 192;
-constexpr uint REFRESHRATE_DEFAULT = 60;
-constexpr uint ROTATESIZE_DEFAULT = SAMPLERATE * 50 / 1000;
+constexpr tUint REFRESHRATE_MAX = 192;
+constexpr tUint REFRESHRATE_DEFAULT = 60;
+constexpr tUint ROTATESIZE_DEFAULT = SAMPLERATE * 50 / 1000;
 
 #endif
