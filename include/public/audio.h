@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-constexpr tUint SAMPLERATE = 44100;
+constexpr tUint SAMPLERATE = 48000;
 
 void cplxcpy(tCplx *restrict dst, const tCplx *restrict src, tUint amount);
 void cplxzero(tCplx *restrict buf, tUint amount);
