@@ -93,6 +93,12 @@ sRenderer *sdl_renderer_new(sProgram *prog) {
 
     SDL_SetRenderDrawBlendMode(sdlr->renderer, SDL_BLENDMODE_NONE);
 
+    if (!SDL_EnableScreenSaver())
+        warn(""
+            "Cvis cannot request SDL to unblock the screensaver.\n"
+            "This may inhibit your system's ability to lock the screen.\n"
+        "");
+
     sdlr->cfg = cfg;
 
     return sdlr;
